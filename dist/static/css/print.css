@@ -1,0 +1,317 @@
+/**
+ * Print stylesheet for yourwebsite.com
+* @version         1.0
+* @lastmodified    16.06.2016
+*/
+
+@media print {
+  // body,html{height:100%;}
+  p,ul,li,dt,dd,dl{list-style:none;margin:0px;padding:0px;}
+  //重设a标签样式
+  a{text-decoration:none;}
+  .clearfix:after {content:"."; display:block; height:0; visibility:hidden; clear:both; }
+  .clearfix { *zoom:1; }
+  img{vertical-align: middle;}
+  address,caption,cite,code,dfn,i,em,strong,th,var{font-style:normal;font-weight:normal;}
+  .fl{float:left;display:inline;}  /* 可修复IE6中双倍边距bug */
+  .fr{float:right;display:inline;}
+    /* 设置内容区宽度，不要float和margin */
+    /* 注意：每个主题的class和id命名都不同，改成你自己的 */
+  body{
+      position: absolute;
+  }
+  .info,#info {
+      width: 100%; 
+      height: 8%;
+      margin: 0; 
+      float: left;
+  }
+  .img{
+     width: 100%; 
+     height: 25%;
+     float: left;
+
+  }
+
+  #youImg,#zuoImg{       
+      width: 50%;
+      float: left;
+  }
+  /** Setting margins */       
+  @page { 
+      margin: 0.7cm;
+      size: A4;
+  }
+  #remarksDIV{
+     width: 100%;
+     height: 10%;
+     float: left;
+     padding-top: 18pt;
+  }
+  #remarks{      
+      width: 40%;
+      float: left;
+  }
+  #remarks div{
+      border:1px solid #ccc; 
+      padding: 10px; 
+      height: 232px; 
+      width: 385px;
+      line-height: 23px;
+      font-size: 14px;
+      word-spacing: 8px;
+      letter-spacing: 1px;
+  }
+  #tuli{
+      width: 30%;
+      float: left;
+      margin-left:160px;
+  }    
+  .font-color-red{color: red;}/*红色字体*/
+  .font-color-blue{color: blue;}/*蓝色字体*/
+  #foot { 
+     width: 30%;
+     height: 4%;
+     float: right;
+     padding-top: 10pt;
+  }
+  td {
+    text-align:center;
+  }
+      /*****胡氏音素打印******/ 
+  .print-tone {
+    background-color: #fff;
+    width: 740px;
+    height: 1089px;
+    border:1px solid transparent;
+    // border:1px solid #ccc;
+    margin: auto;
+    padding: 0 25px;
+    position: relative;
+  }
+  .print-tone header h2 {
+    font-size: 25px;
+    text-align: center;
+    line-height: 50px;
+    margin-top: 40px;
+  }
+  .print-tone header ul li {
+    float: left;
+  }
+  .print-tone header ul li div {
+    float: right;
+    width: 140px;
+    border: 0px none;
+    border-bottom: 1px solid #000;
+    margin-left: 10px;
+    height: 24px;text-align: center;
+    margin-right: 20px;
+  }
+  .print-tone header .li-in div {
+    width: 60px;
+  }
+  .print-tone header .li-name div{width: 80px;}
+  .print-tone header .ear,
+  .print-tone header .sb {
+    margin-top: 20px;
+  }
+  .print-tone header .sb {
+    border-bottom: 2px solid #000;
+    padding-bottom: 7px;
+  }
+  .print-tone header .sb span {
+    width: 300px;
+    margin-left: 10px;
+  }
+  .print-tone header .ear p {
+    width: 40%;
+  }
+  .print-tone header .zu p{width: 25%;margin-bottom:5px;}
+  .print-tone header .zu p span{
+        display: inline-block;
+        width: 80px;
+        border-bottom: 1px solid #000;
+        text-align: center;
+      }
+  .print-tone .print-content {
+    margin-top: 10px;
+  }
+  .print-tone .tone-table {
+    margin: 0px auto;
+    margin-top: 10px;
+    width: 100%;
+    height: 170px;
+  }
+  .print-tone .mormTable {
+    width: 45%;
+    float: left;
+  }
+  .print-tone .mormTable:nth-child(2n) {
+    margin-left: 50px;
+  }
+
+  .print-tone .tone-table table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+  .print-tone .tone-table .headerbg {
+    background: #eef1f6 !important;
+    -webkit-print-color-adjust: exact; 
+  }
+  .print-tone .tone-table .gray {
+   background: #eee !important;
+    -webkit-print-color-adjust: exact; 
+  }
+  .print-tone .tone-table td,
+  .print-tone .tone-table th {
+    box-sizing: border-box;
+    text-align: center;
+    padding: 0px;
+    border: 1px solid #ccc;
+    width: 50px;
+  }
+  .print-tone .tone-table tr {
+    height: 35px;
+  }
+  .print-tone .tone-table .star {
+    margin-top: 5px;
+  }
+  .print-tone .tone-table .star .jianyi {
+    margin-top: 5px;
+  }
+  .print-tone .tone-table .star i {
+    margin-left: 10px;
+  }
+  .print-tone .tone-table .star em {
+    // width: 112px;
+    text-align: right;
+  }
+  .print-tone .last-l-t{margin-top:10px;}
+  .print-tone .last-l-t em{
+    box-sizing: border-box;
+    padding:5px;
+    display: inline-block;
+    border:1px solid #ccc;
+    min-width: 250px;
+    max-width:500px;
+    height:70px;
+    font-size: 16px;
+    border-radius: 5px;
+    overflow: auto;
+    word-wrap: break-word;
+  }
+  .print-tone footer {
+    position: absolute;
+    bottom: 0px;
+    right: 50px;
+  }
+  .print-tone footer > div {
+    margin-top: 0px;
+    line-height: 35px;
+  }
+  .print-tone footer > div .f-p {
+    width: 150px;
+    text-align: center;
+    height: 35px;
+    border: 0px none;
+    border-bottom: 1px solid #000;
+  }
+  /*****隐藏按钮******/ 
+  .affirm{display: none;}
+  .upload,.close{display: none;}
+
+  }
+  /*林氏六音的样式*/
+  .liu-table-print {
+    margin-top: 70px;
+  }
+  /*综合评价*/
+  .estimate {
+    margin: 20px 0px 0px 37px;
+  }
+  .estimate h3 {
+    font-size: 20px;
+    margin-top: 10px;
+  }
+  .estimate ul {
+    margin-top: 30px;
+  }
+  .estimate li {
+    margin-top:10px;
+    line-height: 70px;
+  }
+  .estimate li .span {
+    margin-right: 20px;
+  }
+  .estimate li .star {
+    margin-top: 13px;
+  }
+  .estimate li .pin-div {
+    width: 70px;
+    height: 70px;
+    // background-color: #1bb394 !important;
+    // -webkit-print-color-adjust: exact;
+    border-radius: 5px;
+    margin-left: 10px;
+    box-shadow: inset 0 -4px 0 0 rgba(0, 0, 0, 0.15);
+    color: #fff;
+    text-align: center;
+    font-size: 22px;
+  }
+  .estimate li .pin-div em {
+    font-weight: 700;
+  }
+  /*优秀时的样式*/
+  .estimate .y-x {
+    background-color: #1bb394!important;
+    -webkit-print-color-adjust: exact;
+  }
+  .estimate .y-x::before {
+    content: '优秀';
+    font-weight: 700;
+  }
+  /*良好时的样式*/
+  .estimate .l-h {
+    background-color: #f8ab59!important;
+    -webkit-print-color-adjust: exact;
+  }
+  .estimate .l-h::before {
+    content: '良好';
+    font-weight: 700;
+  }
+  /*合格时的样式*/
+  .estimate .h-g {
+    background-color: #ccc!important;
+    -webkit-print-color-adjust: exact;
+  }
+  .estimate .h-g::before {
+    content: '合格';
+    font-weight: 700;
+  }
+  textarea {
+    width: 400px;
+    height: 300px;
+    font-size: 12px;
+  }
+  .estimate li p {
+    width: 300px;
+    margin-left: 25px;
+    background: #eee !important;
+    -webkit-print-color-adjust: exact;
+    border-radius: 5px;
+    height: 30px;
+    line-height: 30px;
+    margin-top: 20px;
+    padding-left: 10px;
+  }
+  /*************图片的打印样式****************/ 
+  #imgp-p-s{position: relative;height:290mm;width:205mm;}
+  #imgp-p-s i{display:none}
+  #imgp-p-s img{
+    max-width:100%;
+    max-height:100%;
+    position: absolute;
+    left: 50%;
+    top: 50%;
+  }
+}

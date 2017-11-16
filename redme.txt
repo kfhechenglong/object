@@ -1,0 +1,5 @@
+1、安装相关依赖运行run.bat文件
+2、运行项目请启动run.abt文件
+3、打包项目请启动build.bat文件
+4、打包项目后在本地运行出现空白页的情况下，请更改相关配置在config文件下index.js文件中找到assetsPublicPath，将其值由'/'改为'./'
+重新打包文件运行dist文件下的index.html即可

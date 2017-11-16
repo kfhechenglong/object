@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html>
+<head>
+</head>
+<body onload="loaded()" style="width: 100%;height: 100%">
+</body>
+<script type="text/javascript">
+    function loaded()
+    {
+        console.log('进入print页面')
+        
+    }
+    //响应事件
+    window.addEventListener('message',function(event) {
+        // if(event.origin !== 'http://localhost:8080') return;
+        // console.log('message received:  ' + event.data,event + "555555555555555555555555555555555555555555555");
+        // event.source.postMessage('holla back youngin!',event.origin);
+        var newContent = '<html><head><title>A New Doc</title><link type="text/css" rel="stylesheet" href="../../../../static/css/print.css" media="print"/><link type="text/css" rel="stylesheet" href="../../../../static/css/testicon.css"/><script src="../../../../static/print.js"><\/script></head>'
+        newContent += '<body onload="loaded1()">' + event.data + '</body></html>'
+// console.log(newContent)
+        document.open();
+        // document.write('<link type="text/css" rel="stylesheet" href="css/print.css" media="print"/>')
+        // document.write('<link type="text/css" rel="stylesheet" href="css/testicon.css"/>')
+        document.write(newContent);
+        document.close();
+        // window.location.reload();
+        // console.log(event.data);
+        
+        // window.print();
+        // console.log(document.body.outerHTML)
+    },false);
+</script>
+</html>

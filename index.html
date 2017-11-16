@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0,maximum-scale=1.0">
+	<meta name="renderer" content="webkits">
+	<title>智能测评 听能管理互动系统</title>
+  <link rel="Shortcut Icon" href="./static/images/favicon.ico" type="image/x-icon">
+  <link rel="stylesheet" type="text/css" href="./static/css/font-awesome.min93e3.css">
+  <link rel="stylesheet" type="text/css" href="./static/css/serverbase.css">
+  
+  <script src="./static/js/md5.js"></script>
+  <script src="./static/js/index.js"  charset="utf-8"></script>
+  <style>
+    body {
+      -moz-user-select: none;
+      -webkit-user-select: none;
+      -ms-user-select: none;
+      user-select: none;
+    }
+    ul,li{
+      list-style:none;
+      margin:0px;
+      padding:0px;
+    }
+    p{
+      margin:0px;
+    }
+  </style>
+  </head>
+  <body style="margin:0px">
+  <script>
+  var dialog_top = "4%";
+  window.onresize = screensize
+  function screensize(){
+    if(document.body.clientWidth <= 1490){
+      dialog_top = "3%";
+    }else{
+      dialog_top = "10%";
+    }
+  }
+  screensize();
+  </script>
+  <link rel="stylesheet" type="text/css" href="./static/css/media1.css">
+    <div id="app"></div>
+  </body>
+</html>
