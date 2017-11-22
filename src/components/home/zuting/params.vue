@@ -120,7 +120,6 @@ export default {
 	 	},
 	    lei(res){
 	    	this.leixing = res;
-	    	// console.log(this.wsData);
 	    },
 	    get(res,req){
 	    	// console.log(res,req)

@@ -502,7 +502,7 @@ export default {
 @titleH:50px;
 @border:#ccc;
 @contitle:40px;
-@bcl:#25c6ca;
+@bcl:#65c0df;
 @ml22:22px;
 .assessment{
 	padding-left:20px;
@@ -538,11 +538,11 @@ export default {
   .assessment-content{
     margin-top:30px;
     .assessment-test{
-      padding:15px;
-      // border:2px solid @border;
+      // padding:15px;
+      border:3px solid @bcl;
       background:@bcl;
-      border-radius: 0 10px 10px 10px;
-      // border-radius:13px;
+      border-radius: 0 13px 13px 13px;
+      box-shadow:1px 1px 5px @bcl;
       min-width: 200px;
       max-width:300px;
       height:500px;
@@ -551,7 +551,7 @@ export default {
         line-height: @contitle;
         // margin:0px auto;
         text-indent: 1em;
-        // width:90%;
+       border-radius: 0 10px 0 0;
         background: #fff;
       }
       .test-date{
@@ -559,7 +559,7 @@ export default {
         // margin:0px auto;
         overflow-y: auto;
         height: 460px;
-        // border: 1px solid #d1dbe5;
+        border-radius: 0 0 10px 10px;
         background-color:#fff;
         .el-tree{
           border:0px none;
@@ -567,38 +567,15 @@ export default {
       }
     }
     .assessment-details{
-      /** background-color: red;*/
       margin-right:20px;
-      // margin-left: 10px;
       width: 900px;
       /**暂无数据时的提示***/
       .content-title{
         margin-left: 20px;
         padding-left:20px;
-        border-top: 5px solid @bcl;
-        border-bottom:2px solid @bcl;
-        line-height: 40px;
-        padding-bottom: 5px;
-        height:40px;
+        width:calc(~"100% - 20px");
         h3{
           font-size:20px;
-        }
-        li{
-          float: left;
-          background-color: @bcl;
-          width: 80px;
-          height: 35px;
-          margin-left:8px;
-          line-height: 35px;
-          text-align: center;
-          margin-top: 4px;
-          border-radius: 5px;
-          cursor:pointer;
-          color:#fff;
-          // &:hover{
-          //   box-shadow: 2px 3px 2px #ccc;
-          //   background-color:#88d89f;
-          // }
         }
       }
       .content-info{

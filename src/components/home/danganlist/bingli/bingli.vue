@@ -149,13 +149,13 @@ export default {
 
 <style lang="less" scoped>
 @btn:#307bbc;
-@bcl:#25c6ca;
+@bcl:#65c0df;
 	.caseFiles{
 		/*****暂无数据*******/ 
 		.noData{
 			ul>li{
 				font-size: 20px;
-                 background-color: #25c6ca;
+                 background-color: @bcl;
                   width: 150px;
                   height: 50px;
                   margin:8px auto;
@@ -265,33 +265,7 @@ export default {
 			}
 		}
 		.content-title{
-	        height:40px;
-	        width:855px;
-	        margin-left:20px;
 	        width:calc(~"100% - 40px");
-	        padding-bottom: 5px;
-	        border-top:5px solid @bcl;
-	        border-bottom: 2px solid @bcl;
-	        ul{ 
-	           li{
-	              float: left;
-	              background-color: #25c6ca;
-	              // width: 80px;
-	              padding:0 10px;
-	              height: 35px;
-	              margin-left:8px;
-	              line-height: 35px;
-	              text-align: center;
-	              margin-top: 4px;
-	              border-radius: 5px;
-	              cursor:pointer;
-	              color:#fff;
-	              // &:hover{
-	              // 	box-shadow: 2px 3px 2px #ccc;
-	              //   background-color:#25C707;
-	              // }
-	            }
-	        }
 	    }
 		.caseFilesRight{
 			margin-right: 70px;

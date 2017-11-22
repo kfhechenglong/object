@@ -5,7 +5,7 @@
           选择游戏:
         </dt>
         <dd v-for="(item,index) in currentgame">
-          <div v-bind:class="[item['typegame'] == Active?'activeImg':'','img']" @click="addActive(item['typegame'],index)">
+          <div v-bind:class="[item['typegame'] == Active?'activeImg':'','img']" @click="addActive(item,index)">
             <img :src="web_url + item['img']" :onerror="errorImg">
             <p>
               <i class="fa fa-check-circle-o"></i>
@@ -25,31 +25,22 @@
           </div> -->
         </dd>
     </dl>
-    <dl class="clearfix">
+    <dl class="clearfix" v-if="data_arr.length > 0">
         <dt>
           游戏等级：
         </dt>
         <dd>
           <el-radio-group v-model="level" @change="change">
-            <el-radio-button size="large" :disabled="jd" label="2">简单</el-radio-button>
-            <el-radio-button size="large" :disabled="zd" label="3">中等</el-radio-button>
-            <el-radio-button size="large" :disabled="kn" label="4">困难</el-radio-button>
+            <el-radio-button v-for="(item,index) in data_arr" :disabled=" level == item[1]" size="large" :label="item[1] " :key="item[1]">{{item[0]}}</el-radio-button>
           </el-radio-group>
         </dd>
-      </dl>
+    </dl>
+    <div v-else style="height:30px;">
+        
+    </div>
   </div>
 </template>
 <script>
-// const cat = require('../../../../static/images/cat.png');
-// const eggFrenzy = require('../../../../static/images/eggFrenzy.png');
-// const dog = require('../../../../static/images/dog.png');
-// const diglett = require('../../../../static/images/diglett.png');
-// const fish = require('../../../../static/images/fish.png');
-// const pokemon = require('../../../../static/images/pokemon.png');
-// const eggFrenzylead = require('../../../../static/images/eggFrenzylead.png');
-// const crow = require('../../../../static/images/crow.png');
-// const children = require('../../../../static/images/children.png');
-// const train = require('../../../../static/images/train.png');
 const nodata = require('../../../../static/images/nodata.png');
 export default{
 	data(){
@@ -61,9 +52,7 @@ export default{
       value: {},
       errorImg:'this.src="' + nodata + '"' ,
       level:"",
-      jd:true,
-      zd:true,
-      kn:true,
+      data_arr:[]
     }
 	},
 	created (){
@@ -72,19 +61,6 @@ export default{
       console.log(response)
       if(response.code ===200){
         var add_data = response.data;
-        add_data.forEach((item)=>{
-          let obj = item.level;
-          let sortArray = new Array;
-          for(var key in obj){
-            sortArray.push(obj[key])
-          }
-          sortArray.sort();
-          for(var key in obj){
-            if(obj[key] == sortArray[0]){
-              item.min= key;
-            }
-          }
-        });
         this.currentgame = add_data;
         // 获取点击返回按钮的参数
         if(this.$route.query && this.$route.query['isEar']){
@@ -93,12 +69,12 @@ export default{
           let data = this.currentgame;
           for (var i = 0; i < data.length; i++) {
             if(data[i].typegame === this.Active){
-              this.addActive (this.Active,i);
+              this.addActive (data[i],i,true);
               break;
             }
           }
         }else{//首次加载时的默认选项
-          this.Active = this.currentgame[0]['typegame']
+          this.Active = this.currentgame[0]
           this.addActive (this.Active,0);
         }
       }else{
@@ -121,26 +97,31 @@ export default{
     change(){
       this.$emit('active',{'active':this.Active,'level':this.level});
     },
-    addActive (name,index){
-      this.jd = true;
-      this.zd = true;
-      this.kn = true;
-      var cur_level = this.currentgame[index].level;
-      for(var key in cur_level){
-        if("简单" === key){
-          this.jd = false;
-        }else if("中等" === key){
-          this.zd = false;
-        }else{
-          this.kn = false;
-        } 
-      }
-      if(!this.level){this.level = this.currentgame[index].min === "简单" ? "2" : "3";};
-      if(!cur_level){//如果游戏没有难度等级，则清空选项！
-        this.level = ""
+    addActive (item,index,flag){
+      let level = item.level,
+        sortArray = [];
+        this.data_arr = [];
+      if(level){
+        for(let key in level){
+          sortArray.push(level[key])
+        }
+        sortArray.sort();
+        sortArray.forEach((item) =>{
+          for(let key in level){
+            if(item === level[key]){
+              this.data_arr.push([key,level[key]])
+            }
+          }
+        })
+        // this.level = (this.data_arr[0][1] == this.level) || (this.data_arr[1][1] == this.level) ? this.level : this.data_arr[0][1];
+        if(!flag){
+           this.level = this.data_arr[0][1];
+        }
+      }else{
+        this.level = "";
       }
       this.currentChecked = index;
-      this.Active = name;
+      this.Active = item['typegame'];
       // 发送给父组件
       this.$emit('active',{'active':this.Active,'level':this.level});
     },
@@ -154,6 +135,7 @@ export default{
         background-color:#13ce66;
         border:1px solid #13ce66;
         box-shadow: -1px 0 0 0 #13ce66;
+        color:#fff;
       }
     &.games{
       dd{
@@ -167,25 +149,10 @@ export default{
         position: relative;
         margin-bottom:5px;
         cursor: pointer;
-        /*&:hover{
-          p{  
-            display:block;
-            background-color: rgba(0,0,0,0.3);
-          }
-        }*/
       }
       span{
         margin-left: 20px;
       }
-      /*.select-w{
-        width: 80px;
-        .el-input__inner{
-          height: 28px;
-        }
-        .resize-triggers{
-          display: none;
-        }
-      }*/
       p{  
         display: none;
         width: 100px;
@@ -208,11 +175,6 @@ export default{
       }
       .activeImg{
         p{display: block;}
-        /*&:hover{
-          p {
-            background-color: rgba(0,0,0,0.3);
-          }
-        }*/
       }
     }
   }

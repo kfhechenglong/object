@@ -44,7 +44,7 @@ export default{
         left:0px;
         top:0px;
         border-left: 50px solid transparent;
-        border-bottom:50px solid #5f9970;
+        border-bottom:50px solid #2e9872;
         border-right:50px solid transparent;
       }
     }
@@ -62,7 +62,7 @@ export default{
         transition-property: background-color;
         transition-duration: 0.2s;
         transition-timing-function: linear;
-        background: #5f9970;
+        background: #2e9872;
         color: #222;
       }
       .button-large {
@@ -81,7 +81,7 @@ export default{
         line-height: 50px;
       }
       .button.button-warning {
-        background: #5f9970;
+        background: #2e9872;
         color: #fafafa;
       }
       .button.button-warning:hover,

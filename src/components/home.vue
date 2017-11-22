@@ -179,31 +179,16 @@ export default {
         margin-left: 110px;
         li{
           background-color: #ffcc00;
-          // &:hover{
-          //   background-color: #ffff00;
-          // }
-          // &:hover  i{
-          //   color:#ff9900;
-          // }
         }
          .titleIMG{
           background: url(../../static/images/tese.png) no-repeat 0 0 ;
           background-size:280px 60px;
         }
       }
-      // li:hover a{
-      //   color:#000;
-      // }
       .nav-last{
         background-color: #e53d78;
         li{
           background-color: #ff689d;
-          // &:hover{
-          //   background-color:#ffdee9;
-          // }
-          // &:hover  i{
-          //   color:#e53d78;
-          // }
         }
         .titleIMG{
           background: url(../../static/images/jingxi.png) no-repeat 0 0 ;
@@ -214,12 +199,6 @@ export default {
         background-color: #66cc66;
         li{
           background-color: #00cc00;
-          // &:hover{
-          //   background-color: #66ff00;
-          // }
-          // &:hover  i{
-          //   color:#fff;
-          // }
         }
       }
     }

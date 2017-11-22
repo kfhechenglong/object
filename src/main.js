@@ -9,6 +9,7 @@ import ws from './common/websoket.js'
 import Element from 'element-ui'
 import Animate from 'animate.css'
 import JQ from './common/util.js'
+import Utils from './common/util.js'
 import QRCode from 'qrcodejs2'
 // import VDistpicker from 'v-distpicker'
 //引入store对象
@@ -28,6 +29,7 @@ import Slider from 'element-ui/packages/slider'
 // console.log(router);
 // 引入自定义jq
 window.jq = JQ.jq;
+window.Utils = Utils;
 window.msgTipsErr = JQ.msgTipsErr;//错误信息的提示
 window.msgTipsSuccess = JQ.msgTipsSuccess;//正确信息的提示
 // 全局注册websocket参数

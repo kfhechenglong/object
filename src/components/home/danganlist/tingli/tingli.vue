@@ -25,7 +25,7 @@
     <div class="tingliright fl" >
         <div v-show="!isActive" class="ear">
             <div v-if=" canvasListData.length >0 " class="tingli-warp clearfix">
-                <div class="clearfix tinglirighttTop">
+                <div class="clearfix content-title">
                     <div class="fl xq">
                         详情
                         <span style="font-size:16px;color:#333;">&nbsp;&nbsp;测试耳：{{getEar}}</span>
@@ -51,7 +51,7 @@
         </div>
         <div v-show="isActive" class="tinglirightImg">
             <div v-show="imgsData.length >0 " style="height:100%; margin-left:20px;">
-                <div class="tinglirighttTop clearfix">
+                <div class="content-title clearfix">
                     <div class="fl xq">
                         详情
                     </div>
@@ -680,14 +680,14 @@ export default {
 @border:#88d89f;
 @contitle:35px;
 @fc:#fff;
-@bcl:#25c6ca;
+@bcl:#65c0df;
 .tingli{
     padding-left:20px;
     /*****暂无数据*******/ 
     .noData{
         ul>li{
             font-size: 20px;
-             background-color: #25c6ca;
+             background-color: @bcl;
               width: 150px;
               height: 50px;
               margin:8px auto;
@@ -706,19 +706,17 @@ export default {
     .tinglileft{
         margin-top: 30px;
         background:@bcl;
-        // border: 2px solid #ccc;
-        padding:15px;
-        border-radius: 13px;
-        border-radius: 0 10px 10px 10px;
+        border:3px solid @bcl;
+        border-radius: 0 13px 13px 13px;
+        box-shadow:1px 1px 5px @bcl;
         .tinglileftTree{
-            // border:10px solid @border;
-            // min-width: 220px;
             width:220px;
             height:500px;
             ul{
                 background-color:#fff;
                 padding-top: 5px;
                 padding-bottom: 5px;
+                border-radius:0 10px 0 0;
             }
             li{
                 font-size:20px;
@@ -747,8 +745,9 @@ export default {
             }
             .test-date{
                 overflow-y: auto;
-                height: 455px;
+                height: 453px;
                 background-color:#fff;
+                border-radius:0 0 10px 10px;
                 .el-tree{
                   border:0px none;
                 }
@@ -769,30 +768,16 @@ export default {
             font-size: 18px;
             border-radius: 5px 0 0 5px;
             box-shadow: 3px 3px 2px #ccc;
-            // &:hover{
-            //     background-color: #60b45d;
-            //     color:@fc;;
-            // }
             &.active{
-                background-color: #22c6c6;
+                background-color: @bcl;
                 color:@fc;;
             }
-            // &:first-child{
-            //     border-radius: 5px 0 0 5px;
-            //     margin-left: 10px;
-            // }
-            // &:last-child{
-            //     border-radius:0 5px 5px 0;
-            //     margin-right:10px;
-            // }
         }
     }
     /********听力图样式*********/ 
     .tingliright{
         padding-top:30px;
         width:900px;
-        // width: calc(~"100% - 400px");
-        // height: calc(~"100% - 30px");
         height: 90%;
         .ear{
             width:100%;
@@ -803,33 +788,8 @@ export default {
             height:100%;
         }
         .xq{line-height:47px; font-size:18px; text-indent:1em;}
-        .tinglirighttTop{
-            height:40px;
-            width:855px;
+        .content-title{
             width:calc(~"100% - 20px");
-            padding-bottom: 5px;
-            border-top:5px solid @bcl;
-            border-bottom: 2px solid @bcl;
-            ul{ 
-               li{
-                  float: left;
-                  background-color: #25c6ca;
-                  // width: 80px;
-                  padding:0 10px;
-                  height: 35px;
-                  margin-left:8px;
-                  line-height: 35px;
-                  text-align: center;
-                  margin-top: 4px;
-                  border-radius: 5px;
-                  cursor:pointer;
-                  color:#fff;
-                  // &:hover{
-                  //   box-shadow: 2px 3px 2px #ccc;
-                  //   background-color:#25C707;
-                  // }
-                }
-            }
         }
         /*****听力图片*****/ 
         .tinglirightImg{
@@ -873,7 +833,7 @@ export default {
                     font-size: 14px;
                 }
                 ul>li{
-                     background-color: #25c6ca;
+                     background-color: @bcl;
                       width: 120px;
                       height: 35px;
                       margin-left:8px;

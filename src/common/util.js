@@ -219,11 +219,14 @@ export default {
             pointer.step = 2;
         };
     },
-    successNum:function(pointer){
+    successNum:function(pointer,time = 3,callback){
         if(pointer.step === 2){
             if(pointer.wsData.params['success'] == 'true'){
                 pointer.successTimesNum++;
-                if(pointer.successTimesNum === 3){//如果连续对三次则结束训练
+                if(callback && Object.prototype.toString.call(callback) === "[object Function]"){
+                    callback();
+                }
+                if(pointer.successTimesNum === time){//如果连续对三次则结束训练
                     pointer._trainOverTips();
                 }
                 return;
@@ -619,6 +622,13 @@ export default {
                 alert(err)
             });
     },
+    // 组听听阈给声时长
+    chang_params(pointer,params){
+        this._setVolumNum(pointer,{'decibel':params.time,'test_id':sessionStorage.getItem('test_id')});
+        const argument = pointer.wskt.wstoctld('games_audio_toggle',params);
+        // console.log(argument)
+        websocket.send(JSON.stringify(argument));
+    },
     //获取测试类型
     getType(test_id){
         // console.log(test_id)
@@ -852,5 +862,18 @@ export default {
           'groupId':groupId,
         };
         return obj;
+    },
+    compare(propertyName) {
+        return function(object1, object2) {
+            var value1 = object1[propertyName];
+            var value2 = object2[propertyName];
+            if (value2 < value1) {
+                return -1;
+            } else if (value2 > value1) {
+                return 1;
+            } else {
+                return 0;
+            }
+        }
     }
 };

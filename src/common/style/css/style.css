@@ -112,6 +112,29 @@ var {
   cursor: not-allowed !important;
   border: 0 solid #ccc !important;
 }
+/*********病例档案，评估档案，听力档案标题***********/ 
+.main-right .content-title{
+  height:40px;
+  width:855px;
+  padding-bottom: 5px;
+  border-top:5px solid #65c0df;
+  border-bottom: 2px solid #65c0df;
+  line-height: 40px;
+}
+.main-right .content-title ul li{
+  float: left;
+  background-color: #65c0df;
+  padding:0 10px;
+  height: 35px;
+  margin-left:8px;
+  line-height: 35px;
+  text-align: center;
+  margin-top: 4px;
+  border-radius: 5px;
+  cursor:pointer;
+  color:#fff;
+  box-shadow: 2px 2px 2px #ccc;
+}
 /************记录表按钮********/
 .group {
   margin: 20px 0;
@@ -129,7 +152,7 @@ var {
 }
 .group .currentGroup {
   box-shadow: 2px 3px 2px #ccc;
-  background-color: #5f9970;
+  background-color: #278bc4;
 }
 /********音素测听的备注样式********/
 .last-l-t em {

@@ -1567,6 +1567,12 @@ export default{
 		      	transform: rotate(180deg);
 		    }
 		}
+		.is-checked .el-checkbox-button__inner{
+		    background-color: #278bc4 !important;
+    		border-color: #278bc4 !important;
+    		color: rgb(255, 255, 255);
+    		box-shadow: #278bc4 -1px 0px 0px 0px !important;
+		}
 		.el-checkbox-button__inner{
 		    padding:10px 5px;
 		    width:105px;

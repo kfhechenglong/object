@@ -58,7 +58,7 @@ export default {
          alert("您的浏览器不支持websocket！");
            return false;
         }
-        let wsServer = 'ws://'+url; //服务器地址
+        let wsServer = 'ws://'+url + '/ad'; //服务器地址
         window.websocket = new WebSocket(wsServer); //创建WebSocket对象
         websocket.onopen = function (evt) {//已经建立连接
           console.log("webcoket 已连接！")
@@ -151,7 +151,7 @@ export default {
 
 <style lang="less">
 #app{
-  background-color: #88d99f;
+  background-color:#53c7a0;
   margin:0 auto;
   height: 100%;
   /*overflow: auto;*/

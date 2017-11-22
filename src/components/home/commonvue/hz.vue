@@ -18,7 +18,7 @@
 			</dt>
 			<dd style="float:none" class="check">
 				<el-checkbox-group v-model="checkList" @change="handleCheckedCitiesChange">
-				    	<el-checkbox v-for="item in hertz" :label="item" :key="item"></el-checkbox>
+				    	<el-checkbox v-for="(item,val) in hzlist" :label="val" :key="item"></el-checkbox>
 				</el-checkbox-group>
 			</dd>
 		</dl>
@@ -54,13 +54,29 @@ export default {
  	},
  	computed:{
  		...mapState(['hz','zhutingData']),
+ 		hzlist(){
+ 			const obj = {'isfinish':0,'isneed':0,'order':13,'data':{},'result':{'systemvalue':false,'user_defined':false},'db':0},
+ 			hz = this.hz ? this.hz : this.hertz,
+ 			len = hz.length,
+ 			setobj = {};
+ 			hz.forEach((item,index) =>{
+ 				const data_obj = Object.assign({},obj);
+ 				if(item == 125 ){//指定优先级
+ 					data_obj.order = 2;
+ 				}else if(item == 250 ){
+ 					data_obj.order = 1;
+ 				}else{data_obj.order = len - index + 2;}
+ 				data_obj.db = this.zhutingData ? this.zhutingData[item] : null;
+ 				setobj[item] = data_obj;
+ 			});
+ 			return setobj;
+ 		}
  	},
  	watch:{
  		
  	},
  	methods:{
  		 handleCheckedCitiesChange(value) {
-	    	// console.log(value)
 	        let checkedCount = value.length;
 	        this.isCheck(value);
 	        this.toRotuer();
@@ -83,7 +99,17 @@ export default {
 	    },
 	    // 广播消息
 	    toRotuer(){
+	    	const obj = Object.assign({},this.hzlist),
+	    		list  = this.checkList.concat();
+	    	list.forEach((item) =>{
+	    		for(var ele in obj) {
+	    			if(item == ele.hz){
+	    				ele.isneed = 1;
+	    			}
+	    		}
+	    	});
 	    	this.$emit('checkedHz',this.checkList,this.cIndex(this.checkList,this.zhutingData,exquisite));
+	    	// this.$emit('checkedHz',obj);
 	    },
 	    // 获取强度
 	    cIndex(arr1,arr2,str){
@@ -99,15 +125,13 @@ export default {
 	    		}
 	    	}
 	    	return newArr;
-	    	// return arr;
 	    },
 	    //判断频率的选择内容
 	    isCheck(array){
-	    	
 	    	// 定义数组排序
 	    	function sumSort(a,b){
 	    		return a-b;
-	    	};	    	
+	    	};
 	    	array.sort(sumSort);
 	    	// 数据过滤筛选赫兹小于500的后测试
 	    	let lessarray = array.filter((item) =>{
