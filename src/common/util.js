@@ -629,6 +629,99 @@ export default {
         // console.log(argument)
         websocket.send(JSON.stringify(argument));
     },
+    // 根据属性值进行排序
+    /**
+     * @param  {[Object]} obj [hz对象]
+     * @return {[Object]}     [返回待测频率优先级最高的]
+     */
+    getNextHz(obj) {
+        const arr = [];
+        if(Object.prototype.toString.call(obj) !== '[object Object]') throw Error("需要一个对象！");
+        for(let i in obj){
+            if(obj[i].isneed != 1 || obj[i].isfinish != 0) continue;
+            let o = {};
+            o[i] = obj[i];
+            arr.push(o)
+        }
+        console.log(arr)
+        arr.sort(compare('order'))
+        function compare(propertyName){
+            return function (object1, object2) {
+                let obj1_child = {},
+                    obj2_child = {};
+                for(let i in object1){
+                    obj1_child = object1[i]
+                };
+                for(let i in object2){
+                    obj2_child = object2[i]
+                };
+                const value1 = obj1_child[propertyName],
+                    value2 = obj2_child[propertyName];
+                if (value2 < value1) {
+                    return -1;
+                } else if (value2 > value1) {
+                    return 1;
+                } else {
+                    return 0;
+                }
+            }
+        }
+        return arr[0];
+    },
+    /**
+     * *
+     * @return {[Object]} obj [hz对象]
+     */
+    getCheckHz(obj){
+        const arr = [];
+        if(Object.prototype.toString.call(obj) !== '[object Object]') throw Error("需要一个对象！");
+        for(let i in obj){
+            if(obj[i].isneed != 1 ) continue;
+            arr.push(i)
+        }
+        return arr;
+    },
+    /**
+     * *左右耳切换时，将isneed为1的isfinish改为0
+     * @param {[Object]} obj [hz对象]
+     */
+    setCheckHzStatus(obj){
+        if(Object.prototype.toString.call(obj) !== '[object Object]') throw Error("需要一个对象！");
+        for(let i in obj){
+            if(obj[i].isneed != 1 ) continue;
+            obj[i].isfinish = 0;
+        }
+    },
+    /**
+     * *将测试的赫兹完成情况改为1
+     * @param {[Object]} obj [hz对象]
+     * @param {[Number,String]} hz  [当前的hz]
+     */
+    setHzIsfinish(obj,hz){
+        if(Object.prototype.toString.call(obj) !== '[object Object]') throw Error("需要一个对象！");
+        if(obj[hz].isneed === 1){
+            obj[hz].isfinish = 1
+        }else{
+            throw new Error("当前测试赫兹isneed !== 1")
+        }
+        console.log(obj)
+    },
+    /*
+    *通过选择的hz项修改对象的isneed属性
+    *a params Object 
+    *b params Array
+    */ 
+    getObj(a,b){
+        const obj = Object.assign({},a),
+            list  = b.concat();
+        for(let i in obj){
+            obj[i].isneed = 0;
+        }
+        list.forEach((item) =>{
+            obj[item].isneed = 1;
+        });
+        return obj
+    },
     //获取测试类型
     getType(test_id){
         // console.log(test_id)
@@ -862,18 +955,5 @@ export default {
           'groupId':groupId,
         };
         return obj;
-    },
-    compare(propertyName) {
-        return function(object1, object2) {
-            var value1 = object1[propertyName];
-            var value2 = object2[propertyName];
-            if (value2 < value1) {
-                return -1;
-            } else if (value2 > value1) {
-                return 1;
-            } else {
-                return 0;
-            }
-        }
     }
 };

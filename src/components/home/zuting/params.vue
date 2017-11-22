@@ -103,7 +103,7 @@ export default {
  		checkdata:function(){
  			return{
  				'crtdb':this.db,
-				'data':this.checkList,
+				'data':JSON.stringify(this.checkList),
 				'isEar':this.radioEar,
 				'crtgame':this.Active,
 				'crtsign':this.leixing,
@@ -122,7 +122,7 @@ export default {
 	    	this.leixing = res;
 	    },
 	    get(res,req){
-	    	// console.log(res,req)
+	    	console.log(res,req)
 	    	this.checkList = res;
 	    	this.db = req
 	    }

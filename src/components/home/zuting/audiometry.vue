@@ -38,7 +38,7 @@
 				<div class="warp">
 					<table>
 						<tr>
-							<th v-for="(item,index) in tableTop" :class="{ 'currenthzClass': item == frequency,'nexthzClass':nextallHz[item] == item }">
+							<th v-for="(item,index) in tableTop" :class="{ 'currenthzClass': item == frequency,'nexthzClass':checkData[item] && checkData[item].isneed == 1 }">
 								<p @click="click_toggle_Hz(item)">
 									{{item}}
 								</p>
@@ -51,6 +51,13 @@
 								<div class="signMax">
 								</div>
 							</td>
+						</tr>
+						<tr>
+							<th v-for="(item,index) in tableTop" class="rest-btn">
+								<span @click="click_rest_Hz(item)" v-if="(item != frequency) && checkData[item] && checkData[item].isfinish == 1 ">
+									重置
+								</span>
+							</th>
 						</tr>
 					</table>
 					<div id="horn" v-if="frequency && !disabled" :class="[hornStartStyle ? 'hornStartStyle':'hornStopStyle']">
@@ -213,31 +220,36 @@ export default {
  			timer:true,
  			classHz:[],//未测的hz
  			// 声音是否在播放
- 			hasSound:false
+ 			hasSound:false,
+ 			nextHzData:{},
+ 			checkData:{}
  		}
  	},
  	mounted(){
  		this.dialogVisibleTips = true;
- 		this.maxDb= this.$route.query.crtdb;
- 		console.log(this.maxDb[0])
- 		if(this.maxDb[0] <= 70){//判断初始强度是否大于最大值
- 			this.intensity = this.maxDb[0];
- 		}
- 		this.hz = this.$route.query.data;
- 		// const checkData = this.$route.query.data;
- 		// let a = checkData.filter(item =>{
- 		// 	return item.isneed == 1 && item.isfinish == 0;
- 		// }).sort(Utils.compare('order'));
- 		// console.log(a)
+ 		// this.maxDb= this.$route.query.crtdb;
+ 		// console.log(this.maxDb[0])
+ 		// if(this.maxDb[0] <= 70){//判断初始强度是否大于最大值
+ 		// 	this.intensity = this.maxDb[0];
+ 		// }
+ 		// this.hz = this.$route.query.data;
+ 		// 
+ 		this.checkData = JSON.parse(this.$route.query.data);
+ 		this.nextHzData = Utils.getNextHz(this.checkData);
+ 		// 获取要测值的hz
+ 		this.frequency = Object.keys(this.nextHzData)[0];
+ 		// 获取要测值的db值
+ 		const getDb = this.nextHzData[this.frequency].db;
+ 		this.intensity = getDb <= 70 ? getDb : 70;
+ 		// 获取当前值的
  		// 解决只选一个hz的情况下刷新时的bug
- 		if (Object.prototype.toString.call(this.hz) !== "[object Array]"){
- 				this.hz.split('');
- 				this.hz = [this.hz]
- 			}
+ 		// if (Object.prototype.toString.call(this.hz) !== "[object Array]"){
+ 		// 		this.hz.split('');
+ 		// 		this.hz = [this.hz]
+ 		// 	}
  		// 控制未测赫兹的样式
- 		this.classHz = this.hz.concat();
+ 		// this.classHz = this.hz.concat();
  		this.xcurrent = this.$route.query.crtsign;
-
  		let tonetype = this.xcurrent === 'zhuan' ? "啭音" : "纯音";
  		this.$store.commit('hasCurrenttonetype',{'tonetype':tonetype});
  		
@@ -245,7 +257,7 @@ export default {
  		this.currentgame = this.$route.query.crtgame;
 
  		// 设置默认值
-		this.frequency = this.hz[0];
+		// this.frequency = this.hz[0];
  		// 显示耳旁信息
  		this.currentearStyle(this.currentear.charAt(0));
  		// 获取所有的hz数据，用于进行绘制表格
@@ -353,8 +365,26 @@ export default {
  		next();
  	},
  	methods:{
+ 		// 添加删除频率
  		click_toggle_Hz(e){
- 			console.log(e)
+ 			const obj = this.checkData;
+ 			if(e == this.frequency) return false;
+ 			if(obj[e].isneed === 0){
+ 				obj[e].isneed = 1;
+ 			}else{
+ 				obj[e].isneed = 0;
+ 			}
+ 			console.log(e,this.checkData)
+ 		},
+ 		// 重置频率
+ 		click_rest_Hz(e){
+ 			const obj = this.checkData;
+ 			if(e == this.frequency) return false;
+ 			if(obj[e].isfinish === 1 && obj[e].isneed === 1){
+ 				obj[e].isfinish = 0;
+ 				obj[e].data = {};
+ 				obj[e].result = {'systemvalue':{},'user_defined':{}};
+ 			}
  		},
  		// 显示不可测范围的样式
  		testFn(str1,str2){
@@ -387,17 +417,16 @@ export default {
  			}
  			// 获取传过来的频率,判断频率是否等于发送频率
  			let receive_hz = this.wsData.params['hz'];
- 			console.log(receive_hz,this.hz[this.currentHzNum-1])
- 			if(receive_hz === this.hz[this.currentHzNum-1]){
+ 			console.log(receive_hz,this.frequency)
+ 			if(receive_hz === this.frequency){
  				this.frequency = receive_hz;
  			}else{
  				alert("接收的频率不正确");
  			};
  			// 获取传过来的强度
 			let receive_db = this.wsData.params['nextdb'];
-
- 			console.log(receive_db,this.maxDb[this.currentHzNum - 1])
-			if(receive_db > this.maxDb[this.currentHzNum - 1]){
+ 			console.log(receive_db,this.intensity)
+			if(receive_db > this.intensity){
 				this.Hz_Db.unshift([receive_hz,receive_db]);
 				this.toParams();
 				alert("接收的强度大于最大值");
@@ -410,9 +439,22 @@ export default {
  		},
  		// 数据存储函数
  		storagedata(str){
- 			var isSuccess = this.wsData.params['success'].toString();
- 			var crtHz= this.wsData.params['hz'].toString();
- 			var crtDb = this.wsData.params['db'].toString();
+ 			var isSuccess = this.wsData.params['success'].toString(),
+ 				crtHz= this.wsData.params['hz'].toString(),
+ 				crtDb = this.wsData.params['db'].toString(),
+ 				obj = this.checkData[crtHz].data;
+ 			if(obj[str]){
+ 				if(obj[str][crtDb]){
+ 					obj[str][crtDb][isSuccess] +=1;
+ 				}else{
+ 					obj[str][crtDb] = {'true':0,'false':0};
+ 					obj[str][crtDb][isSuccess] +=1;
+ 				}
+ 			}else{
+ 				obj[str] ={};
+ 				obj[str][crtDb] = {'true':0,'false':0};
+ 				obj[str][crtDb][isSuccess] +=1;
+ 			}
  			if(this.statisticsInfo[str]){
  				// 确定hz是否存在
 				if(this.statisticsInfo[str][crtHz]){
@@ -479,7 +521,7 @@ export default {
 	 			// 点击开始向被控端发送测听参数
 				this.toParams();
 			    // 点击开始，显示第一个测试点的位置;
-			    this.frequency = this.hz[0];
+			    // this.frequency = this.hz[0];
 	 			// 发送最大强度数据;
 	 			const argument = this.wskt.wstoctld('games_audio_maxDbList',this.zhutingData);
 				websocket.send(JSON.stringify(argument));
@@ -541,9 +583,19 @@ export default {
 			} else{
 				ear = this.currentear.charAt(1);
 			}
-			// debugger;
+			const hasNextData = Utils.getNextHz(this.checkData);
+			let isToSendNextHz = true;
+			if(hasNextData && Object.prototype.toString.call(hasNextData) === '[object Object]'){
+				// 获取要测值的hz
+		 		this.frequency = Object.keys(hasNextData)[0];
+		 		// 获取要测值的db值
+		 		const getDb = hasNextData[this.frequency].db;
+		 		this.intensity = getDb;
+			}else{//没有待测的hz
+				isToSendNextHz = false;
+			}
 			// 根据后台返回的数据监听判断是否测试完毕
-			if (this.currentHzNum >=this.hz.length ){
+			if (!isToSendNextHz ){
 				var _this = this;
 				if(this.currentear.charAt(1) && !this.isLeftEar){
 					// 提示是否需要进行下一耳旁测评
@@ -573,31 +625,35 @@ export default {
 						closeOnPressEscape:false,
 		              	showCancelButton:false,
 			        }).then(() => {
+			        	// 将hz的状态改为未完成
 			        	isToggleEar = true;
-			        	_this.isFirst = true;
+			        	this.isFirst = true;
 			        	// 清空标记数组
-			        	_this.arry = [];
+			        	this.arry = [];
 			        	// 重置计算器
-			            _this.currentHzNum = 0;
-			            _this.isLeftEar = true;
-			            // 初始化默认开始坐标
-			            _this.frequency = _this.hz[0];
-			            // _this.intensity = '30';
-			            if(_this.maxDb[0] <= 70){//判断初始强度是否大于最大值
-				 			_this.intensity = _this.maxDb[0];
-				 		}
+			            this.currentHzNum = 0;
+			            this.isLeftEar = true;
+				 		// 从新设置另一耳旁的isfinish的值
+				 		Utils.setCheckHzStatus(this.checkData);
+				 		// 初始化默认开始坐标
+				 		this.nextHzData = Utils.getNextHz(this.checkData);
+				 		// 获取要测值的hz
+				 		this.frequency = Object.keys(this.nextHzData)[0];
+				 		// 获取要测值的db值
+				 		const getDb = this.nextHzData[this.frequency].db;
+				 		this.intensity = getDb <= 70 ? getDb : 70;
 			            // 清空标记点样式
 			            const eleSign = util.jq('.sign');
 			            for (let i = 0; i < eleSign.length; i++) {
 			            	eleSign[i].style.backgroundColor = "transparent";
 			            }
 			  			// 改变左右耳样式
-			  			_this.currentearStyle(_this.currentear.charAt(1));
+			  			this.currentearStyle(this.currentear.charAt(1));
 			            // 发送继续指令
-			            websocket.send(JSON.stringify(_this.wskt.wstoctld('games_audio_continue','')));
+			            websocket.send(JSON.stringify(this.wskt.wstoctld('games_audio_continue','')));
 			        }).catch(() => {
-			        	_this.start = false;
-			        	_this.step = 0;
+			        	this.start = false;
+			        	this.step = 0;
 			        });
 				} else{
 					// 提示测评完成
@@ -609,21 +665,21 @@ export default {
 		              	showCancelButton:false,
 			        })
 			        // 启用完成按钮
-			        _this.isfinish = "finish";
+			        this.isfinish = "finish";
 			        // 禁用开始暂停按钮
-			        _this.disabled = true;
-			        websocket.send(JSON.stringify(_this.wskt.wstoctld('games_audio_over','')));
+			        this.disabled = true;
+			        websocket.send(JSON.stringify(this.wskt.wstoctld('games_audio_over','')));
 			        return ;
 				}
 			}
-			if(this.currentHzNum < this.hz.length){
+			if(isToSendNextHz){
 				// 定义每次发送的强度
 				// this.sendDb = '50';
 				if(!this.isFirst){
-					this.intensity =  parseInt(this.Hz_Db[0][1])+20 < this.maxDb[this.currentHzNum] ? parseInt(this.Hz_Db[0][1])+20 : this.maxDb[this.currentHzNum];
+					const num = parseInt(this.Hz_Db[0][1])+20;
+					this.intensity = num < this.intensity ? num : this.intensity;
 				};
 				console.log('换频')
-		 		this.frequency = this.hz[this.currentHzNum];
 		 		this.isFirst = true;
 		 		this.startCeTing();
 				// debugger;
@@ -634,10 +690,12 @@ export default {
 			    	'testType':'zhuting',//测听类型
 			    	'game':this.currentgame,//游戏类别
 			    	'time':this.value,//给声时长
-			    	'hz':this.hz[this.currentHzNum],//当前赫兹
+			    	'hz':this.frequency,//当前赫兹
 			    	'db':this.intensity,//当前强度this.currentDb
 			    	'level':this.$route.query['level']
 			    };
+			    // 将当前hz的isfinish 置为1
+			    Utils.setHzIsfinish(this.checkData,this.frequency);
 			    console.log(params);
 				this.currentHzNum += 1;
 				var argument = this.wskt.wstoctld('games_audio_start',params);
@@ -683,52 +741,56 @@ export default {
 				this.isTrue(this.signArry,'#13ce66');
 				return ;
 			}
-			if((!this.isFirst && this.wsData.params['success'] == "false")&&(this.wsData.params['db'] == this.maxDb[this.currentHzNum - 1])){
-				// console.log('dada')
+			if((!this.isFirst && this.wsData.params['success'] == "false")&&(this.wsData.params['db'] == this.intensity)){
 				this.isTrue(this.signArryFalse,'red')
 			}
 		},
 		isTrue (str,color){
-			var that = this;
 			// 判断该元素点是不是出现三次
-			str.unshift([that.indexLeft,that.trueIndexTop]);
-			var temp = '';
-			// debugger;
-			for(var i=0;i<str.length;i++){
-			    temp=str[i].toString();
-			    var count=0;
-			    for(var j=0;j<str.length;j++){
+			str.unshift([this.indexLeft,this.trueIndexTop]);
+			let temp = '',
+				len = str.length;
+			for(var i=0;i< str.length;i++){
+			    temp = str[i].toString();
+			    var count = 0;
+			    for(var j = 0 ;j< str.length;j++){
 			      	if(str[j].toString()==temp){
 			        	count++;
 			      	}
 			      	if(count == 3){
-			        	that.arry.unshift(str[j]);
+			        	this.arry.unshift(str[j]);
 			        	// 保存一个对象，用于传给canvas绘图
-			        	var type = 1;
-			        	if(this.wsData.params['success'] == "false" && (this.wsData.params['db'] == this.maxDb[this.currentHzNum - 1])){
+			        	var type = 1,
+			        		params_obj = this.wsData.params,
+			        		ear = params_obj['ear'],
+			        		db = params_obj['db'],
+			        		hz = params_obj['hz']
+			        		;
+			        	if(params_obj['success'] == "false" && (db == this.intensity)){
 			        		type = 'wu';
 			        	}
-			        	if(this.wsData.params['ear'] == "L"){
+			        	this.checkData[hz].result.systemvalue[ear] = {'x':hz,'y':db,'dataType':type};
+			        	// if(ear == "L"){
 			        		// 保存左耳的信息
-			        		this.getServer[0]['data'].push({'x':that.wsData.params['hz'],'y':that.wsData.params['db'],'dataType':type});
-			        	} else if(this.wsData.params['ear'] == "R"){
+			        		// this.getServer[0]['data'].push({'x':hz,'y':db,'dataType':type});
+			        	// } else if(ear == "R"){
 			        		// 保存右耳的信息
-			        		this.getServer[1]['data'].push({'x':that.wsData.params['hz'],'y':that.wsData.params['db'],'dataType':type});
-			        	} else{
-			        		this.getServer[0]['data'].push({'x':that.wsData.params['hz'],'y':that.wsData.params['db'],'dataType':type});
-							this.getServer[1]['data'].push({'x':that.wsData.params['hz'],'y':that.wsData.params['db'],'dataType':type});
-			        	}
-			        	that.objsign[that.wsData.params['hz']] = that.wsData.params['db'];
+			        		// this.getServer[1]['data'].push({'x':hz,'y':db,'dataType':type});
+			        	// } else{
+			        		// this.getServer[0]['data'].push({'x':hz,'y':db,'dataType':type});
+							// this.getServer[1]['data'].push({'x':hz,'y':db,'dataType':type});
+			        	// }
+			        	this.objsign[hz] = db;
 			        	// 保存正确次数大于三次的频率和强度
-			        	that.Hz_Db.unshift([that.wsData.params['hz'],that.wsData.params['db']])
+			        	this.Hz_Db.unshift([hz,db])
 			        	// 清空当前数组
 			        	str.length = 0;
-			        	console.log(that.arry)
-			        	if(that.arry.length > 0){
+			        	console.log(this.arry)
+			        	if(this.arry.length > 0){
 							// 获取出现三次的坐标点
-							var left = that.arry[0][0];
-							var top = that.arry[0][1];
-							var table = jq('#table');
+							var left = this.arry[0][0],
+								top = this.arry[0][1],
+								table = jq('#table');
 							this.tr = table.getElementsByTagName('tr');
 							var currentTd = this.tr[top].getElementsByTagName('td');
 							// 将该行的点变色
@@ -768,7 +830,7 @@ export default {
 			width: 420px;
 			background-color: @bgc;
 			margin-top: 190px;
-			height: 550px;
+			height: 570px;
 			border:6px solid @bor;
 			.active{
 				background-color: @hover;
@@ -795,7 +857,6 @@ export default {
 				    margin-left: 65px;
 				    margin-top: 4px;
 				    font-size: 22px;
-
 				}
 				dd{
 					float: left;
@@ -824,7 +885,6 @@ export default {
 			}
 			.button{
 				margin:90px 88px 0 88px;
-
 				ul,li{
 					list-style: none;
 					margin:0px;
@@ -898,8 +958,9 @@ export default {
 				}
 			}
 			.audiometry-table{
-				height: 550px;
+				height: 570px;
 				border:6px solid @bor;
+				background: #fff;
 				.table-HZ{
 					position: relative;
 					height: 120px;
@@ -984,6 +1045,7 @@ export default {
     							line-height: 30px;
     							text-align: center;
     							border-radius: 6px;
+    							cursor:pointer;
     						}
 
     						&.nexthzClass{
@@ -998,6 +1060,17 @@ export default {
     								color:red;
     							}
     						}
+						}
+						/*重置按钮*/
+						.rest-btn span{
+							display: inline-block;
+							margin-left:-27px;
+							letter-spacing: 2px;
+							background: #da4f49;
+							padding: 3px;
+							color:#fafafa;
+							border-radius: 3px;
+							cursor: pointer;
 						}
 						#horn{
 							position: absolute;

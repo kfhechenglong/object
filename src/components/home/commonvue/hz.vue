@@ -38,7 +38,7 @@ export default {
  		return {
         	isActive : "standard",
         	hertz:exquisite,
-        	checkList: standard,
+        	checkList: standard
  		}
  	},
  	// 接收父组件传过来的数据
@@ -47,16 +47,21 @@ export default {
  	created(){
  		// 获取点击返回按钮的参数
  		if(this.$route.query && this.$route.query['isEar']){
- 			this.checkList = this.$route.query['data'];
+ 			// this.checkList = this.$route.query['data'];
+ 			const data_obj = this.$route.query['data'];
+ 			this.checkList = Utils.getCheckHz(JSON.parse(data_obj));
  			this.isCheck(this.checkList);
  		}
- 		this.toRotuer();
+ 		this.$nextTick(function(){
+ 			this.toRotuer();
+ 		});
  	},
  	computed:{
  		...mapState(['hz','zhutingData']),
  		hzlist(){
- 			const obj = {'isfinish':0,'isneed':0,'order':13,'data':{},'result':{'systemvalue':false,'user_defined':false},'db':0},
- 			hz = this.hz ? this.hz : this.hertz,
+ 			// debugger
+ 			const obj = {'isfinish':0,'isneed':0,'order':13,'data':{},'result':{'systemvalue':{},'user_defined':{}},'db':0},
+ 			hz = this.hz && Object.keys(this.hz).length !== 0 ? this.hz : this.hertz,
  			len = hz.length,
  			setobj = {};
  			hz.forEach((item,index) =>{
@@ -70,13 +75,14 @@ export default {
  				setobj[item] = data_obj;
  			});
  			return setobj;
- 		}
+ 		},
  	},
  	watch:{
  		
  	},
  	methods:{
- 		 handleCheckedCitiesChange(value) {
+ 		
+ 		handleCheckedCitiesChange(value) {
 	        let checkedCount = value.length;
 	        this.isCheck(value);
 	        this.toRotuer();
@@ -99,17 +105,8 @@ export default {
 	    },
 	    // 广播消息
 	    toRotuer(){
-	    	const obj = Object.assign({},this.hzlist),
-	    		list  = this.checkList.concat();
-	    	list.forEach((item) =>{
-	    		for(var ele in obj) {
-	    			if(item == ele.hz){
-	    				ele.isneed = 1;
-	    			}
-	    		}
-	    	});
-	    	this.$emit('checkedHz',this.checkList,this.cIndex(this.checkList,this.zhutingData,exquisite));
-	    	// this.$emit('checkedHz',obj);
+	    	// this.$emit('checkedHz',this.checkList,this.cIndex(this.checkList,this.zhutingData,exquisite));
+	    	this.$emit('checkedHz',Utils.getObj(this.hzlist,this.checkList));
 	    },
 	    // 获取强度
 	    cIndex(arr1,arr2,str){
