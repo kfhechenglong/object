@@ -30,8 +30,8 @@ import Slider from 'element-ui/packages/slider'
 // 引入自定义jq
 window.jq = JQ.jq;
 window.Utils = Utils;
-window.msgTipsErr = JQ.msgTipsErr;//错误信息的提示
-window.msgTipsSuccess = JQ.msgTipsSuccess;//正确信息的提示
+window.msgTipsErr = Utils.msgTipsErr;//错误信息的提示
+window.msgTipsSuccess = Utils.msgTipsSuccess;//正确信息的提示
 // 全局注册websocket参数
 Vue.prototype.wskt = ws;
 Vue.prototype.QRCode = QRCode;

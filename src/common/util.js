@@ -635,8 +635,8 @@ export default {
      * @return {[Object]}     [返回待测频率优先级最高的]
      */
     getNextHz(obj) {
+        if(!this.isObject(obj)){return false;}
         const arr = [];
-        if(Object.prototype.toString.call(obj) !== '[object Object]') throw Error("需要一个对象！");
         for(let i in obj){
             if(obj[i].isneed != 1 || obj[i].isfinish != 0) continue;
             let o = {};
@@ -673,23 +673,49 @@ export default {
      * @return {[Object]} obj [hz对象]
      */
     getCheckHz(obj){
-        const arr = [];
-        if(Object.prototype.toString.call(obj) !== '[object Object]') throw Error("需要一个对象！");
-        for(let i in obj){
-            if(obj[i].isneed != 1 ) continue;
-            arr.push(i)
+        if(this.isObject(obj)){
+            const arr = [];
+            for(let i in obj){
+                if(obj[i].isneed != 1 ) continue;
+                arr.push(i)
+            }
+            return arr;
         }
-        return arr;
     },
     /**
      * *左右耳切换时，将isneed为1的isfinish改为0
      * @param {[Object]} obj [hz对象]
      */
     setCheckHzStatus(obj){
-        if(Object.prototype.toString.call(obj) !== '[object Object]') throw Error("需要一个对象！");
-        for(let i in obj){
-            if(obj[i].isneed != 1 ) continue;
-            obj[i].isfinish = 0;
+        if(this.isObject(obj)){
+            for(let i in obj){
+                if(obj[i].isneed != 1 ) continue;
+                obj[i].isfinish = 0;
+            }
+        }
+    },
+    isObject(obj){
+        if(Object.prototype.toString.call(obj) === '[object Object]'){ 
+            return true;
+        }
+        throw Error("需要一个对象！");
+    },
+    earDataDetailClass:function (){
+        this.isfinish = 0;
+        this.isneed = 0;
+        this.order = 13;
+        this.data = {};
+        this.db = 0;
+        this.result = {'systemvalue':{},'user_defined':{}};
+    },
+    earDataClass:function (){
+        var ear = "";
+        var dataDetail = {};
+        this.setEar = function(ear){
+            this.ear = ear;
+        };
+        this.setDataDetail = function(obj){
+            this.dataDetail =JSON.parse(JSON.stringify(obj));
         }
     },
     /**
@@ -698,13 +724,14 @@ export default {
      * @param {[Number,String]} hz  [当前的hz]
      */
     setHzIsfinish(obj,hz){
-        if(Object.prototype.toString.call(obj) !== '[object Object]') throw Error("需要一个对象！");
-        if(obj[hz].isneed === 1){
-            obj[hz].isfinish = 1
-        }else{
-            throw new Error("当前测试赫兹isneed !== 1")
+        if(this.isObject(obj)){
+            if(obj[hz].isneed === 1){
+                obj[hz].isfinish = 1
+            }else{
+                throw new Error("当前测试赫兹isneed !== 1")
+            }
+            console.log(obj)
         }
-        console.log(obj)
     },
     /*
     *通过选择的hz项修改对象的isneed属性
@@ -712,7 +739,7 @@ export default {
     *b params Array
     */ 
     getObj(a,b){
-        const obj = Object.assign({},a),
+        const obj = a,
             list  = b.concat();
         for(let i in obj){
             obj[i].isneed = 0;

@@ -59,13 +59,12 @@ export default {
  	computed:{
  		...mapState(['hz','zhutingData']),
  		hzlist(){
- 			// debugger
- 			const obj = {'isfinish':0,'isneed':0,'order':13,'data':{},'result':{'systemvalue':{},'user_defined':{}},'db':0},
- 			hz = this.hz && Object.keys(this.hz).length !== 0 ? this.hz : this.hertz,
- 			len = hz.length,
- 			setobj = {};
+ 			// debugger obj = {'isfinish':0,'isneed':0,'order':13,'data':{},'result':{'systemvalue':{},'user_defined':{}},'db':0},
+ 			const hz = this.hz && Object.keys(this.hz).length !== 0 ? this.hz : this.hertz,
+ 				len = hz.length,
+ 				setobj = {};
  			hz.forEach((item,index) =>{
- 				const data_obj = Object.assign({},obj);
+ 				const data_obj = new Utils.earDataDetailClass();
  				if(item == 125 ){//指定优先级
  					data_obj.order = 2;
  				}else if(item == 250 ){
