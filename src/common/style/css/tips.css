@@ -32,9 +32,10 @@
 }
 .msgTipsSuccess{
 	font-size: 40px;
-	color:#12cd6d
+	color:#12cd6d;
 }
 div.el-message{
+	z-index:10000 !important;
 	background-color: #fff;
 	border:1px solid #ccc;
 }

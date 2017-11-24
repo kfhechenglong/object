@@ -10,6 +10,7 @@ import Element from 'element-ui'
 import Animate from 'animate.css'
 import JQ from './common/util.js'
 import Utils from './common/util.js'
+import Options from './common/options-data.js'
 import QRCode from 'qrcodejs2'
 // import VDistpicker from 'v-distpicker'
 //引入store对象
@@ -22,6 +23,7 @@ import 'common/style/css/dialog.css'
 import 'common/style/css/tingli.css'
 import 'common/style/css/icon.css'
 import 'common/style/css/gameTest.css'
+import 'common/style/css/check.css'
 import { Message} from 'element-ui'
 import Slider from 'element-ui/packages/slider'
 // import Table from 'element-ui/lib/table'
@@ -30,6 +32,7 @@ import Slider from 'element-ui/packages/slider'
 // 引入自定义jq
 window.jq = JQ.jq;
 window.Utils = Utils;
+window.Options = Options;
 window.msgTipsErr = Utils.msgTipsErr;//错误信息的提示
 window.msgTipsSuccess = Utils.msgTipsSuccess;//正确信息的提示
 // 全局注册websocket参数

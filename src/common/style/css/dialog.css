@@ -33,7 +33,8 @@
 }
 .my-d-h .el-dialog--small{
     border-radius:20px;
-    border:3px solid #109bff;
+    // border:3px solid #109bff;
+    box-shadow: 0 0 35px #000;
 }
 .my-d-h .el-dialog__header .el-dialog__headerbtn{
     float: none; 

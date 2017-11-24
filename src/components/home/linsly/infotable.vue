@@ -369,7 +369,6 @@ export default {
         .el-dialog--small{
             width:900px;
             border-radius:20px;
-            border:3px solid #109bff;
         }
         .el-dialog__body{
             padding: 0;

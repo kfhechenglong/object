@@ -17,17 +17,6 @@
 <script>
 import util from './../../../common/util.js'
 import {mapState,mapGetters} from 'vuex'
-// 耳聋程度
-var deaf_degree = [{name: '正常',label: '正常'}, {name: '轻度',label: '轻度'}, {name: '中度',label: '中度'}, {name: '重中度',label: '重中度'}, {name: '严重',label: '严重'}, {name: '极严重',label: '极严重'}];
-// 耳聋性质
-var deaf_nature = [{name: '传导性',label: '传导性'}, {name: '感音神经性',label: '感音神经性'}, {name: '混合性',label: '混合性'}];
-// 测试类型
-// var testType = [{name:'助听听阈',key:6},{name:'林氏六音',key:1},{name:'音素识别',key:2},{name:'声调识别',key:3},{name:'声母识别',key:4}];
-// 助听听阈参数
-var optionsEffect = [{name: '最适',label: '最适'}, {name: '较适',label: '较适'}, {name: '适',label: '适'}, {name: '看话能力',label: '看话能力'}];
-var optionsDegree = [{name: '很配合',label: '很配合'}, {name: '一般',label: '一般'}, {name: '不配合',label: '不配合'}];
-var optionsTestModel = [{name:'BOA',label:'BOA'},{name:'VAR',label:'VAR'},{name:'PA',label:'PA'},{name:'PTA',label:'PTA'}];
-var optionsTone = [{name:'啭音',label:'啭音'},{name:'纯音',label:'纯音'}];
 export default{
 	data(){
 		return{
@@ -36,7 +25,7 @@ export default{
       value:'',
       title:'请选择要打印的类型',
       btn:'确定打印',
-      data:testType,
+      data:"",
       set:new Set(),
       baseinfo:false,
       checkData:{},
@@ -89,7 +78,7 @@ export default{
     curtStatus:function(){
       switch(this.curtStatus){
         case 0 :
-        this.data = testType;
+        this.data = Options.testType;
         this.title = "请选择要打印的类型";
         this.btn = '确定打印';
         break;
@@ -101,12 +90,12 @@ export default{
         break;
         case 2 :
         this.isChecked = false;
-        this.data = deaf_degree;
+        this.data = Options.deaf_degree;
         this.title = "请选择耳聋程度";
         break;
         case 3 :
         this.isChecked = false;
-        this.data = deaf_nature;
+        this.data = Options.deaf_nature;
         this.title = "请选择耳聋性质";
         break;
         case 4 :
@@ -122,25 +111,25 @@ export default{
         break;
         case 5 :
         this.isChecked = false;
-        this.data = optionsTestModel;
+        this.data = Options.optionsTestModel;
         this.title = "请选择测试方法";
         this.btn = '确定选择';
         break;
         case 6 :
         this.isChecked = false;
-        this.data = optionsTone;
+        this.data = Options.optionsTone;
         this.title = "请选择测试音";
         this.btn = '确定选择';
         break;
         case 7 :
         this.isChecked = false;
-        this.data = optionsDegree;
+        this.data = Options.optionsDegree;
         this.title = "请选择配合度";
         this.btn = '确定选择';
         break;
         case 8: case 9:
         this.isChecked = false;
-        this.data = optionsEffect;
+        this.data = Options.optionsEffect;
         this.title = "请选择助听效果";
         this.btn = '确定选择';
         break;
@@ -199,10 +188,11 @@ export default{
       }
     },
     close(){//关闭模态
-      const lis = jq('#print-type').getElementsByTagName('li');
-      for (let i = 0; i < lis.length; i++) {
-        lis[i].className = "";
-      }
+      // const lis = jq('#print-type').getElementsByTagName('li');
+      // for (let i = 0; i < lis.length; i++) {
+      //   lis[i].className = "";
+      // }
+      Utils.removeClassName("#print-type","");
       this.isChecked = true;
       this.baseinfo = false;
       this.value = '';
@@ -229,14 +219,14 @@ export default{
       this.flagBtn();
     },
     _toggle(e,item){
-      const lis = jq('#print-type').getElementsByTagName('li');
+      // const lis = jq('#print-type').getElementsByTagName('li');
       const clname = e.currentTarget.className;
-      const addClass = ()=>{
-        for (var i = 0; i < lis.length; i++) {
-          lis[i].className = "";
-        }
-        e.currentTarget.className = "li-active";
-      };
+      // const addClass = ()=>{
+      //   for (var i = 0; i < lis.length; i++) {
+      //     lis[i].className = "";
+      //   }
+      //   e.currentTarget.className = "li-active";
+      // };
       if(this.isAllPrint && this.curtStatus === 0){
         //批量功能得打印选择
         if(clname){
@@ -253,7 +243,8 @@ export default{
           e.currentTarget.className = "";
         }else{
           this.checkData = item;
-          addClass();
+          Utils.removeClassName('#print-type','');
+          e.currentTarget.className = "li-active";
         }
         this.submit()
         return;
@@ -298,5 +289,5 @@ export default{
 }
 </script>
 <style lang ="less">
-/*样式详见toggle.vue*/
+/*样式详见check-dialog.css*/
 </style>

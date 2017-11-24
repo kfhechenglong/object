@@ -1,0 +1,71 @@
+/** 
+ * toggle.vue样式详见
+ * product.vue
+ * option.vue
+ ***/
+.check-toggle {
+  /*主要内容*/
+}
+.check-toggle .el-dialog__wrapper .el-dialog {
+  margin-bottom: 0;
+  border: 0 none;
+  border-radius: 10px;
+  width: 600px !important;
+  top: 25% !important;
+  box-shadow: 0 0 35px #000;
+}
+.check-toggle .el-dialog__wrapper .el-dialog .el-dialog__header {
+  border: 0 none;
+}
+.check-toggle .el-dialog__wrapper .el-dialog .el-dialog__body {
+  border-radius: 10px;
+  /*border:3px solid @color;*/
+  max-height: 480px;
+  padding: 20px 20px;
+}
+.check-toggle .toggle-content {
+  letter-spacing: 2px;
+  /*按钮*/
+}
+.check-toggle .toggle-content h3 {
+  font-size: 24px;
+  color: #20a0ff;
+  text-align: center;
+}
+.check-toggle .toggle-content ul {
+  margin: 20px 0;
+}
+.check-toggle .toggle-content li {
+  cursor: pointer;
+  float: left;
+  min-width: 110px;
+  /*max-width: 120px;*/
+  background-color: #169bd5;
+  height: 40px;
+  line-height: 40px;
+  border-radius: 5px;
+  margin: 10px 8px;
+  text-align: center;
+  font-size: 16px;
+  padding: 0 5px;
+  color: #fff;
+  box-shadow: 3px 3px 2px rgba(0, 0, 0, 0.5);
+}
+.check-toggle .toggle-content li i {
+  display: none;
+}
+.check-toggle .toggle-content .li-active {
+  background-color: #13ce66;
+}
+.check-toggle .toggle-content .li-active i {
+  display: inline-block;
+  font-size: 18px;
+  float: right;
+}
+.check-toggle .toggle-content .btn {
+  float: right;
+}
+.check-toggle .toggle-content .select-warp {
+  margin: 0 auto;
+  width: 230px;
+}

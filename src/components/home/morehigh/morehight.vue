@@ -245,7 +245,6 @@ import PrintAll from'./print-all.vue'
 import toggle from'./toggle.vue'
 import PrinterProgress from'./printer-progress.vue'
 import Addclass from '../commonvue/add-class.vue'
-const PTA = [{value: '正常',label: '正常'},{value: '轻度聋',label: '轻度聋'},{value: '中度聋',label: '中度聋'},{value: '中重度聋',label: '中重度聋'},{value: '极重度聋',label: '极重度聋'}];
 let initYear= new Date('1900');
 let stopYear = new Date();
 export default {
@@ -297,7 +296,7 @@ export default {
         // deaf_degree: deaf_degree,
         // deaf_nature:deaf_nature,
         tableData: [],
-        testType:testType,
+        testType:Options.testType,
         currentPage: 1,
         loading:true,
         count:0,
@@ -315,7 +314,7 @@ export default {
         // toneRenderData:[],
         jieguo:[],
         printAllData:[],
-        valuePTA:PTA,
+        valuePTA:Options.PTA,
         // 入园时间
         endYear:'',
         startYear:'',

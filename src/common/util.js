@@ -700,6 +700,10 @@ export default {
         }
         throw Error("需要一个对象！");
     },
+    /**
+     * new Object
+     * this pointer new Obejct
+     */
     earDataDetailClass:function (){
         this.isfinish = 0;
         this.isneed = 0;
@@ -708,6 +712,10 @@ export default {
         this.db = 0;
         this.result = {'systemvalue':{},'user_defined':{}};
     },
+    /**
+     * new Object
+     * this pointer new Obejct
+     */
     earDataClass:function (){
         var ear = "";
         var dataDetail = {};
@@ -717,6 +725,19 @@ export default {
         this.setDataDetail = function(obj){
             this.dataDetail =JSON.parse(JSON.stringify(obj));
         }
+    },
+    /**
+     * *切换li的ClassName
+     * @param  {[String]} ele  [parent node id ]
+     * @param  {[String]} name [change class name]
+     * @return {[type]}      [description]
+     */
+    removeClassName(ele,name){
+        const lis = this.jq(ele).getElementsByTagName('li');
+        for (let i = 0; i < lis.length; i++) {
+            lis[i].className = name;
+        }
+        return true;
     },
     /**
      * *将测试的赫兹完成情况改为1

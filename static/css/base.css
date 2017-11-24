@@ -1,4 +1,5 @@
 ﻿@charset "utf-8";
-
-/* CSS reset */
-html,body,div,dl,dt,dd,ul,ol,li,h1,h2,h3,h4,h5,h6,a,form,fieldset,input,textarea,p,blockquote,th,td{cursor: none !important;}
+.add-name,.el-message-box__wrapper .add-new,.my-d-h .el-dialog--small{
+	// border:3px solid #109bff;
+	box-shadow: 0 0 30px #000;
+}

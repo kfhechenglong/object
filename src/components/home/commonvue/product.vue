@@ -117,10 +117,12 @@ export default{
       }
     },
     close(){//关闭模态
-      const lis = jq('#o-product-li').getElementsByTagName('li');
-      const lis_title = jq('#title-product-li').getElementsByTagName('li');
-      this.for_li(lis);
-      this.for_li(lis_title);
+      // const lis = jq('#o-product-li').getElementsByTagName('li');
+      // const lis_title = jq('#title-product-li').getElementsByTagName('li');
+      // this.for_li(lis);
+      // this.for_li(lis_title);
+      Utils.removeClassName('#o-product-li','');
+      Utils.removeClassName('#title-product-li','');
       if(!this.isProduct){
         this.$emit('closeCheckArea',true)
       }
@@ -128,17 +130,18 @@ export default{
       this.readerdata = [];
       this.lastArr = {};
     },
-    for_li(ele){
-      for (let i = 0; i < ele.length; i++) {
-        ele[i].className = "";
-      }
-    },
+    // for_li(ele){
+    //   for (let i = 0; i < ele.length; i++) {
+    //     ele[i].className = "";
+    //   }
+    // },
     nextNode(e,item){
-      const lis = jq('#o-product-li').getElementsByTagName('li');
+      // const lis = jq('#o-product-li').getElementsByTagName('li');
       const clname = e.currentTarget.className;
       this.lastArr = {};
       const addClass = ()=>{
-        this.for_li(lis);
+        // this.for_li(lis);
+        Utils.removeClassName('#o-product-li','');
         e.currentTarget.className = "li-active";
       };
       if(item.children){
@@ -148,7 +151,7 @@ export default{
       }else{
         if(clname){
           this.lastNode = null;
-          this.for_li(lis);
+          Utils.removeClassName('#o-product-li','');
         }else{
           this.lastNode = item;
           addClass();
@@ -181,8 +184,9 @@ export default{
       }
       this.checkedArray = getResult.arr;
       this.readerdata = getResult.readerData;
-      const lis = jq('#o-product-li').getElementsByTagName('li');
-      this.for_li(lis);
+      // const lis = jq('#o-product-li').getElementsByTagName('li');
+      // this.for_li(lis);
+      Utils.removeClassName('o-product-li','');
     },
     submit(){//确认调换
       this.lastNode ? this.checkedArray.push(this.lastNode) : this.checkedArray;
@@ -200,7 +204,7 @@ export default{
   }
 </style>
 <style lang ="less" scoped>
-/*样式详见toggle.vue*/
+/*样式详见check-dialog.css*/
 .check-toggle .toggle-content{
   .haded-checked{
     ul{

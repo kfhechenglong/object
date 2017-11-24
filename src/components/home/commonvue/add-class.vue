@@ -160,7 +160,8 @@ export default{
 	}
 }
 .el-message-box__wrapper .add-new{
-	border:3px solid #109bff;
+	/*border:3px solid #109bff;*/
+	box-shadow: 0 0 30px #000;
 	border-radius: 15px;
 	position: absolute;
 	left: 50%;

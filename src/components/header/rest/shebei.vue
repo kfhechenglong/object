@@ -384,7 +384,8 @@ export default {
 
 <style lang ="less">
 .add-name{
-	border: 3px solid #109bff;
+	/*border: 3px solid #109bff;*/
+	box-shadow: 0 0 30px #000;
     border-radius: 15px !important;
     .el-message-box__header{
     	display: none;

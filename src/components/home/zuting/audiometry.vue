@@ -109,10 +109,22 @@
 				<el-button type="warning"@click="toPause('finish')"  :disabled="!start || disabled" v-show="isPause"><i class="iconfont icon-zanting"></i>暂停</el-button>
 				<el-button type="success"@click="toPause('false')"  :disabled="!start || disabled" v-show="!isPause"><i class="iconfont icon-jixu"></i>继续</el-button>
 				<el-button type="info" @click="lookResult" :disabled="'finish' != isfinish"><i class="iconfont icon-baocun"></i>完成</el-button>
+				<el-button type="info" @click="_toNextHz" ><i class="iconfont icon-baocun"></i>跳过当前</el-button>
 				<el-button type="info" @click="_toggle_ear" ><i class="iconfont icon-baocun"></i>切换耳别</el-button>
 			</ul>
 		</div>
   	</div>
+	<div class="c-db check-toggle" @click="_click_div_warp_close" v-if="showCheckDb">
+		<div class="c-warp"  @click.stop="aaa =>{}">
+			<h3>请选择当前频率的测试强度</h3>
+			<ul class="clearfix toggle-content" id="checked-db">
+				<li v-for="ele,index in checkDb" class="fl" @click.stop="_check_db($event,ele)">{{ele}}<i class="iconfont icon-xuanze2"></i></li>
+			</ul>
+			<div class="fr" style="margin-right:20px;">
+				<el-button :disabled="false" type="info" class="btn" @click="save_defined">确定</el-button>
+			</div>
+		</div>
+	</div>
   	<!-- 被控端loading完成提示 -->
 	<div>
 		<StartTips :loadOver="dialogVisibleTips"></StartTips>
@@ -224,7 +236,8 @@ export default {
  			hasSound:false,
  			nextHzData:{},
  			checkData:{},
- 			currentEarIndex:0
+ 			currentEarIndex:0,
+ 			showCheckDb:false
  		}
  	},
  	mounted(){
@@ -324,6 +337,15 @@ export default {
                 return "双耳同时";
             }
  		},
+ 		// 获取当前要测试的强度范围
+ 		checkDb:function(){
+ 			const num = this.maxDb / 5,
+ 				arr = [];
+ 			for (let i = 2; i < num + 1; i++) {
+ 				arr.push(i*5)
+ 			}
+ 			return arr;
+ 		},
  		// 返回上级
  		gobackFalg:function(){
  			let backfalg = false;
@@ -361,14 +383,48 @@ export default {
  		_isShowSign(db,hz){
  			const checkData = this.checkData;
  			if(checkData[hz] && checkData[hz].isneed == 1 && checkData[hz].isfinish == 1 ){
- 				if(checkData[hz].data[db] && 3 === checkData[hz].data[db].true && db == checkData[hz].result.systemvalue.y){
+ 				if(checkData[hz].data[db] && 3 === checkData[hz].data[db].true && db == checkData[hz].result.systemvalue.y){//显示正确显示的点
  					return 'success'
  				}
- 				if(checkData[hz].data[db] && 3 === checkData[hz].data[db].false && db == checkData[hz].result.systemvalue.y){
+ 				if(db == checkData[hz].result.user_defined.y){//显示系统值
+ 					return 'success'
+ 				}
+ 				if(checkData[hz].data[db] && 3 === checkData[hz].data[db].false && db == checkData[hz].result.systemvalue.y){//显示错误三次的点
  					return 'error'
  				}
  			}
  			return false;
+ 		},
+ 		// 跳过当前测试hz
+ 		_toNextHz(){
+ 			// 发送暂停指令
+ 			websocket.send(JSON.stringify(this.wskt.wstoctld('games_audio_pause','')));
+ 			this.showCheckDb = true;
+ 			console.log(this.frequency)
+ 		},
+ 		// 关闭现在强度窗口
+ 		_click_div_warp_close(){
+ 			this.showCheckDb = !this.showCheckDb;
+ 			this.user_defined_db = null;
+ 			// 发送继续指令，测试下一个频率
+ 			websocket.send(JSON.stringify(this.wskt.wstoctld('games_audio_continue','')));
+ 			this.toParams();
+ 		},
+ 		// 选择强度值
+ 		_check_db(e,ele){
+ 			Utils.removeClassName('#checked-db','fl');
+      		e.currentTarget.className = "fl li-active";
+      		// 记录当前选中的db
+      		this.user_defined_db = ele;
+ 		},
+ 		save_defined(){
+ 			// 设置当前hz的db值
+      		if(!this.user_defined_db){msgTipsErr(this,'请选择强度值！'); return;}
+      		const hz_obj = this.checkData[this.frequency];
+      		hz_obj.isfinish = 1;
+      		hz_obj.result.user_defined.x = Number(this.frequency);
+      		hz_obj.result.user_defined.y = this.user_defined_db;
+      		this._click_div_warp_close();
  		},
  		// 切换耳别
  		_toggle_ear(){
@@ -732,7 +788,6 @@ export default {
 			this.cellWidth = everysize.cellWidth;
 			this.cellHeight = everysize.cellHeight;
 			this.startCeTing();
-
 		},
 		startCeTing(){
 			// 首先判断频率及强度是否有值
@@ -844,17 +899,13 @@ export default {
  	}
 }
 </script>
-
-<!-- Add "scoped" attribute to limit CSS to this component only -->
 <style lang ="less" >
 @bgc:#fff;
 @bor:#5e9b71;
 @hover:#5c946c;
 	#audiometry{
 		width: 1330px;
-		/*height: 790px;*/
 		margin:5px auto;
-		/*background-color: bgc;*/
 		.audiometry-right{
 			width: 420px;
 			background-color: @bgc;
@@ -866,13 +917,13 @@ export default {
 				color:#fff;
 			}
 			.title{
+				border-bottom: 3px solid @bor;
 				h3{
 					margin:0px;
 					margin-left:30px;
 					line-height: 50px;
 					font-size: 20px;
 				}
-				border-bottom: 3px solid @bor;
 			}
 			dt,h3,.demonstration{
 				color:#579b6a;
@@ -924,7 +975,7 @@ export default {
 				}
 				button{
 					width: 260px;
-					height: 60px;
+					height: 45px;
 					/*line-height: 60px;*/
 					margin-bottom: 10px;
 					border-radius: 5px;
@@ -1178,6 +1229,37 @@ export default {
 					}
 				}
 			}
+		}
+		/*跳过hz选择db*/
+		.c-db{
+			position: fixed;
+			left:0;
+			top:0;
+			right: 0;
+			bottom:0;
+			background:rgba(0,0,0,0.4); 
+			z-index: 3000;
+			.c-warp{
+				position: fixed;
+				left:50%;
+				top:50%;
+				transform: translate(-50%,-50%);
+				width: 450px;
+				box-sizing: border-box;
+				padding: 10px;
+				min-height:150px ;
+				background:#fafafa;
+				border-radius: 5px;
+				box-shadow: 0 0 20px #000;
+			}
+			h3{
+				height: 50px;
+				line-height: 50px;
+				text-align:center;
+				color:#333;
+				font-size: 22px;
+			}
+			ul{}
 		}
 	}
 	.el-message-box.msgboxClass{
