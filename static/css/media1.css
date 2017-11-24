@@ -43,7 +43,7 @@
 	    left: 306px;
 	}
 	#audiometry .audiometry-left .audiometry-left-top div:nth-child(4),#audiometry .audiometry-left .audiometry-left-top div:nth-child(2){bottom:43px;}
-	#audiometry .audiometry-right{margin-top:170px;}
+	// #audiometry .audiometry-right{margin-top:170px;}
 	/*******参数按钮*******/ 
 	.el-radio-button__inner,.el-checkbox-button--large .el-checkbox-button__inner,
 	.el-radio-button--large .el-radio-button__inner,.hz dd .active,.el-button{
@@ -219,7 +219,10 @@
 		width:1280px;
 		height:550px;
 	}
-	#audiometry{width:1280px;height:550px;}
+	#audiometry{
+		width:1280px;
+		// height:550px;
+	}
 	#tone-audiometry .audiometry-left,#liu-audiometry .audiometry-left,#especial-audiometry .audiometry-left{height:550px;}
 	#audiometry .audiometry-left .audiometry-left-top{height:150px;}
 	#audiometry .audiometry-left .audiometry-left-top div:nth-child(3){
@@ -234,8 +237,8 @@
 	#audiometry .audiometry-left .audiometry-table{height: 490px;border: 4px solid #5e9b71;}
 	#audiometry .audiometry-left .audiometry-table #table li{line-height: 24px;font-size: 14px;}
 	#audiometry .audiometry-right{    
-		margin-top: 150px;
-    	height: 490px;
+		// margin-top: 150px;
+    	height: 640px;
     	border: 4px solid #5e9b71;
     }
     #tone-audiometry .audiometry-right .button,#especial-audiometry .audiometry-right .button{margin: 80px 88px;}
