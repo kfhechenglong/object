@@ -40,7 +40,6 @@ if(port == 8080){
     url = wshost+':'+wsport;
 }
 web_url = 'http://'+apihost+':'+apiport;
-var testType = [{name:'助听听阈',key:6},{name:'林氏六音',key:1},{name:'音素区分',key:2},{name:'声调区分',key:3},{name:'声母区分',key:4}];
 window.onload = function(){
     // 点击header以外的地方，隐藏下拉框
     const body = jq('body')[0];

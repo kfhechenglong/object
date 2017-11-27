@@ -23,11 +23,14 @@
                         </ul>
                     </div>
                     <div class="table">
-                        <div class="clearfix">
+                        <div class="clearfix" :class="{'t-6':flag == 6 }">
                             <div @click="_studyList" class="fl t-s-l" :class="{'active':studylist}">
                                 <!-- <el-badge :value="infoStudent.length" class="item"> -->
                                   <p>学生列表({{infoStudent.length}}人)</p>
                                 <!-- </el-badge> -->
+                            </div>
+                            <div v-show="flag == 6" @click="_studyList('dai')" class="fl t-s-z">
+                                  <p>暂存</p>
                             </div>
                             <div @click="_studyList('dai')" class="fl t-s-d" :class="{'active':!studylist}">
                                 <el-badge :value="value" class="item">
@@ -397,7 +400,7 @@ export default {
         .table{
             // width:460px;
             margin-top:8px;
-            .t-s-l,.t-s-d{
+            .t-s-z,.t-s-l,.t-s-d{
                 cursor:pointer;
                 width: 425px;
                 height: 40px;
@@ -417,12 +420,23 @@ export default {
             }
             .t-s-d{
                 border-left:0px none;
+                border-left:1px solid #fff;
                 border-radius:0 7px 7px 0;
             }
             .active{
                 background-color: #109bff;
                 border: 1px solid #109bff;
+                border-left:1px solid #fff;
                 color:#fff;
+            }
+            .t-6{
+                .t-s-l,.t-s-d,.t-s-z{
+                    width: 283px;
+                }
+                .t-s-z{
+                    border-radius:0;
+                    border-left:1px solid #fff;
+                }
             }
             ul{
                 height:320px;

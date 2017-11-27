@@ -8,30 +8,30 @@
 						<div v-if="!hasData" class="tips">
 								暂无数据！
 						</div>
-						<div v-for="( val,key) in testData">
-							<div :id="('main-table-'+key)" :class="[testData['left']&&testData['right'] ?'':'marginleft','fl']" v-if="testData[key]">
-								<h3>{{key=="all" ? "双耳":(key == "left" ?'左耳':'右耳')}}</h3>
+						<div v-for="( val,num) in testData">
+							<div :id="('main-table-'+val.ear)" :class="[testData.length === 2?'':'marginleft','fl']">
+								<h3>{{val.ear=="A" ? "双耳":(val.ear == "L" ?'左耳':'右耳')}}</h3>
 								<ul>
 									<li v-for="(item,index) in trueLine">{{item}}</li>
 								</ul>
 								<div class="warp lf">
-									<table :id="(key+'header')">
+									<table :id="(val.ear+'header')">
 										<tr>
 											<th v-for="(item1,index) in hz">{{item1}}</th>
 										</tr>
 									</table>
-									<table :id="key">
+									<table :id="val.ear">
 										<tr>
 											<th  v-for="(item,index) in hz.length*2">{{item % 2 != 0?"(√":"×)"}}</th>
 										</tr>
 										<tr v-for="( tit,indexTr) in trueLine">
 											<td v-for="(item,indexTd) in hz.length*2">
-												<span v-if="testData[key][hz[Math.floor(indexTd/2)]]&& testData[key][hz[Math.floor(indexTd/2)]][tit]">
-													<span v-if="indexTd%2==0"  :class="[ (testData[key][hz[Math.floor(indexTd/2)]][tit]['true']) == '3'? 'bgcspan' :'','spanborder']">
-														{{testData[key][hz[Math.floor(indexTd/2)]][tit]["true"]}}
+												<span v-if="val.dataDetail[hz[Math.floor(indexTd/2)]]&& val.dataDetail[hz[Math.floor(indexTd/2)]].data[tit]">
+													<span v-if="indexTd%2==0"  :class="[ (val.dataDetail[hz[Math.floor(indexTd/2)]].data[tit]['true']) == '3'? 'bgcspan' :'','spanborder']">
+														{{val.dataDetail[hz[Math.floor(indexTd/2)]].data[tit]["true"]}}
 													</span>
-													<span v-if=" indexTd%2==1" :class="[ (testData[key][hz[Math.floor(indexTd/2)]][tit]['true']) == '3'? 'bgcspan' :'']">
-														{{testData[key][hz[Math.floor(indexTd/2)]][tit]["false"]}}
+													<span v-if=" indexTd%2==1" :class="[ (val.dataDetail[hz[Math.floor(indexTd/2)]].data[tit]['true']) == '3'? 'bgcspan' :'']">
+														{{val.dataDetail[hz[Math.floor(indexTd/2)]].data[tit]["false"]}}
 													</span>
 													
 												</span>
@@ -131,7 +131,13 @@ export default {
  		statisticsInfo:null,
  		getServer:Array,
  		tonetype:String,
- 		ear:String
+ 		ear:String,
+ 		checkDataArray:{
+ 			type:Array,
+ 			default:function(){
+ 				return [];
+ 			}
+ 		}
  	},
  	mounted(){
  		this.$nextTick(() =>{
@@ -166,16 +172,23 @@ export default {
         },
  		// 判断测试记录是否有数据
  		hasData:function(){
- 			let test_Data = this.statisticsInfo;
+ 			// let test_Data = this.statisticsInfo;
+ 			let test_Data = this.checkDataArray;
  			let isTrue = false;
- 			if(test_Data['left']){
- 				isTrue = true;
- 			} else if(test_Data['right']){
-				isTrue = true;
- 			} else if(test_Data['all']){
- 				isTrue = true;
- 			}
- 			return isTrue
+ 			try{
+	 			test_Data.forEach(ele =>{
+	 				const detail = ele.dataDetail;
+	 				for(let i in detail){
+	 					if(detail[i].isfinish == 1){
+	 						isTrue = true;
+	 						break;
+	 					}
+	 				}
+	 			})
+	 		} catch(err){
+	 			throw err;
+	 		}
+ 			return isTrue;
  		},
  		...mapState(['canvasMarks','IP','hz'])
  	},
@@ -332,19 +345,39 @@ export default {
 			}
  		},
  		setStyle(){
- 			this.testData = this.statisticsInfo;
- 			// debugger;
+ 			// this.testData = this.statisticsInfo;
+ 			this.testData = this.checkDataArray;
+ 			console.log(this.checkDataArray);
+ 			const testData = this.checkDataArray;
  			setTimeout(()=>{
- 				if(this.testData['left']){
- 					this.getStyle('main-table-left','leftheader');
- 				}
- 				if(this.testData['right']){
- 					this.getStyle('main-table-right','rightheader');
- 				}
- 				if(this.testData['all']){
- 					this.getStyle('main-table-all','allheader');
- 				}
+ 				testData.forEach(item =>{
+	 				switch(item.ear){
+	 					case 'A':
+	 					this.getStyle('main-table-A','Aheader');
+	 					break;
+	 					case 'R':
+	 					this.getStyle('main-table-R','Rheader');
+	 					break;
+	 					case 'L':
+	 					this.getStyle('main-table-L','Lheader');
+	 					break;
+
+	 				}
+	 			})
  			},0);
+ 			
+
+ 			// setTimeout(()=>{
+ 			// 	if(this.testData['left']){
+ 			// 		this.getStyle('main-table-left','leftheader');
+ 			// 	}
+ 			// 	if(this.testData['right']){
+ 			// 		this.getStyle('main-table-right','rightheader');
+ 			// 	}
+ 			// 	if(this.testData['all']){
+ 			// 		this.getStyle('main-table-all','allheader');
+ 			// 	}
+ 			// },0);
  		}
  	}
 }
@@ -385,7 +418,7 @@ export default {
 		    transform: translate(-50%,-50%);
 		}
 		.table{
-			#main-table-all,#main-table-right,#main-table-left{
+			#main-table-A,#main-table-R,#main-table-L{
 				/*单个测听结果的样式*/
 				&.marginleft{
 					margin-left:25%;
@@ -413,7 +446,7 @@ export default {
     					font-weight: 400;
 					}
 				}
-				#all,#left,#right{
+				#A,#L,#R{
 					width: 94%;
 					border-collapse: collapse;
 					tr{
@@ -447,24 +480,24 @@ export default {
 					}
 				}
 			}
-			#main-table-all{
-					h3{
-						color:#000;
-					}
-					border:1px solid #000;
+			#main-table-A{
+				h3{
+					color:#000;
 				}
-				#main-table-left{
-					h3{
-						color:blue;
-					}
-					border:1px solid blue;
+				border:1px solid #000;
+			}
+			#main-table-L{
+				h3{
+					color:blue;
 				}
-				#main-table-right{
-					h3{
-						color:red;
-					}
-					border:1px solid red;
+				border:1px solid blue;
+			}
+			#main-table-R{
+				h3{
+					color:red;
 				}
+				border:1px solid red;
+			}
 		}
 		.result-btn{
 			text-align: center;

@@ -111,7 +111,7 @@
 				<el-button type="info" @click="_toNextHz"  :disabled="'finish' != isfinish">跳过当前</el-button>
 				<el-button type="info" @click="lookResult" :disabled="!start"><i class="iconfont icon-baocun"></i>完成</el-button>
 				<el-button v-if="currentear.length === 2" type="info" @click="_toggle_ear" >切换耳别</el-button>
-				<el-button type="info" @click="_storage" >暂存</el-button>
+				<el-button type="info" @click="_storage" :disabled="!start">暂存</el-button>
 			</ul>
 		</div>
   	</div>
@@ -130,7 +130,7 @@
 	<div>
 		<StartTips :loadOver="dialogVisibleTips"></StartTips>
 	</div>
-  	<ele-result ref ="result" :checkhz="hz" :line="line" :trueLine="trueLine" :statisticsInfo="statisticsInfo" :getServer="getServer" :tonetype="xcurrent" :ear="currentear"></ele-result>
+  	<ele-result ref ="result" :checkhz="hz" :line="line" :trueLine="trueLine" :statisticsInfo="statisticsInfo" :getServer="getServer" :checkDataArray="checkDataArray" :tonetype="xcurrent" :ear="currentear"></ele-result>
   </div>
 </template>
 <script>
@@ -238,7 +238,8 @@ export default {
  			nextHzData:{},
  			checkData:{},
  			currentEarIndex:0,
- 			showCheckDb:false
+ 			showCheckDb:false,
+ 			checkDataArray:[]
  		}
  	},
  	mounted(){
@@ -259,8 +260,8 @@ export default {
  			const a = [];
 			for (var i = 0; i < res.length; i++) {
 				const currentTestEarHz = new Utils.earDataClass();
-				currentTestEarHz.setEar(res[i]);
-				currentTestEarHz.setDataDetail(getParamsPageData);
+				currentTestEarHz.ear = (res[i]);
+				currentTestEarHz.dataDetail =JSON.parse(JSON.stringify(getParamsPageData));
 				a.push(currentTestEarHz)
 			}
 			this.checkDataArray = a;
@@ -440,8 +441,8 @@ export default {
  		},
  		// 暂存数据
  		_storage(){
- 			websocket.send(JSON.stringify(this.wskt.wstoctld('games_audio_pause','')));
- 			console.log("暂存数据！")
+ 			this.toPause('finish');
+ 			console.log(this.checkDataArray)
  		},
  		// 添加删除频率
  		_click_toggle_Hz(e){
@@ -712,8 +713,8 @@ export default {
 			        	this.step = 0;
 			        });
 				}else{
-					// console.log(this.checkDataArray)
-					// console.log(JSON.stringify(this.checkDataArray))
+					console.log(this.checkDataArray)
+					console.log(JSON.stringify(this.checkDataArray))
 					// 提示测评完成
 					websocket.send(JSON.stringify(this.wskt.wstoctld('games_audio_pause','')));
  					window.isToggle = false;

@@ -635,7 +635,7 @@ export default {
      * @return {[Object]}     [返回待测频率优先级最高的]
      */
     getNextHz(obj) {
-        if(!this.isObject(obj)){return false;}
+        if(!this.isObject(obj,'Object')){return false;}
         const arr = [];
         for(let i in obj){
             if(obj[i].isneed != 1 || obj[i].isfinish != 0) continue;
@@ -673,7 +673,7 @@ export default {
      * @return {[Object]} obj [hz对象]
      */
     getCheckHz(obj){
-        if(this.isObject(obj)){
+        if(this.isObject(obj,'Object')){
             const arr = [];
             for(let i in obj){
                 if(obj[i].isneed != 1 ) continue;
@@ -687,18 +687,18 @@ export default {
      * @param {[Object]} obj [hz对象]
      */
     setCheckHzStatus(obj){
-        if(this.isObject(obj)){
+        if(this.isObject(obj,'Object')){
             for(let i in obj){
                 if(obj[i].isneed != 1 ) continue;
                 obj[i].isfinish = 0;
             }
         }
     },
-    isObject(obj){
-        if(Object.prototype.toString.call(obj) === '[object Object]'){ 
+    isObject(obj,object){
+        if(Object.prototype.toString.call(obj) === '[object '+ object +']'){ 
             return true;
         }
-        throw Error("需要一个对象！");
+        throw Error("需要一个"+object+"！");
     },
     /**
      * new Object
@@ -717,14 +717,8 @@ export default {
      * this pointer new Obejct
      */
     earDataClass:function (){
-        var ear = "";
-        var dataDetail = {};
-        this.setEar = function(ear){
-            this.ear = ear;
-        };
-        this.setDataDetail = function(obj){
-            this.dataDetail =JSON.parse(JSON.stringify(obj));
-        }
+        this.ear = "";
+        this.dataDetail = {};
     },
     /**
      * *切换li的ClassName
@@ -745,7 +739,7 @@ export default {
      * @param {[Number,String]} hz  [当前的hz]
      */
     setHzIsfinish(obj,hz){
-        if(this.isObject(obj)){
+        if(this.isObject(obj,'Object')){
             if(obj[hz].isneed === 1){
                 obj[hz].isfinish = 1
             }else{
@@ -859,10 +853,17 @@ export default {
             alert(err +'获取老师数据出错！')
         })
     },
+    /**
+     * *获取本地localstorage
+     * @param  {[string,number]} user_id [学生的id值]
+     * @param  {[string,number]} type_id [测试类型的id值]
+     * @return {[type]}         [description]
+     */
     getLocalStorage(user_id,type_id){
         let getLocalStorage = JSON.parse(localStorage.getItem("noTestNames"));
         // 先查看本地有没有待测名单
         if(!getLocalStorage){
+            return false;
         }else{
             // 获取当前用户的id
             for (let i = 0; i < getLocalStorage.length; i++) {
@@ -877,8 +878,55 @@ export default {
                     }
                 }
             }
-            localStorage.setItem("noTestNames",JSON.stringify(getLocalStorage))
+            localStorage.setItem("noTestNames",JSON.stringify(getLocalStorage));
+            return true;
         }
+    },
+    /**
+     * *set LocalStorage
+     * @param {[String]} localStorageName [本地存储name]
+     * @param {[Array]} typeObject       [description]
+     * @param {Number} currentType      [当前的测试类型]
+     * @param {[Object]} data             [选择的数据]
+     */
+    setLocalStorage(localStorageName,typeObject,currentType = 6 ,data){
+        return new Promise((resolve,reject)=>{
+            // 获取本地的待测名单
+                let getLocalStorage = JSON.parse(localStorage.getItem(localStorageName));
+                // 先查看本地有没有待测名单
+                if(!getLocalStorage){
+                    // 没有待测名单，则创建名单
+                    let nameLists = [];
+                    for (var i = 0; i < typeObject.length; i++) {
+                        let data = {
+                            testType:typeObject[i].value,
+                            nameList:[]
+                        }
+                        nameLists.push(data)
+                    }
+                    getLocalStorage = nameLists;
+                }
+                // 添加当前测试类型的未测名单
+                for (let i = 0; i < getLocalStorage.length; i++) {
+                    if(getLocalStorage[i].testType === currentType){
+                        //如果有待测名单，先合并再去重
+                        let localStorageName = getLocalStorage[i].nameList;
+                        let a = localStorageName.concat(data);
+                        //  去重
+                        let res = [];
+                        let json = {};
+                        for(let j = 0; j < a.length; j++){
+                            if(!json[a[j].user_id]){
+                                res.push(a[j]);
+                                json[a[j].user_id] = 1;
+                            }
+                        }
+                        getLocalStorage[i].nameList = res;
+                    }
+                }
+                localStorage.setItem(localStorageName,JSON.stringify(getLocalStorage));
+                resolve();
+        })
     },
     // 获取打印机
     getPrint(pointer,flag,params){

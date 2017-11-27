@@ -127,44 +127,11 @@ export default {
                 return;
             }else{
                 let typeObject = this.typeObject;
-                // 获取本地的待测名单
-                let getLocalStorage = JSON.parse(localStorage.getItem("noTestNames"));
-                // 先查看本地有没有待测名单
-                if(!getLocalStorage){
-                    // 没有待测名单，则创建名单
-                    let nameLists = [];
-                    for (var i = 0; i < typeObject.length; i++) {
-                        let data = {
-                            testType:typeObject[i].value,
-                            nameList:[]
-                        }
-                        nameLists.push(data)
-                    }
-                    getLocalStorage = nameLists;
-                }else{
-                }
-                // 添加当前测试类型的未测名单
-                for (let i = 0; i < getLocalStorage.length; i++) {
-                    if(getLocalStorage[i].testType === this.currType.value){
-                        //如果有待测名单，先合并再去重
-                        let localStorageName = getLocalStorage[i].nameList;
-                        let a = localStorageName.concat(this.checkedNameList);
-                        //  去重
-                        let res = [];
-                        let json = {};
-                        for(let j = 0; j < a.length; j++){
-                            if(!json[a[j].user_id]){
-                                res.push(a[j]);
-                                json[a[j].user_id] = 1;
-                            }
-                        }
-                        getLocalStorage[i].nameList = res;
-                    }
-                }
-                // console.log(JSON.stringify(getLocalStorage))
-                localStorage.setItem("noTestNames",JSON.stringify(getLocalStorage))
-                msgTipsSuccess(this,'已添加到待测名单！')
-                this.noTestNameLists = false;
+                Utils.setLocalStorage('noTestNames',typeObject,this.currType,this.checkedNameList).then((res)=>{
+                    msgTipsSuccess(this,'已添加到待测名单！')
+                    this.noTestNameLists = false;
+                })
+                
             }
         }
     }
