@@ -276,7 +276,7 @@ export default {
         const _this = this;
         if(adIsOnline){//websocket在线
             let argument = this.wskt.wstoserver('sys_poweroff','');
-            this.$confirm('确认退出吗?', '提示', {
+            this.$confirm('确认关机吗?', '提示', {
                 // type: 'warning'
             }).then(() => {
                 websocket.send(JSON.stringify(argument));
@@ -288,15 +288,13 @@ export default {
     },
     // 测试状态下的
     testReboot(){
-        var argument = this.wskt.wstoserver('sys_restart',{debug:true});
+        var argument = this.wskt.wstoserver('sys_remoteAD','');
         console.log(argument);
         websocket.send(JSON.stringify(argument));
     }
   }
 }
 </script>
-
-<!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped lang ="less">
     .navbar-header{
         float:left;

@@ -128,7 +128,6 @@ export default {
  		checkhz:Array,
  		trueLine:Array,
  		line:Array,
- 		statisticsInfo:null,
  		getServer:Array,
  		tonetype:String,
  		ear:String,
@@ -141,26 +140,10 @@ export default {
  	},
  	mounted(){
  		this.$nextTick(() =>{
- 			// 保存测试耳信息
-			const radioEar = ((str)=>{
-	 			switch(str){
-	 				case 'A':
-	 				return '双耳同时';
-	 				case 'RL':
-	 				return '先右后左';
-	 				case 'LR':
-	 				return '先左后右';
-	 				case 'R':
-	 				return '仅测右耳';
-	 				case 'L':
-	 				return '仅测左耳';
-	 				default:'-'
-	 			}
-	 		})(this.ear);
 	 		const obj = {
 	 			'testmodel':'游戏训练',
 	    		'getmodel':'自由给声',
-	    		'radioEar':radioEar,
+	    		'radioEar':this.ear,
 	 		}
 	 		this.$store.commit('hasCanvasData',{});
 	 		this.$store.commit('hasTestCanvasData',obj);
@@ -172,7 +155,6 @@ export default {
         },
  		// 判断测试记录是否有数据
  		hasData:function(){
- 			// let test_Data = this.statisticsInfo;
  			let test_Data = this.checkDataArray;
  			let isTrue = false;
  			try{
@@ -249,7 +231,12 @@ export default {
 		},
  		show(){
  			// 将对象保存成字符串传递给子组件
- 			this.stringData = JSON.stringify(this.getServer);
+ 			const obj = new Utils.chartChildDataClass();
+ 			obj.type = "6";
+ 			obj.order = this.ear;
+ 			obj.earData = this.checkDataArray;
+ 			this.stringData = [obj];
+ 			// this.stringData = JSON.stringify(this.getServer);
  			this.dialogTableVisible = true;
  			// 生成时间戳
  			this.time = parseInt(new Date().getTime());
@@ -345,9 +332,7 @@ export default {
 			}
  		},
  		setStyle(){
- 			// this.testData = this.statisticsInfo;
  			this.testData = this.checkDataArray;
- 			console.log(this.checkDataArray);
  			const testData = this.checkDataArray;
  			setTimeout(()=>{
  				testData.forEach(item =>{
@@ -365,19 +350,6 @@ export default {
 	 				}
 	 			})
  			},0);
- 			
-
- 			// setTimeout(()=>{
- 			// 	if(this.testData['left']){
- 			// 		this.getStyle('main-table-left','leftheader');
- 			// 	}
- 			// 	if(this.testData['right']){
- 			// 		this.getStyle('main-table-right','rightheader');
- 			// 	}
- 			// 	if(this.testData['all']){
- 			// 		this.getStyle('main-table-all','allheader');
- 			// 	}
- 			// },0);
  		}
  	}
 }

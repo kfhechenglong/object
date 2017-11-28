@@ -254,7 +254,7 @@ export default{
   },
   // 接收父组件传过来的数据
   props:{
-    resultData:String
+    resultData:[Object,String,Array]
   },
   watch:{
 

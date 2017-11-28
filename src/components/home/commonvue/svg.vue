@@ -818,6 +818,8 @@ export default{
 		        }
 		        if (arrayyuan.length > 0) {
 		          	addData.push({'type': item.key, 'ears': '右', 'data': this.changeFormat(arrayyuan)})
+		          	console.log(this.svgData)
+		          	Utils.checkIsChange(this.svgData,{'type': item.key, 'ears': '右', 'data': this.changeFormat(arrayyuan)})
 		        }
 		    };
 	    })
@@ -846,12 +848,12 @@ export default{
     // 数据 在x轴的坐标听力值
     dataX: function (x) {
       for (var i = 0; i < arrayX2.length; i++) {
-        if (arrayX2[i] === x) {
+        if (+arrayX2[i] === +x) {
           return i
         }
       };
       for (var j = 0; j < arrayXxia2.length; j++) {
-        if (arrayXxia2[j] === x) {
+        if (+arrayXxia2[j] === +x) {
           return j + 20
         }
       }
@@ -1339,7 +1341,7 @@ export default{
     	if(hand === "right"){
     		let obj = {
 				'ele' :this.svgYou,
-				'arr' : data_arr ? data_arr :this.arrayyuan,
+				'arr' : data_arr ? data_arr : this.arrayyuan,
 				'color':'#FF0000',
 				'mask': mark ? mark :this.fontSign + 'R'
 			};
@@ -1348,7 +1350,7 @@ export default{
     	}else{
     		let obj = {
 	    		'ele' :this.svgZuo,
-	    		'arr' : data_arr ? data_arr :this.arrayyuanzuo,
+	    		'arr' : data_arr ? data_arr : this.arrayyuanzuo,
 	    		'color':'#0000FF',
 	    		'mask': mark ? mark :this.fontSign + 'L'
 	    	};
@@ -1359,30 +1361,25 @@ export default{
     // 根据 是否能画图的标记 来判断画图的数据
     drawyuanzhu: function () {
     	let objZong = [];
-    	try{
-		 objZong = typeof(this.svgData) === "string" ? JSON.parse(this.svgData) : this.svgData;
-    	} catch(err){
-    		throw new Error("助听数据格式不正确!")
-    	}
-      	// 根据数据生成表中数据
-	    for (var v in objZong) {
-	        // 生成右耳图
-	        if (objZong[v].ears === '右') {
-	          	if (objZong[v].type === '6') {
-	            	this.arrayyuan = this.ReadData(objZong[v].data);
-	            	this.arrayyuanshi = this.ReadData(objZong[v].data);
-	          	};
-	          	this.publicFn("right");
-	        }
-	        // 生成左耳图
-	        if (objZong[v].ears === '左') {
-	          	if (objZong[v].type === '6') {
-	            	this.arrayyuanzuo = this.ReadData(objZong[v].data);
-	            	this.arrayyuanshizuo = this.ReadData(objZong[v].data);
-	          	}
-		        this.publicFn("left");
-	        }
-	    }
+		 objZong = this.svgData[0];
+        // 生成右耳图
+        if (objZong.type === '6') {
+        	const data = objZong.earData;
+        	// 生成渲染的数据格式
+        	data.forEach(item =>{
+        		const getReaderSvgData = Utils.getReaderSvgData(item);
+        		if(item.ear === "A" || item.ear === "R"){
+        			this.arrayyuan = this.ReadData(getReaderSvgData);
+            		this.arrayyuanshi = this.ReadData(getReaderSvgData);
+        		}
+        		if(item.ear === "A" || item.ear === "L"){
+        			this.arrayyuanzuo = this.ReadData(getReaderSvgData);
+            		this.arrayyuanshizuo = this.ReadData(getReaderSvgData);
+        		}
+        	})
+          	this.publicFn("right");
+          	this.publicFn("left");
+        }
       	this.createdPng(this.svgZuo);
       	this.createdPng(this.svgYou);
     },
@@ -1413,7 +1410,6 @@ export default{
       	let fontOp;
       	const that = this;
       	// use 的html标签语言
-      	// console.log(arr)
       	for (var i = 0; i < arr.length; i++) {
         	fontOp = mask
         	if (arr[i][0] >= 20) {

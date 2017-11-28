@@ -89,6 +89,24 @@ var {
   float: right;
   display: inline;
 }
+.box-b{
+  box-sizing:border-box;
+}
+.l-s-1em{
+  letter-spacing: 1em;
+}
+.height-50{
+  height:50px;
+  line-height: 50px;
+}
+.height-30{
+  height:30px;
+  line-height: 30px;
+}
+.height-90{height:90px !important;}
+.height-40{height:40px;line-height: 40px;}
+.height-20{ height:20px;line-height: 20px;}
+.height-35{height:35px;line-height: 35px;}
 /***********档案列表基本样式************/
 .base,
 .caseFiles,

@@ -716,6 +716,15 @@ export default {
      * new Object
      * this pointer new Obejct
      */
+    chartChildDataClass:function (){
+        this.type = 0;
+        this.earData = {};
+        this.order = "";
+    },
+    /**
+     * new Object
+     * this pointer new Obejct
+     */
     earDataClass:function (){
         this.ear = "";
         this.dataDetail = {};
@@ -763,6 +772,39 @@ export default {
             obj[item].isneed = 1;
         });
         return obj
+    },
+    /**
+     * *获取svg渲染的格式
+     * @param  {[Obejct]} data [description]
+     * @return {[Array]}      [description]
+     */
+    getReaderSvgData(obj){
+        if(this.isObject(obj,'Object')){
+            const data = obj.dataDetail,
+                arr = [];
+            for(let i in data){
+                if(data[i].isfinish == 1 && data[i].isneed == 1){
+                    const objsystemvalue = data[i].result.systemvalue;
+                    const objdefinvvalue = data[i].result.user_defined;
+                    if(!(Object.keys(objsystemvalue).length == 0)){
+                        arr.push(objsystemvalue);
+                        continue
+                    }
+                    if(!(Object.keys(objdefinvvalue).length == 0)){
+                        arr.push(objdefinvvalue);
+                        continue
+                    }
+                }
+            }
+            console.log(arr)
+            return arr;
+        }
+    },
+    checkIsChange(a,b){
+        console.log(a,b)
+        a.forEach(item =>{
+            console.log(item)
+        })
     },
     //获取测试类型
     getType(test_id){
