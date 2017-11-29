@@ -126,14 +126,14 @@
       <div id="page-wrapper" class="container-fluid" style="padding:5px;">
         <div class="ibox height-auto">
           <div class="ibox-title clearfix">
-            <div class="l-edit" v-on:click="_bigCanv('you')">右耳编辑</div>
-            <div class="f-edit" v-on:click="_bigCanv('zuo')">左耳编辑</div>
-            <div class="r-recovery" @click="recoveryData">一键还原</div>
+            <div v-if="ear.indexOf('R') > -1 ||  ear === 'A'" class="l-edit" v-on:click="_bigCanv('you')">右耳编辑</div>
+            <div v-if="ear.indexOf('L') > -1 ||  ear === 'A'" class="f-edit" v-on:click="_bigCanv('zuo')">左耳编辑</div>
+            <!-- <div class="r-recovery" @click="recoveryData">一键还原</div> -->
           </div>
           <div class="ibox-content" style=" height:calc(90%) ;" id="ibox">
              <!--听力图-->
              <div class="row " style="height:calc(75%)" id="row">
-                <ele-svg  ref="addSvg" @newSvgDataToSave = "getNewSvgData" :svgData="resultData" :isShowInput="false" :svgId="2" :hzAaverage="hz_average" :="false" :svgHeight="'100%'" :svgWidth="50" @showBigSvg ="isShowBigSvg" :svgParentId="'#add-zhu'" :bigSvgWidth="1135" :bigSvgHight="650" :isCreatedPng="true">
+                <ele-svg  ref="addSvg" @newSvgDataToSave = "getNewSvgData" :svgData="resultData" :isShowInput="false" :svgId="2" :svgWidth="50" :ear='ear' :hzAaverage="hz_average" :="false" :svgHeight="'100%'" @showBigSvg ="isShowBigSvg" :svgParentId="'#add-zhu'" :bigSvgWidth="1135" :bigSvgHight="650" :isCreatedPng="true">
                 </ele-svg>
              </div>
              <!--听力图结束-->
@@ -256,8 +256,11 @@ export default{
   props:{
     resultData:[Object,String,Array]
   },
-  watch:{
-
+  computed:{
+    ear:function(){
+      let data = this.resultData[0];
+      return data.order;
+    }
   },
   mounted () {
     var myDate = new Date()

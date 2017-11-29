@@ -15,8 +15,8 @@
 		</div>
 		<div class="audiometry-table">
 			<ul class="t-ear clearfix" v-if="currentear.length === 2">
-				<li class="fl box-b height-50 l-s-1em" :class="{'on':curtEar === 'R' && start}" @click="_toggle_ear('R')">切换左耳</li>
-				<li class="fl box-b height-50 l-s-1em" :class="{'on':curtEar === 'L' && start}" @click="_toggle_ear('L')">切换右耳</li>
+				<li class="fl box-b height-50 l-s-1em" :class="{'on':curtEar === 'R' && startLoad}" @click="_toggle_ear('R')">切换左耳</li>
+				<li class="fl box-b height-50 l-s-1em" :class="{'on':curtEar === 'L' && startLoad}" @click="_toggle_ear('L')">切换右耳</li>
 			</ul>
 			<div class="table-HZ" :class="{'height-90':currentear.length === 2}">
 				<ul class="clearfix">
@@ -114,8 +114,8 @@
 				<el-button type="success" @click="toStart" :disabled="start || !isOnline"><i class="iconfont icon-kaishi"></i>开始</el-button>
 				<el-button type="warning"@click="toPause('finish')"  :disabled="!start || disabled" v-show="isPause"><i class="iconfont icon-zanting"></i>暂停</el-button>
 				<el-button type="success"@click="toPause('false')"  :disabled="!start || disabled" v-show="!isPause"><i class="iconfont icon-jixu"></i>继续</el-button>
-				<el-button type="info" @click="_toNextHz"  :disabled="'finish' != isfinish">跳过当前</el-button>
-				<el-button type="info" @click="lookResult" :disabled="!start"><i class="iconfont icon-baocun"></i>完成</el-button>
+				<el-button type="info" @click="_toNextHz"  :disabled="('finish' != isfinish) || !start">跳过当前</el-button>
+				<el-button type="info" @click="lookResult" :disabled="overTest"><i class="iconfont icon-baocun"></i>完成</el-button>
 				<el-button type="info" @click="_storage" :disabled="!start">暂存</el-button>
 			</ul>
 		</div>
@@ -143,7 +143,7 @@
 	<div>
 		<StartTips :loadOver="dialogVisibleTips"></StartTips>
 	</div>
-  	<ele-result ref ="result" :checkhz="hz" :line="line" :trueLine="trueLine" :getServer="getServer" :checkDataArray="checkDataArray" :tonetype="xcurrent" :ear="_earText"></ele-result>
+  	<ele-result ref ="result" :checkhz="hz" :line="line" :trueLine="trueLine" :getServer="getServer" :checkDataArray="checkDataArray" :tonetype="xcurrent" :earChinese="_earText" :ear="currentear"></ele-result>
   </div>
 </template>
 <script>
@@ -195,6 +195,7 @@ export default {
  			start:false,
  			// 是否完成
  			isfinish:true,
+ 			overTest:true,
  			isPause:true,
  			disabled:false,
  			// 用于临时保存测试正确的坐标点
@@ -202,35 +203,25 @@ export default {
  			// 用于临时保存测试错误的坐标点
  			signArryFalse :[],
  			// 用于保存表格显示标记的坐标点
- 			arry :[],
+ 			// arry :[],
  			objsign:{},
  			// 用于保存正确的强度和频率
  			Hz_Db:[],
  			// 绘制表格的参数
- 			table: null,
+ 			// table: null,
 			height: null,
-			width: null,
+			// width: null,
 			cells :null,
 			cellHeight: null,
 			cellWidth :null,
 			indexLeft: null,
 			indexTop :null,
-			tr: null,
+			// tr: null,
 			sign: null,
  			value: null,
  			wsData : '',
  			// 给服务器保存数据
  			getServer:[
-	 			{
-	 				'type':'6',
-	 				'ears':'左',
-	 				'data':[]
-	 			},
-	 			{
-	 				'type':'6',
-	 				'ears':'右',
-	 				'data':[]
-	 			}
  			],
  			// 是否为第一次测听
  			isFirst:true,
@@ -247,6 +238,7 @@ export default {
  			checkDataArray:[],
  			options:[],
  			awaitNext:true,
+ 			startLoad:false,
  			curtEar:''
  		}
  	},
@@ -269,7 +261,7 @@ export default {
 			for (var i = 0; i < res.length; i++) {
 				const currentTestEarHz = new Utils.earDataClass();
 				currentTestEarHz.ear = (res[i]);
-				currentTestEarHz.dataDetail =JSON.parse(JSON.stringify(getParamsPageData));
+				currentTestEarHz.dataDetail = JSON.parse(JSON.stringify(getParamsPageData));
 				a.push(currentTestEarHz)
 			}
 			this.checkDataArray = a;
@@ -445,18 +437,21 @@ export default {
       		return false;
  		},
  		test_next_hz(){
- 			if(this.user_defined_db && this.user_defined_db !="wait"){//if checked db,to set your checked value
-      			console.log(this.user_defined_db)
-      			const hz_obj = this.checkData[this.frequency];
+ 			let db = this.user_defined_db,
+ 				c_hz = this.to_next_hz;
+ 			if(db && db !="wait"){//if checked db,to set your checked value
+      			console.log(db)
+      			const hz_obj = this.checkData[this.frequency],
+      				user_defined = hz_obj.result.user_defined;
       			hz_obj.isfinish = 1;
-      			hz_obj.result.user_defined.dataType = 1;
-      			hz_obj.result.user_defined.x = +this.frequency;
-      			hz_obj.result.user_defined.y = +this.user_defined_db;
-      			this.Hz_Db.unshift([this.frequency,this.user_defined_db])
+      			user_defined.dataType = 1;
+      			user_defined.x = +this.frequency;
+      			user_defined.y = +db;
+      			this.Hz_Db.unshift([this.frequency,db])
       		}
-      		if(this.to_next_hz){//如果选择了下一个要测的hz
-      			this.frequency = this.to_next_hz;
-	      		this.maxDb = this.checkData[this.to_next_hz].db;
+      		if(c_hz){//如果选择了下一个要测的hz
+      			this.frequency = c_hz;
+	      		this.maxDb = this.checkData[c_hz].db;
 	      	}
       		this._click_div_warp_close();
       		this.toPause('false');
@@ -467,37 +462,70 @@ export default {
  		// 切换耳别
  		_toggle_ear(e){
  			console.log(this.checkDataArray)
- 			if(this.currentear.length === 2 && e === this.curtEar && this.start){
+ 			if(this.currentear.length === 2 && e === this.curtEar && this.startLoad){
  				const num = this.currentear.indexOf(e),
  				 	index =  num === 1 ? 0 : 1 ,
  				 	data = this.checkDataArray[num];
  				this.toPause('finish');
  				this.toggleEar = true;
- 				// 记住当前测试的位置
- 				data.nowPositionX = this.frequency;
- 				data.nowPositionY = this.intensity;
+ 				//查询当前位置是否测试完成，若为完成则, 记住当前测试的位置
+ 				this.findRecordHz(data)
+ 				// data.nowPositionX = this.frequency;
+ 				// data.nowPositionY = this.intensity;
  				// 切换耳旁显示信息
  				this.currentearStyle(this.currentear.charAt(index));
- 				// 获取要测试的耳旁信息
- 				const nextEarData = this.checkDataArray[index];
-    			// 获取切换耳旁之前的测试位置
-        		if(nextEarData.nowPositionX){
-        			this.checkData = this.checkDataArray[index].dataDetail;
-         			this.frequency = nextEarData.nowPositionX;
-         			this.intensity = nextEarData.nowPositionY;
-         			this.maxDb = this.checkData[this.frequency].db;
-         			this.startCeTing();
-         			return false;
-        		}
         		this._getHzAndDb(index);
 		 		this.startCeTing();
- 				// this.toParams(true);
+ 			}
+ 		},
+ 		// 检查要保存的点是否已经测试完毕
+ 		findRecordHz(obj){
+ 			const res1 = obj.dataDetail[this.frequency].data;
+ 			if(res1 && res1[this.intensity]){
+ 				let res2 = res1[this.intensity];
+ 				if(res2.false === 3 || res2.true === 3){
+ 					return false;
+ 				}else{
+ 					obj.nowPositionX = this.frequency;
+ 					obj.nowPositionY = this.intensity;
+ 				}
  			}
  		},
  		// 暂存数据
  		_storage(){
- 			this.toPause('finish');
- 			console.log(this.checkDataArray)
+ 			this.$confirm('是否暂存数据并退回到主页？', '提示', {
+		            //type: 'warning'
+		        }).then(() => {
+		        	// 保存数据
+		        	return new Promise((resolve,reject) =>{
+		        		if(true){
+		        			const id = sessionStorage.getItem('user_id'),
+		        				time = parseInt(new Date().getTime());
+		        			const obj = {'user_id':id,'time':time,'data':this.checkDataArray};
+		        			let getLocalStorage = JSON.parse(localStorage.getItem('memoryStorageTestData'));
+		        			if(!getLocalStorage){
+		        				let lists = [obj];
+		        				getLocalStorage = lists;
+		        			}else{
+		        				getLocalStorage.unshift(obj)
+		        			}
+		        			localStorage.setItem('memoryStorageTestData',JSON.stringify(getLocalStorage));
+		        			resolve()
+		        		}
+		        		reject('err')
+		        	})
+		        }).then(()=>{
+		        	this.$router.push({ path: '/home' });
+		            window.isToggle = false;
+		 			// 返回游戏主页
+		            var argument = this.wskt.gohome();
+		            websocket.send(JSON.stringify(argument));
+		        }).catch((e) => {
+		        	if(e === 'err'){
+		        		msgTipsErr(this,'保存失败！')
+		        	}
+		        });
+ 			// console.log(this.checkDataArray)
  		},
  		// 添加删除频率
  		_click_toggle_Hz(e){
@@ -542,10 +570,26 @@ export default {
  		},
  		//获取初始的hz db
  		_getHzAndDb(index){
- 			this.checkData = this.checkDataArray[index].dataDetail;
+ 			// 获取要测试的耳旁信息
+			const nextEarData = this.checkDataArray[index];
+			this.checkData = this.checkDataArray[index].dataDetail;
+			// 获取切换耳旁之前的测试位置
+    		if(nextEarData.nowPositionX){
+     			this.frequency = nextEarData.nowPositionX;
+     			this.intensity = nextEarData.nowPositionY;
+     			this.maxDb = this.checkData[this.frequency].db;
+     			//测试未完成的点测试过则删除属性
+     			delete nextEarData.nowPositionX;
+     			delete nextEarData.nowPositionY;
+     			return false;
+    		}
+ 			// this.checkData = this.checkDataArray[index].dataDetail;
 	 		// 初始化默认开始坐标
 	 		this.nextHzData = Utils.getNextHz(this.checkData);
-	 		if(!this.nextHzData){throw new Error('next test hz is null or undefined！')}
+	 		if(!this.nextHzData){
+	 			console.log('当前耳旁暂无可测试数据'); 
+	 			throw new Error('next test hz is null or undefined！')
+	 		}
 	 		// 获取要测值的hz
 	 		this.frequency = Object.keys(this.nextHzData)[0];
 	 		// 获取要测值的db值
@@ -638,19 +682,21 @@ export default {
  		toStart(){
  			const send_instructions = ()=>{
  				this.start = !this.start;
+ 				this.overTest = false;
+		        this.startLoad = true;
+		        // 发送继续指令
+ 				websocket.send(JSON.stringify(this.wskt.wstoctld('games_audio_continue','')));
 	 			// 点击开始向被控端发送测听参数
 				this.toParams();
-			    // 点击开始，显示第一个测试点的位置;
-			    // this.frequency = this.hz[0];
 	 			// 发送最大强度数据;
 	 			const argument = this.wskt.wstoctld('games_audio_maxDbList',this.zhutingData);
 				websocket.send(JSON.stringify(argument));
  			}
 			// 开始测听前，先提示当前测试耳的信息，双耳同时测得话，不进行任何提示
 			if(this.currentear !== "A"){
-				const getFirstEar = this.currentear.charAt(0);
-				const oneear = getFirstEar == 'L'?'左':'右';
-				const twoear = getFirstEar == 'R'?'左':'右';
+				const getFirstEar = this.curtEar,
+					oneear = getFirstEar == 'L'?'左':'右',
+					twoear = getFirstEar == 'R'?'左':'右';
 				const h = this.$createElement;
 				this.$msgbox({
 					title:'重要提示',
@@ -692,7 +738,7 @@ export default {
  			}else{
  				this.isPause = true;
  				if(this.toggleEar){
- 					websocket.send(JSON.stringify(this.wskt.wstoctld('games_audio_again','')));
+ 					websocket.send(JSON.stringify(this.wskt.wstoctld('games_audio_continue','')));
  					this.toParams(true);
  					this.toggleEar = false;
  					return false;
@@ -704,14 +750,9 @@ export default {
  		// 点击开始后触发的函数
  		toParams(userdefinedParams){
 			// 判断左右耳是否发送完毕；
-			var ear = '';
 			var isToggleEar = false;
-			if(!this.isLeftEar){
-				ear = this.currentear.charAt(0);
-			} else{
-				ear = this.currentear.charAt(1);
-			}
 			const hasNextData = Utils.getNextHz(this.checkData);
+			console.log(hasNextData)
 			let isToSendNextHz = true;
 			if(hasNextData && Object.prototype.toString.call(hasNextData) === '[object Object]'){
 				if(!userdefinedParams){
@@ -726,15 +767,26 @@ export default {
 			}
 			// 根据后台返回的数据监听判断是否测试完毕
 			if (!isToSendNextHz ){
-				const getSecondEar = this.currentear.charAt(1);
-				var _this = this;
-				if(this.currentear.charAt(1) && !this.isLeftEar){
+				const currentear = this.currentear;
+				let len = currentear.length,
+					hasNextEarData = false,
+					index = 0;
+				if(len > 1){
+					// 如果选择的是先左后右或者是先右后左，怎么每个耳听完后都得去检查另外一个耳旁是否有未测听完成的值
+					const num = currentear.indexOf(this.curtEar);
+					index =  num === 1 ? 0 : 1;
+ 				 	hasNextEarData = Utils.getNextHz(this.checkDataArray[index].dataDetail);
+				}
+				// console.log(len,hasNextEarData)
+				if( len > 1 && hasNextEarData){
+					console.log('换耳')
 					// 提示是否需要进行下一耳旁测评
 					// 发送暂停指令
 					websocket.send(JSON.stringify(this.wskt.wstoctld('games_audio_pause','')));
 					// twoear+'侧完成测听，将进行'+oneear+'耳测听，请关闭'+twoear+'侧助听设备或掩蔽'+twoear+'耳耳道，同时打开'+oneear+'侧助听设备。', twoear+'侧完成测听',
-					const oneear = getSecondEar == 'L'?'左':'右';
-					const twoear = getSecondEar == 'R'?'左':'右';
+					const ear = this.curtEar,
+						oneear = ear == 'R'?'左':'右',
+						twoear = ear == 'L'?'左':'右';
 					const h = this.$createElement;
 					this.$msgbox({
 						title: twoear+'耳完成测听',
@@ -759,14 +811,10 @@ export default {
 			        	// 将hz的状态改为未完成
 			        	isToggleEar = true;
 			        	this.isFirst = true;
-			        	// 清空标记数组
-			        	this.arry = [];
-			            this.isLeftEar = true;
-			            // this.currentEarIndex = 1;
-			            this._getHzAndDb(1);
+			            this._getHzAndDb(index);
 				 		isToSendNextHz = true;
 			  			// 改变左右耳样式
-			  			this.currentearStyle(getSecondEar);
+			  			this.currentearStyle(currentear.charAt(index));
 			            // 发送继续指令
 			            websocket.send(JSON.stringify(this.wskt.wstoctld('games_audio_continue','')));
 			            send();
@@ -775,10 +823,11 @@ export default {
 			        	this.step = 0;
 			        });
 				}else{
-					console.log(JSON.stringify(this.checkDataArray))
+					console.log(this.checkDataArray)
 					// 提示测评完成
 					websocket.send(JSON.stringify(this.wskt.wstoctld('games_audio_pause','')));
  					window.isToggle = false;
+ 					this.start = !this.start;
 					this.$confirm('测听完成!', '提示', {
 						closeOnClickModal:false,
 						closeOnPressEscape:false,
@@ -806,7 +855,7 @@ export default {
 					// debugger;
 					var params = {
 						'isToggleEar':isToggleEar,
-				    	'ear':ear,//左右耳信息
+				    	'ear':that.curtEar,//左右耳信息
 			    		'tonetype':that.xcurrent,//信号类别
 				    	'testType':'zhuting',//测听类型
 				    	'game':that.currentgame,//游戏类别
@@ -880,7 +929,7 @@ export default {
 			        	count++;
 			      	}
 			      	if(count == 3){
-			        	this.arry.unshift(str[j]);
+			        	// this.arry.unshift(str[j]);
 			        	// 保存一个对象，用于传给canvas绘图
 			        	var type = 1,
 			        		params_obj = this.wsData.params,
@@ -905,8 +954,9 @@ export default {
 		},
 		lookResult(){
 			window.isToggle = false;
+			this.gameOverAddData();
 			this.toPause('finish');
-			// this.disabled =true;
+			this.start = !this.start;
 			this.$refs.result.show();
 			this.$refs.result.setStyle();
 			// 如果被控端连接成功
@@ -914,6 +964,40 @@ export default {
 				// websocket.send(JSON.stringify(this.wskt.wstoctld('games_audio_over','')));
 			}
 
+		},
+		// 测试完成，判断是否增加空数据
+		gameOverAddData(){
+			const localArr = this.checkDataArray;
+			const obj = localArr[0];
+			const object = JSON.parse(JSON.stringify(obj));
+			if(this.currentear === "A"){//如果是双耳则，复制一条数据
+				localArr[0].ear = "R";
+				localArr.length = 1;
+				localArr.push(object);
+				localArr[1].ear = "L";
+			}
+			if(localArr.length === 1){
+				if(this.currentear === "L"){//如果是左耳则，复制一条空数据给右耳
+					localArr.push(init(object));
+					localArr[1].ear = "R";
+				}else if(this.currentear === "R"){
+					localArr.push(init(object));
+					localArr[1].ear = "L";
+				}
+			}
+			function init(object){
+				let a = object.dataDetail;
+				for(let i in a){
+					if(a[i].isneed === 1){
+						a[i].isneed = 0;
+						a[i].isfinish = 0;
+						a[i].data = {};
+						a[i].result = {'systemvalue':{},'user_defined':{}};
+						continue;
+					}
+				}
+				return object;
+			}
 		}
  	}
 }

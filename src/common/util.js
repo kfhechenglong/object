@@ -431,8 +431,6 @@ export default {
     },
     // 打印功能样式
     print:function(id,inner,pointer){
-        // debugger
-        // var bd = window.document.body.innerHTML;
         var bdhtml;
         if(inner){
             bdhtml = inner;
@@ -572,28 +570,28 @@ export default {
     toBase64:function(data){
         var toBase64Table = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/';
         var base64Pad = '=';
-        var result = '';                                                                              
+        var result = '';  
         (function toBase64(data) {
             var length = data.length;                          
             var i; 
-            // Convert every three bytes to 4 ascii characters.                                                                                       
-            for (i = 0; i < (length - 2); i += 3) {                                                       
-                result += toBase64Table[data.charCodeAt(i) >> 2];                             
+            // Convert every three bytes to 4 ascii characters.            
+            for (i = 0; i < (length - 2); i += 3) {              
+                result += toBase64Table[data.charCodeAt(i) >> 2];
                 result += toBase64Table[((data.charCodeAt(i) & 0x03) << 4) + (data.charCodeAt(i+1) >> 4)];   
-                result += toBase64Table[((data.charCodeAt(i+1) & 0x0f) << 2) + (data.charCodeAt(i+2) >> 6)];                                                 
-                result += toBase64Table[data.charCodeAt(i+2) & 0x3f];                                                              
-            }                                                                                            
-            // Convert the remaining 1 or 2 bytes, pad out to 4 characters.                                                                        
-            if (length%3) {                                                                          
-                i = length - (length%3);                                                                   
-                result += toBase64Table[data.charCodeAt(i) >> 2];                                                                 
-                if ((length%3) == 2) {                                                                      
-                    result += toBase64Table[((data.charCodeAt(i) & 0x03) << 4) + (data.charCodeAt(i+1) >> 4)];                                                          
-                    result += toBase64Table[(data.charCodeAt(i+1) & 0x0f) << 2];                                    
-                    result += base64Pad;                                                            
-                } else {                                                                                         
-                    result += toBase64Table[(data.charCodeAt(i) & 0x03) << 4];                                                                                        
-                    result += base64Pad + base64Pad;                                                             
+                result += toBase64Table[((data.charCodeAt(i+1) & 0x0f) << 2) + (data.charCodeAt(i+2) >> 6)];
+                result += toBase64Table[data.charCodeAt(i+2) & 0x3f];
+            }   
+            // Convert the remaining 1 or 2 bytes, pad out to 4 characters.   
+            if (length%3) {
+                i = length - (length%3);              
+                result += toBase64Table[data.charCodeAt(i) >> 2];     
+                if ((length%3) == 2) {   
+                    result += toBase64Table[((data.charCodeAt(i) & 0x03) << 4) + (data.charCodeAt(i+1) >> 4)];
+                    result += toBase64Table[(data.charCodeAt(i+1) & 0x0f) << 2];
+                    result += base64Pad;                              
+                } else {
+                    result += toBase64Table[(data.charCodeAt(i) & 0x03) << 4]; 
+                    result += base64Pad + base64Pad;
                 }              
             }
         })(data);
@@ -803,7 +801,27 @@ export default {
     checkIsChange(a,b){
         console.log(a,b)
         a.forEach(item =>{
-            console.log(item)
+            if(item.type == b.type){
+                let data = item.earData;
+                data.forEach(ele =>{
+                    if(ele.ear == b.ears){
+                        let arr = b.data;
+                        arr.forEach(ele2 =>{
+                            let obj = ele.dataDetail[ele2.x];
+                            // 如果修改的值和系统值相等，则结果不变；
+                            if(obj.result.systemvalue && obj.result.systemvalue.y == ele2.y){
+                                obj.result.user_defined ={};
+                                return false;
+                            }
+                            obj.isneed = 1;
+                            obj.isfinish = 1;
+                            obj.result.user_defined = ele2;
+                            return true;
+                        })
+                        
+                    }
+                })
+            }
         })
     },
     //获取测试类型
@@ -931,7 +949,7 @@ export default {
      * @param {Number} currentType      [当前的测试类型]
      * @param {[Object]} data             [选择的数据]
      */
-    setLocalStorage(localStorageName,typeObject,currentType = 6 ,data){
+    setLocalStorage(localStorageName,typeObject,currentType = {'value':6} ,data){
         return new Promise((resolve,reject)=>{
             // 获取本地的待测名单
                 let getLocalStorage = JSON.parse(localStorage.getItem(localStorageName));
@@ -950,10 +968,10 @@ export default {
                 }
                 // 添加当前测试类型的未测名单
                 for (let i = 0; i < getLocalStorage.length; i++) {
-                    if(getLocalStorage[i].testType === currentType){
+                    if(getLocalStorage[i].testType === currentType.value){
                         //如果有待测名单，先合并再去重
-                        let localStorageName = getLocalStorage[i].nameList;
-                        let a = localStorageName.concat(data);
+                        let _localStorage = getLocalStorage[i].nameList;
+                        let a = _localStorage.concat(data);
                         //  去重
                         let res = [];
                         let json = {};

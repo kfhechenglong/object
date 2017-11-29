@@ -34,7 +34,7 @@
                 <div class="l-ear fl" :style="{width:svgWidth+'%'}">
                   	<p style="text-align:center;color:red;height:25px;font-size:18px;">右耳</p>
                   	<div style=" height:calc(100% - 25px);">
-                    	<div :id="'rightEar' + this.svgId" v-on:click="_bigCanv('you')"></div>
+                    	<div :id="'rightEar' + this.svgId" v-on:click="_bigCanv('you','R')"></div>
                   	</div>
                 </div>
                  <!--功能按钮-->
@@ -43,7 +43,7 @@
                 <div class="r-ear fr" :style="{width:svgWidth+'%'}">
                  	<p style="text-align:center;color:#0000ff;height:25px;font-size:18px;">左耳</p>
                   	<div style="height:calc(100% - 25px);">
-                    	<div :id="'leftEar' + this.svgId" v-on:click="_bigCanv('zuo')"></div>
+                    	<div :id="'leftEar' + this.svgId" v-on:click="_bigCanv('zuo','L')"></div>
                   	</div>
                 </div>
                 <!--听力图数据表-->
@@ -277,11 +277,11 @@ export default{
 		hasInputValue:'',
 		width:'100%',
 		BCL: '',
-      ACL:'',
-      ACR:'',
-      LHTL: '',
-      BCR: '',
-      RHTL: '',
+      	ACL:'',
+      	ACR:'',
+      	LHTL: '',
+      	BCR: '',
+      	RHTL: '',
     }
   },
   created() {
@@ -291,12 +291,16 @@ export default{
      svgData:{
   		type:[Object,String,Array],
   		default:function(){
-  			return {}
+  			return []
   		}
   	},
     isShowInput:{
       	type:Boolean,
       	default:false
+  	},
+  	ear:{
+  		type:String,
+  		default:'RL'
   	},
   	svgWidth:{
   		type:Number,
@@ -576,8 +580,12 @@ export default{
       		this.createdPng(this.svgYou);
   		}
     },
-    _bigCanv(zy){//放大canvas
+    _bigCanv(zy,aaa){//放大canvas
     	if(this.onlyDraw)return false;
+    	this.drawEar = aaa;//用来标记当前正在编辑哪个耳旁
+    	if(this.ear.indexOf(aaa) < 0 && this.ear !== 'A'){//禁用编辑功能
+    		return false
+    	}
       	//标记字体的大小
       	this.markFontSize = {size:24,top:10};
       	// 设置听力线线宽
@@ -803,9 +811,18 @@ export default{
       this.arrayyuan = [];
     },
     _saveShowData(){
-      	const addData = this.addData;
-      	const arrayyuanzuo = this.arrayyuanzuo;
-      	const arrayyuan =this.arrayyuan;
+      	let addData = this.addData,
+      		arrayyuanzuo = this.arrayyuanzuo,
+      		arrayyuan =this.arrayyuan;
+      		console.log(this.ear)
+      	if(this.ear === "A"){
+      		console.log(this.drawEar)
+      		if(this.drawEar == "R"){
+      			arrayyuanzuo = arrayyuan;
+      		}else if(this.drawEar == "L"){
+      			arrayyuan = arrayyuanzuo;
+      		}
+      	}
     	this.control_arr.forEach((item) =>{
 	      	if (item.value) {
 		        for (let i = addData.length -1; i >= 0; i--) {
@@ -815,11 +832,11 @@ export default{
 		        };
 		        if (arrayyuanzuo.length > 0) {
 		          	addData.push({'type': item.key, 'ears': '左', 'data': this.changeFormat(arrayyuanzuo)})
+		          	Utils.checkIsChange(this.svgData,{'type': item.key, 'ears': 'L', 'data': this.changeFormat(arrayyuanzuo)})
 		        }
 		        if (arrayyuan.length > 0) {
 		          	addData.push({'type': item.key, 'ears': '右', 'data': this.changeFormat(arrayyuan)})
-		          	console.log(this.svgData)
-		          	Utils.checkIsChange(this.svgData,{'type': item.key, 'ears': '右', 'data': this.changeFormat(arrayyuan)})
+		          	Utils.checkIsChange(this.svgData,{'type': item.key, 'ears': 'R', 'data': this.changeFormat(arrayyuan)})
 		        }
 		    };
 	    })
@@ -835,6 +852,7 @@ export default{
           Data.push({'x': arrayX2[arrayL[i][0]], 'y': this.arrayYline1[arrayL[i][1]], 'dataType': arrayL[i][2]})
         }
       }
+      console.log(Data)
       return Data
     },
     // 读取数据
@@ -1362,17 +1380,18 @@ export default{
     drawyuanzhu: function () {
     	let objZong = [];
 		 objZong = this.svgData[0];
+		 console.log(objZong)
         // 生成右耳图
         if (objZong.type === '6') {
         	const data = objZong.earData;
         	// 生成渲染的数据格式
         	data.forEach(item =>{
         		const getReaderSvgData = Utils.getReaderSvgData(item);
-        		if(item.ear === "A" || item.ear === "R"){
+        		if(item.ear === "R"){
         			this.arrayyuan = this.ReadData(getReaderSvgData);
             		this.arrayyuanshi = this.ReadData(getReaderSvgData);
         		}
-        		if(item.ear === "A" || item.ear === "L"){
+        		if(item.ear === "L"){
         			this.arrayyuanzuo = this.ReadData(getReaderSvgData);
             		this.arrayyuanshizuo = this.ReadData(getReaderSvgData);
         		}

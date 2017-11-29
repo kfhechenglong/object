@@ -131,6 +131,7 @@ export default {
  		getServer:Array,
  		tonetype:String,
  		ear:String,
+ 		earChinese:String,
  		checkDataArray:{
  			type:Array,
  			default:function(){
@@ -143,7 +144,7 @@ export default {
 	 		const obj = {
 	 			'testmodel':'游戏训练',
 	    		'getmodel':'自由给声',
-	    		'radioEar':this.ear,
+	    		'radioEar':this.earChinese,
 	 		}
 	 		this.$store.commit('hasCanvasData',{});
 	 		this.$store.commit('hasTestCanvasData',obj);
