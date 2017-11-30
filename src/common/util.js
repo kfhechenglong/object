@@ -627,7 +627,6 @@ export default {
         // console.log(argument)
         websocket.send(JSON.stringify(argument));
     },
-    // 根据属性值进行排序
     /**
      * @param  {[Object]} obj [hz对象]
      * @return {[Object]}     [返回待测频率优先级最高的]
@@ -642,29 +641,49 @@ export default {
             arr.push(o)
         }
         console.log(arr)
-        arr.sort(compare('order'))
-        function compare(propertyName){
-            return function (object1, object2) {
-                let obj1_child = {},
-                    obj2_child = {};
-                for(let i in object1){
-                    obj1_child = object1[i]
-                };
-                for(let i in object2){
-                    obj2_child = object2[i]
-                };
-                const value1 = obj1_child[propertyName],
-                    value2 = obj2_child[propertyName];
-                if (value2 < value1) {
-                    return -1;
-                } else if (value2 > value1) {
-                    return 1;
-                } else {
-                    return 0;
-                }
+        arr.sort(this.compare('order'))
+        return arr[0];
+    }, 
+    /**
+     * @param  {[Object]} obj [hz对象]
+     * @return {[Object]}     [返回待测频率优先级最高的]
+     */
+    getBeforeHzResult(obj) {
+        if(!this.isObject(obj,'Object')){return false;}
+        const arr = [];
+        for(let i in obj){
+            if(obj[i].isneed === 1 && obj[i].isfinish === 1){
+                let o = {};
+                o[i] = obj[i];
+                arr.push(o)
+            }
+            
+        }
+        console.log(arr)
+        arr.sort(this.compare('order'))
+        return arr[arr.length - 1];
+    },
+    // 根据属性值进行排序
+    compare(propertyName){
+        return function (object1, object2) {
+            let obj1_child = {},
+                obj2_child = {};
+            for(let i in object1){
+                obj1_child = object1[i]
+            };
+            for(let i in object2){
+                obj2_child = object2[i]
+            };
+            const value1 = obj1_child[propertyName],
+                value2 = obj2_child[propertyName];
+            if (value2 < value1) {
+                return -1;
+            } else if (value2 > value1) {
+                return 1;
+            } else {
+                return 0;
             }
         }
-        return arr[0];
     },
     /**
      * *
@@ -708,6 +727,7 @@ export default {
         this.order = 13;
         this.data = {};
         this.db = 0;
+        this.resultdb = 0;
         this.result = {'systemvalue':{},'user_defined':{}};
     },
     /**
@@ -779,23 +799,31 @@ export default {
     getReaderSvgData(obj){
         if(this.isObject(obj,'Object')){
             const data = obj.dataDetail,
-                arr = [];
+                sys_arr = [],
+                defin_arr = [],
+                dist = [];
             for(let i in data){
                 if(data[i].isfinish == 1 && data[i].isneed == 1){
                     const objsystemvalue = data[i].result.systemvalue;
                     const objdefinvvalue = data[i].result.user_defined;
                     if(!(Object.keys(objsystemvalue).length == 0)){
-                        arr.push(objsystemvalue);
+                        sys_arr.push(objsystemvalue);
+                    }
+                    if(!(Object.keys(objsystemvalue).length == 0) && !(Object.keys(objdefinvvalue).length == 0)){
+                        dist.push(objsystemvalue)
+                    }
+                    if(!(Object.keys(objsystemvalue).length == 0) && (Object.keys(objdefinvvalue).length == 0)){
+                        defin_arr.push(objsystemvalue);
                         continue
                     }
                     if(!(Object.keys(objdefinvvalue).length == 0)){
-                        arr.push(objdefinvvalue);
+                        defin_arr.push(objdefinvvalue);
                         continue
                     }
                 }
             }
-            console.log(arr)
-            return arr;
+            console.log(sys_arr,defin_arr,dist)
+            return {'sysdata':sys_arr,'alldata':defin_arr,'dist':dist};
         }
     },
     checkIsChange(a,b){
@@ -806,19 +834,37 @@ export default {
                 data.forEach(ele =>{
                     if(ele.ear == b.ears){
                         let arr = b.data;
+                        let object = ele.dataDetail;
                         arr.forEach(ele2 =>{
-                            let obj = ele.dataDetail[ele2.x];
-                            // 如果修改的值和系统值相等，则结果不变；
-                            if(obj.result.systemvalue && obj.result.systemvalue.y == ele2.y){
-                                obj.result.user_defined ={};
-                                return false;
+                            for(var i in object){
+                                if(i == ele2.x){
+                                    var obj = object[i];
+                                    obj.my = 222;
+                                    // 如果修改的值和系统值相等，则结果不变；
+                                    if(obj.result.systemvalue && obj.result.systemvalue.y == ele2.y && obj.result.systemvalue.dataType == ele2.dataType){
+                                        obj.result.user_defined ={};
+                                        return false;
+                                    }
+                                    obj.isneed = 1;
+                                    obj.isfinish = 1;
+                                    obj.resultdb = ele2.y;
+                                    obj.result.user_defined = ele2;
+                                    return true;
+                                }
                             }
-                            obj.isneed = 1;
-                            obj.isfinish = 1;
-                            obj.result.user_defined = ele2;
-                            return true;
                         })
-                        
+                        for(var key in object){
+                            var obj2 = object[key];
+                            if(!obj2.my){
+                                obj2.isneed = 0;
+                                obj2.isfinish = 0;
+                                obj2.resultdb = 0;
+                                obj2.data = {};
+                                obj2.result.systemvalue = {};
+                                continue
+                            }
+                            delete obj2.my
+                        }
                     }
                 })
             }

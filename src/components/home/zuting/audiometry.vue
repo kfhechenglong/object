@@ -43,13 +43,13 @@
 					<div class="warp">
 						<table>
 							<tr>
-								<th v-for="(item,index) in tableTop" :class="{ 'currenthzClass': item == frequency,'nexthzClass':checkData[item] && checkData[item].isneed == 1 }">
+								<th v-for="(item,index) in tableTop" :class="{ 'currenthzClass': (item == frequency) && !hornhidden,'nexthzClass':checkData[item] && checkData[item].isneed == 1 }">
 									<p @click="_click_toggle_Hz(item)">
 										{{item}}
 									</p>
 								</th>
 							</tr>
-							<tr v-for="( tit,index1) in dubline" :class="[intensity == (tit*5-10) ? 'trborder':'']">
+							<tr v-for="( tit,index1) in dubline" :class="[(intensity == (tit*5-10)) && !hornhidden ? 'trborder':'']">
 								<td v-for="(item,index2) in tableTop" :class="[frequency == item ? 'tdborder' :'',{maxDbClass:_testFn(tit,item)}]">
 									<div class="sign" v-if="_isShowSign(tit*5-10,item) === 'success' ">
 									</div>
@@ -65,7 +65,7 @@
 								</th>
 							</tr>
 						</table>
-						<div id="horn" v-if="frequency && !disabled" :class="[hornStartStyle ? 'hornStartStyle':'hornStopStyle']">
+						<div id="horn" v-if="frequency && !disabled" :class="[hornStartStyle ? 'hornStartStyle':'hornStopStyle',{'horn-hidden':hornhidden}]" >
 							<i class="fa fa-volume-up"></i>
 						</div>
 					</div>
@@ -239,7 +239,7 @@ export default {
  			options:[],
  			awaitNext:true,
  			startLoad:false,
- 			curtEar:''
+ 			curtEar:'',
  		}
  	},
  	mounted(){
@@ -369,6 +369,15 @@ export default {
  		hornStartStyle:function(){
  			return this.gobackFalg && this.hasSound;
  		},
+ 		// 监听喇叭是否显示
+ 		hornhidden:function(){
+ 			// 如果当前耳没有可以测试的数据，则隐藏喇叭和坐标线
+ 			if(Utils.getNextHz(this.checkData)){
+ 				// 清空坐标样式
+ 				return false;
+ 			}
+ 			return true;
+ 		},
  		// 未测的hz
  		nextallHz:function(){
  			let classHzObj = this.checkData,
@@ -396,14 +405,19 @@ export default {
  		_isShowSign(db,hz){
  			const curHz = this.checkData[hz];
  			if(curHz && curHz.isneed == 1 && curHz.isfinish == 1 ){
- 				if(curHz.data[db] && 3 === curHz.data[db].true && db == curHz.result.systemvalue.y){//显示正确显示的点
- 					return 'success'
- 				}
- 				if(db == curHz.result.user_defined.y){//显示系统值
- 					return 'success'
- 				}
- 				if(curHz.data[db] && 3 === curHz.data[db].false && db == curHz.result.systemvalue.y){//显示错误三次的点
- 					return 'error'
+ 				// 显示系统值，且没有自定义值时
+ 				if(db == curHz.result.systemvalue.y && !curHz.result.user_defined.y){//显示正确显示的点
+ 					if(curHz.result.systemvalue.dataType == '1'){
+ 						return 'success'
+ 					}else{
+ 						return 'error'
+ 					}
+ 				}else if(db == curHz.result.user_defined.y){//显示系统值
+ 					if(curHz.result.user_defined.dataType == '1'){
+ 						return 'success'
+ 					}else{
+ 						return 'error'
+ 					}
  				}
  			}
  			return false;
@@ -423,7 +437,6 @@ export default {
  		},
  		// 选择强度值
  		_check_db(e,ele,flag){
- 			console.log(flag)
  			Utils.removeClassName('#checked-db','fl');
       		e.currentTarget.className = "fl li-active";
       		// 记录当前选中的db或者hz
@@ -440,14 +453,13 @@ export default {
  			let db = this.user_defined_db,
  				c_hz = this.to_next_hz;
  			if(db && db !="wait"){//if checked db,to set your checked value
-      			console.log(db)
       			const hz_obj = this.checkData[this.frequency],
       				user_defined = hz_obj.result.user_defined;
       			hz_obj.isfinish = 1;
       			user_defined.dataType = 1;
       			user_defined.x = +this.frequency;
       			user_defined.y = +db;
-      			this.Hz_Db.unshift([this.frequency,db])
+      			hz_obj.resultdb = +db;
       		}
       		if(c_hz){//如果选择了下一个要测的hz
       			this.frequency = c_hz;
@@ -470,8 +482,6 @@ export default {
  				this.toggleEar = true;
  				//查询当前位置是否测试完成，若为完成则, 记住当前测试的位置
  				this.findRecordHz(data)
- 				// data.nowPositionX = this.frequency;
- 				// data.nowPositionY = this.intensity;
  				// 切换耳旁显示信息
  				this.currentearStyle(this.currentear.charAt(index));
         		this._getHzAndDb(index);
@@ -480,16 +490,13 @@ export default {
  		},
  		// 检查要保存的点是否已经测试完毕
  		findRecordHz(obj){
- 			const res1 = obj.dataDetail[this.frequency].data;
- 			if(res1 && res1[this.intensity]){
- 				let res2 = res1[this.intensity];
- 				if(res2.false === 3 || res2.true === 3){
- 					return false;
- 				}else{
- 					obj.nowPositionX = this.frequency;
- 					obj.nowPositionY = this.intensity;
- 				}
- 			}
+ 			const res1 = obj.dataDetail[this.frequency].result;
+ 			if(res1 && res1.systemvalue.x){
+ 				return false;
+ 			}else{
+				obj.nowPositionX = this.frequency;
+				obj.nowPositionY = this.intensity;
+			}
  		},
  		// 暂存数据
  		_storage(){
@@ -602,13 +609,15 @@ export default {
  			// 获取传过来的频率,判断频率是否等于发送频率
  			let receive_hz = this.wsData.params['hz'];
  			if(receive_hz != this.frequency){
+ 				this.toPause('finish');
  				alert("接收的频率不正确");
  			};
  			// 获取传过来的强度
 			let receive_db = this.wsData.params['nextdb'];
  			console.log(receive_db,this.intensity)
 			if(receive_db > this.maxDb){
-				this.Hz_Db.unshift([receive_hz,receive_db]);
+				this.checkData[this.frequency] = receive_db;
+				this.toPause('finish');
 				this.toParams();
 				alert("接收的强度大于最大值");
 			}else{
@@ -842,12 +851,10 @@ export default {
 				if(isToSendNextHz){
 					// 定义每次发送的强度
 					if(!that.isFirst){
-						try{
-							const num = parseInt(that.Hz_Db[0][1])+20;
-							that.intensity = num < that.maxDb ? num : that.maxDb;
-						} catch(err){
-							that.intensity = that.maxDb
-						}
+						// 获取上以测试hz的的db值
+						const db = Utils.getBeforeHzResult(that.checkData);
+						const num = db ? parseInt(Object.values(db)[0].resultdb) + 20 : that.maxDb;
+						that.intensity = num < that.maxDb ? num : that.maxDb;
 					};
 					console.log('换频')
 			 		that.isFirst = true;
@@ -869,7 +876,6 @@ export default {
 			    	websocket.send(JSON.stringify(argument));
 				}
 			}
-			
  		},
  		sendTestParms(){
 
@@ -944,8 +950,8 @@ export default {
 			    		Utils.setHzIsfinish(this.checkData,this.frequency);
 			        	this.checkData[hz].result.systemvalue = {'x':hz,'y':db,'dataType':type};
 			        	this.objsign[hz] = db;
-			        	// 保存正确次数大于三次的频率和强度
-			        	this.Hz_Db.unshift([hz,db])
+			        	// 保存正确次数大于三次的强度
+			        	this.checkData[hz].resultdb = db;
 			        	// 清空当前数组
 			        	str.length = 0;
 			        }
@@ -956,7 +962,7 @@ export default {
 			window.isToggle = false;
 			this.gameOverAddData();
 			this.toPause('finish');
-			this.start = !this.start;
+			this.start = false;
 			this.$refs.result.show();
 			this.$refs.result.setStyle();
 			// 如果被控端连接成功
@@ -991,6 +997,7 @@ export default {
 					if(a[i].isneed === 1){
 						a[i].isneed = 0;
 						a[i].isfinish = 0;
+						a[i].resultdb = 0;
 						a[i].data = {};
 						a[i].result = {'systemvalue':{},'user_defined':{}};
 						continue;
@@ -1290,6 +1297,9 @@ export default {
 							border-radius: 50%;
 							line-height: 26px;
 							text-align: center;
+						}
+						.horn-hidden{
+							display: none;
 						}
 						.hornStopStyle{
 							background-color:#fff;

@@ -266,16 +266,17 @@ export default{
     var myDate = new Date()
     this.updatetime = myDate.toLocaleDateString()//获取当前日期
     this.$nextTick(() =>{
-    // 以字符串的形式接收父组件传过来的数据
-    // this.addData = JSON.parse(this.resultData);
-    setTimeout(()=>{
-      this.$refs.addSvg.drawyuanzhu();
-    },50);
+      // setTimeout(()=>{
+      //   this.$refs.addSvg.drawyuanzhu();
+      // },50);
    })
   },
   destroyed(){
   },
   methods: {
+    createSVG(){
+      this.$refs.addSvg.drawyuanzhu();
+    },
     getNewSvgData(e){
       this.emit();
       this.toParentSvgData = e;
@@ -285,7 +286,6 @@ export default{
       this.$refs.addSvg._bigCanv(str);
     },
     isShowBigSvg(e,a){
-      console.log(a)
       this._hiddenPerent(false)
       a === "zuo" ? this.bigleft = true : this.bigleft = false ;
       this.showBigSvg = e;
@@ -295,9 +295,9 @@ export default{
       this._hiddenPerent(true)
       this.$refs.addSvg._clearBigCanv();
     },
-    recoveryData(){
-      this.$refs.addSvg.yuanshi();
-    },
+    // recoveryData(){
+    //   this.$refs.addSvg.yuanshi();
+    // },
     _checked(e,num){
       this.hasInputValue = typeof(e.target.value) ==='string' ? e.target.value.toString() : (e.target.innerText ? e.target.innerText : '');
       this.check_value = num;

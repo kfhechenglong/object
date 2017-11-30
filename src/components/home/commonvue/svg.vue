@@ -177,8 +177,10 @@ export default{
 		fontSign :'FF',
 		fontMask:null,
 		gshi:null,//g标签
-		arrayyuanshi : [],//右耳的原始数据
-		arrayyuanshizuo : [],//左耳的原始数据
+		sys_arr_r : [],//右耳的原始数据
+		sys_arr_l : [],//左耳的原始数据
+		set_r:new Set(),//右耳修改的系统值
+		set_l:new Set(),//左耳修改的系统值
     	// 结束
 		showNew:true,
 		active:['5'],
@@ -463,7 +465,7 @@ export default{
 	    };
 	    // let data = argument.average === "R" ? this.arrayyuan : this.arrayyuanzuo;
 	    // 检查X轴点是否存在和此点坐标是否已经存在
-	    this.chcekX(indexx, indexy,argument.data, this.dataType2)
+	    this.chcekX(indexx, indexy,argument.data, this.dataType2 ,argument.average)
 	    if(!(argument.zhu)){this.tableText(argument.data, argument.tableText)}
 	    argument.average === "R" ? this.publicFn("right",null,this.fontMask) : this.publicFn("left",null,this.fontMask);
 	  }
@@ -786,22 +788,62 @@ export default{
       }
     },
     // 检查X轴点是否存在和此点坐标是否已经存在 为arrayyuan添加数据
-    chcekX: function (x, y, arrayL, dataType) {
-      for (var i = 0; i < arrayL.length; i++) {
-        if (arrayL[i][0] === x) {
-          // 检查此点坐标是否已经存在
-          if (arrayL[i][1] === y) {
-            arrayL.splice(i, 1)
-            arrayL.push([x, -1, dataType])
-            return
-          } else {
-            arrayL.splice(i, 1)
-            arrayL.push([x, y, dataType])
-            return
-          }
-        }
-      }
-      arrayL.push([x, y, dataType])
+    chcekX: function (x, y, arrayL, dataType,hand) {
+    	const sys_data = hand === "R" ? this.sys_arr_r :this.sys_arr_l ;
+    	const set = hand === "R" ? this.set_r :this.set_l ;
+    	sys_data.forEach(item =>{
+    		if(item[0] === x){
+    			set.forEach((ele)=>{
+    				if(ele[0] === x){//先删除该hz上面的值
+    					set.delete(item)
+    				}
+    			})
+    			if(item[1] != y) {//如果修改的值和系统值不相等
+	            	set.add(item)
+	          	}
+    		}
+    	})
+    	this.sys_yuan_fn(hand,set);
+
+	    for (var i = 0; i < arrayL.length; i++) {
+	        if (arrayL[i][0] === x) {
+	          // 检查此点坐标是否已经存在
+	          if (arrayL[i][1] === y) {
+	            arrayL.splice(i, 1)
+	            arrayL.push([x, -1, dataType])
+	            return
+	          } else {
+	            arrayL.splice(i, 1)
+	            arrayL.push([x, y, dataType])
+	            return
+	          }
+	        }
+	    }
+	    arrayL.push([x, y, dataType])
+    },
+    // 绘制系统修改的原始值
+    sys_yuan_fn(hand,set){
+    	var obj = {}
+    	if(hand === "R"){
+    		obj = {
+				'ele' :this.svgYou,
+				'arr' : Array.from(set),
+				'color':'#ccc',
+				'mask': this.fontSign + 'R',
+				'type':6,
+				'str':"R"
+			};
+    	}else{
+    		obj = {
+				'ele' :this.svgZuo,
+				'arr' : Array.from(set),
+				'color':'#ccc',
+				'mask': this.fontSign + 'L',
+				'type':6,
+				'str':"L"
+			};
+    	}
+		this.yuan(obj);
     },
     // 保存现有的绘制的听力图数组
     saveArray: function () {
@@ -840,6 +882,8 @@ export default{
 		        }
 		    };
 	    })
+	    this.sys_yuan_fn("R",this.set_r)
+	    this.sys_yuan_fn("L",this.set_l)
 	    this.$emit('newSvgDataToSave',addData);
     },
     // 将听力图数组改变成后台传输格式
@@ -1386,14 +1430,23 @@ export default{
         	const data = objZong.earData;
         	// 生成渲染的数据格式
         	data.forEach(item =>{
-        		const getReaderSvgData = Utils.getReaderSvgData(item);
+        		const getObj = Utils.getReaderSvgData(item),
+        			getReaderSvgData = getObj.alldata,
+        			sysSvgData = getObj.sysdata,
+        			dist = getObj.dist;
         		if(item.ear === "R"){
         			this.arrayyuan = this.ReadData(getReaderSvgData);
-            		this.arrayyuanshi = this.ReadData(getReaderSvgData);
+            		this.sys_arr_r = this.ReadData(sysSvgData);
+        			this.set_r.clear();
+            		dist.length > 0 ? this.set_r.add(this.ReadData(dist)[0]) : "";
+            		this.sys_yuan_fn(item.ear,this.set_r)
         		}
         		if(item.ear === "L"){
         			this.arrayyuanzuo = this.ReadData(getReaderSvgData);
-            		this.arrayyuanshizuo = this.ReadData(getReaderSvgData);
+            		this.sys_arr_l = this.ReadData(sysSvgData);
+        			this.set_l.clear();
+            		dist.length > 0 ? this.set_l.add(this.ReadData(dist)[0]) : "";
+            		this.sys_yuan_fn(item.ear,this.set_l)
         		}
         	})
           	this.publicFn("right");

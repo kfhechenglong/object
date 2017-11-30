@@ -1,6 +1,6 @@
 <template>
   <div class="result">
-		<el-dialog title="测评结果"  v-model="dialogTableVisible" :close-on-press-escape = "false" :close-on-click-modal="false" class="res-dialog">
+		<el-dialog title="测评结果"  v-model="dialogTableVisible" :close-on-press-escape = "false" :close-on-click-modal="false" @close="closeResult" class="res-dialog">
 			<div class="table clearfix">
 			<!-- 查看报告 -->
 				<div class="tabletest" v-show="'test' == tabs" style="height:649px;">
@@ -180,6 +180,11 @@ export default {
  		this.$store.commit('getter_code_time',null);
  	},
  	methods:{
+ 		// 关闭模态框
+ 		closeResult(e){
+
+ 			console.log(e)
+ 		},
  		_bigSvg(e){//编辑数据时，隐藏按钮
  			this.showBtn = e;
  		},
@@ -191,7 +196,6 @@ export default {
         },
         closePrint(e){//接收关闭信息
           this.showPrint = e;
-          
         },
         printReport(){
         	this.showPrint = true;
@@ -230,6 +234,7 @@ export default {
  			util.print('#print-warp',message);
  			return;
 		},
+		// 显示结果模态框
  		show(){
  			// 将对象保存成字符串传递给子组件
  			const obj = new Utils.chartChildDataClass();
@@ -239,6 +244,10 @@ export default {
  			this.stringData = [obj];
  			// this.stringData = JSON.stringify(this.getServer);
  			this.dialogTableVisible = true;
+ 			// 生成SVG
+ 			setTimeout(() =>{
+ 				this.$refs.addAudio.createSVG();
+ 			},50)
  			// 生成时间戳
  			this.time = parseInt(new Date().getTime());
  			this.$store.commit('getter_code_time',this.time);
@@ -402,7 +411,6 @@ export default {
     				/*color:red;*/
 				}
 				width: 46%;
-				/*border:1px solid red;*/
 				margin:10px;
 				padding:10px;
 				height: 512px;
@@ -441,14 +449,12 @@ export default {
 							text-align: center;
 							width: 100%;
 							display: block;
-							
 						}
 						.spanborder{
 							border-right: 1px solid #666;
 						}
 						.bgcspan{
 							background-color: #66cc66;
-							
 						}
 					}
 				}
