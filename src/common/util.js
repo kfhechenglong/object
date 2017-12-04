@@ -719,6 +719,25 @@ export default {
     },
     /**
      * new Object
+     */
+    setHzList:function (initHz,hertz,zhutingData = null){
+        const hz = initHz && Object.keys(initHz).length !== 0 ? initHz : hertz,
+                len = hz.length,
+                setobj = {};
+        hz.forEach((item,index) =>{
+            const data_obj = new this.earDataDetailClass();
+            if(item == 125 ){//指定优先级
+                data_obj.order = 2;
+            }else if(item == 250 ){
+                data_obj.order = 1;
+            }else{data_obj.order = len - index + 2;}
+            data_obj.db = zhutingData;
+            setobj[item] = data_obj;
+        });
+        return setobj;
+    },
+    /**
+     * new Object
      * this pointer new Obejct
      */
     earDataDetailClass:function (){
@@ -822,12 +841,35 @@ export default {
                     }
                 }
             }
-            console.log(sys_arr,defin_arr,dist)
+            // console.log(defin_arr)
             return {'sysdata':sys_arr,'alldata':defin_arr,'dist':dist};
         }
     },
-    checkIsChange(a,b){
-        console.log(a,b)
+    checkIsChange(a,b,orderear){
+        // console.log(a,b)
+        // 判断有没有这个type,没有则添加
+        function hastype(){
+            for(let i = 0; i < a.length;i++){
+                if(a[i].type == b.type){
+                    return true;
+                }
+            }
+            return false
+        }
+        if(!hastype()){
+            let hz = ['125','250','500','750','1000','1500','2000','3000','4000','5000','6000','8000','9000'];
+            const obj1 = new this.chartChildDataClass(),
+                obj2 = new this.earDataClass(),
+                obj3 = new this.earDataClass();
+                obj2.ear = "L";
+                obj2.dataDetail = this.setHzList(null,hz,null);
+                obj3.ear = "R";
+                obj3.dataDetail = this.setHzList(null,hz,null);
+                obj1.order = orderear;
+                obj1.type = b.type;
+                obj1.earData = [obj2,obj3];
+            a.push(obj1)
+        }
         a.forEach(item =>{
             if(item.type == b.type){
                 let data = item.earData;
@@ -835,6 +877,7 @@ export default {
                     if(ele.ear == b.ears){
                         let arr = b.data;
                         let object = ele.dataDetail;
+                        // 对当前数组的点进行赋值
                         arr.forEach(ele2 =>{
                             for(var i in object){
                                 if(i == ele2.x){
@@ -853,9 +896,12 @@ export default {
                                 }
                             }
                         })
+                        // 对当前数组中不存在的点进行清空，包含取消系统值
                         for(var key in object){
                             var obj2 = object[key];
-                            if(!obj2.my){
+
+                            if(!obj2.my && obj2.result.systemvalue.y){
+                                console.log(obj2)
                                 obj2.isneed = 0;
                                 obj2.isfinish = 0;
                                 obj2.resultdb = 0;
@@ -995,7 +1041,7 @@ export default {
      * @param {Number} currentType      [当前的测试类型]
      * @param {[Object]} data             [选择的数据]
      */
-    setLocalStorage(localStorageName,typeObject,currentType = {'value':6} ,data){
+    setLocalStorage(localStorageName,typeObject,currentType = {'key':6} ,data){
         return new Promise((resolve,reject)=>{
             // 获取本地的待测名单
                 let getLocalStorage = JSON.parse(localStorage.getItem(localStorageName));
@@ -1005,7 +1051,7 @@ export default {
                     let nameLists = [];
                     for (var i = 0; i < typeObject.length; i++) {
                         let data = {
-                            testType:typeObject[i].value,
+                            testType:typeObject[i].key,
                             nameList:[]
                         }
                         nameLists.push(data)
@@ -1014,7 +1060,7 @@ export default {
                 }
                 // 添加当前测试类型的未测名单
                 for (let i = 0; i < getLocalStorage.length; i++) {
-                    if(getLocalStorage[i].testType === currentType.value){
+                    if(getLocalStorage[i].testType === currentType.key){
                         //如果有待测名单，先合并再去重
                         let _localStorage = getLocalStorage[i].nameList;
                         let a = _localStorage.concat(data);
@@ -1030,8 +1076,34 @@ export default {
                         getLocalStorage[i].nameList = res;
                     }
                 }
-                localStorage.setItem(localStorageName,JSON.stringify(getLocalStorage));
-                resolve();
+                // 检测是空间是否用完
+                this.checkLocalStorageSize().then(()=>{
+                    localStorage.setItem(localStorageName,JSON.stringify(getLocalStorage));
+                    resolve();
+                })
+                
+        })
+    },
+    // 检测本地存储大小
+    checkLocalStorageSize(){
+        if(!window.localStorage) {
+            console.log('浏览器不支持localStorage');
+        }
+        var size = 0;
+        for(let item in window.localStorage) {
+            if(window.localStorage.hasOwnProperty(item)) {
+                size += window.localStorage.getItem(item).length;
+            }
+        }
+        let sizeUsed = (size / 1024).toFixed(2);
+        console.log('当前localStorage容量为' + sizeUsed + 'KB');
+        return new Promise(resolve =>{
+            if(sizeUsed > 5*1024){
+                msgTipsErr(this,'本地存储已满，请清除缓存！')
+                return false;
+            }else{
+                resolve()
+            }
         })
     },
     // 获取打印机
@@ -1063,7 +1135,7 @@ export default {
                 msgTipsErr(pointer,'删除任务失败！')
             }
         }).catch((err) =>{
-            alert(err +'获取打印机出错！')
+            console.log(err +'获取打印机出错！')
         })
     },
     clearPrintData:(pointer,fn)=>{
@@ -1078,7 +1150,7 @@ export default {
                 msgTipsErr('上次打印数据删除失败！')
             }
         }).catch((err) =>{
-            alert(err +'删除打印数据出错！')
+            console.log(err +'删除打印数据出错！')
         })
     },
     // 林氏六音数据处理

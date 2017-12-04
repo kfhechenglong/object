@@ -59,7 +59,7 @@
 							</tr>
 							<tr>
 								<th v-for="(item,index) in tableTop" class="rest-btn">
-									<span @click="_click_rest_Hz(item)" v-if="(item != frequency) && checkData[item] && checkData[item].isfinish == 1 ">
+									<span @click="_click_rest_Hz(item)" v-if="checkData[item] && checkData[item].isfinish == 1 ">
 										重测
 									</span>
 								</th>
@@ -143,7 +143,7 @@
 	<div>
 		<StartTips :loadOver="dialogVisibleTips"></StartTips>
 	</div>
-  	<ele-result ref ="result" :checkhz="hz" :line="line" :trueLine="trueLine" :getServer="getServer" :checkDataArray="checkDataArray" :tonetype="xcurrent" :earChinese="_earText" :ear="currentear"></ele-result>
+  	<ele-result ref ="result" :checkhz="hz" :line="line" :trueLine="trueLine" :getServer="getServer" :checkDataArray="checkDataArray" :tonetype="xcurrent" :earChinese="_earText" :ear="currentear" @closeResult="closeResult"></ele-result>
   </div>
 </template>
 <script>
@@ -231,7 +231,7 @@ export default {
  			classHz:[],//未测的hz
  			// 声音是否在播放
  			hasSound:false,
- 			nextHzData:{},
+ 			// nextHzData:{},
  			checkData:{},
  			currentEarIndex:0,
  			showCheckDb:false,
@@ -401,6 +401,12 @@ export default {
  				this.height = dom.offsetHeight + 'px';
  			},50)
  		},
+ 		// 关闭预览是，重新计算坐标点
+ 		closeResult(){
+ 			console.log(2222)
+ 			this.getInitValue(this.checkData);
+ 			this.startCeTing();
+ 		},
  		// 是否显示已测试完毕正确或错误点的标记
  		_isShowSign(db,hz){
  			const curHz = this.checkData[hz];
@@ -506,7 +512,7 @@ export default {
 		        	// 保存数据
 		        	return new Promise((resolve,reject) =>{
 		        		if(true){
-		        			const id = sessionStorage.getItem('user_id'),
+		        			const id = JSON.parse(sessionStorage.getItem('user_id')),
 		        				time = parseInt(new Date().getTime());
 		        			const obj = {'user_id':id,'time':time,'data':this.checkDataArray};
 		        			let getLocalStorage = JSON.parse(localStorage.getItem('memoryStorageTestData'));
@@ -514,10 +520,18 @@ export default {
 		        				let lists = [obj];
 		        				getLocalStorage = lists;
 		        			}else{
+		        				for(let i = getLocalStorage.length -1; i >= 0 ;i--){
+		        					if(getLocalStorage[i].user_id === id){
+		        						getLocalStorage.splice(i,1);
+		        					}
+		        				}
 		        				getLocalStorage.unshift(obj)
 		        			}
-		        			localStorage.setItem('memoryStorageTestData',JSON.stringify(getLocalStorage));
-		        			resolve()
+		        			console.log(getLocalStorage)
+		        			return Utils.checkLocalStorageSize().then(()=>{
+		        				localStorage.setItem('memoryStorageTestData',JSON.stringify(getLocalStorage));
+								resolve()
+		        			})
 		        		}
 		        		reject('err')
 		        	})
@@ -536,13 +550,26 @@ export default {
  		},
  		// 添加删除频率
  		_click_toggle_Hz(e){
+ 			console.log(e)
  			const obj = this.checkData;
  			if(e == this.frequency) return false;
  			if(obj[e].isneed === 0){
- 				obj[e].isneed = 1;
+				const nextHzData = Utils.getNextHz(obj);
+				// 如果所有的频率都已测试完成，再添加新频率，则显示新频率的坐标点
+		 		if(!nextHzData){
+		 			// 获取要测值的hz
+		 			this.frequency = e;
+		 			// 获取要测值的db值
+		 			const getDb = obj[this.frequency].db;
+		 			this.intensity = getDb <= 70 ? getDb : 70;
+		 			this.maxDb = getDb;
+		 			this.startCeTing();
+		 		}
+		 		obj[e].isneed = 1;
  			}else{
  				obj[e].isneed = 0;
  				obj[e].isfinish = 0;
+ 				obj[e].resultdb = 0;
  				obj[e].data = {};
  				obj[e].result = {'systemvalue':{},'user_defined':{}};
  			}
@@ -553,6 +580,7 @@ export default {
  			if(e == this.frequency) return false;
  			if(obj[e].isfinish === 1 && obj[e].isneed === 1){
  				obj[e].isfinish = 0;
+ 				obj[e].resultdb = 0;
  				obj[e].data = {};
  				obj[e].result = {'systemvalue':{},'user_defined':{}};
  			}
@@ -590,19 +618,23 @@ export default {
      			delete nextEarData.nowPositionY;
      			return false;
     		}
- 			// this.checkData = this.checkDataArray[index].dataDetail;
 	 		// 初始化默认开始坐标
-	 		this.nextHzData = Utils.getNextHz(this.checkData);
-	 		if(!this.nextHzData){
-	 			console.log('当前耳旁暂无可测试数据'); 
-	 			throw new Error('next test hz is null or undefined！')
+	 		this.getInitValue(this.checkData);
+ 		},
+ 		getInitValue(checkData){
+ 			// 初始化默认开始坐标
+	 		const nextHzData = Utils.getNextHz(checkData);
+	 		if(!nextHzData){
+	 			console.log('当前耳旁暂无可测试数据');
+	 			return false;
 	 		}
 	 		// 获取要测值的hz
-	 		this.frequency = Object.keys(this.nextHzData)[0];
+	 		this.frequency = Object.keys(nextHzData)[0];
 	 		// 获取要测值的db值
-	 		const getDb = this.nextHzData[this.frequency].db;
+	 		const getDb = nextHzData[this.frequency].db;
 	 		this.intensity = getDb <= 70 ? getDb : 70;
 	 		this.maxDb = getDb;
+	 		console.log(this.frequency,this.intensity)
  		},
  		statistics(){
  			this.isFirst=false;
@@ -964,7 +996,6 @@ export default {
 			this.toPause('finish');
 			this.start = false;
 			this.$refs.result.show();
-			this.$refs.result.setStyle();
 			// 如果被控端连接成功
 			if(this.isOnline){
 				// websocket.send(JSON.stringify(this.wskt.wstoctld('games_audio_over','')));

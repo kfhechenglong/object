@@ -52,6 +52,15 @@ export default {
  			this.checkList = Utils.getCheckHz(JSON.parse(data_obj));
  			this.isCheck(this.checkList);
  		}
+ 		console.log()
+ 		if(this.$route.query && this.$route.query.flag){
+ 			this.queryflag = true;
+ 			const data_obj = this.$route.query['data'];
+ 			this.querydata = JSON.parse(data_obj).dataDetail;
+ 			this.checkList = Utils.getCheckHz(this.querydata);
+ 			console.log(this.querydata)
+ 			this.isCheck(this.checkList);
+ 		}
  		this.$nextTick(function(){
  			this.toRotuer();
  		});
@@ -59,6 +68,9 @@ export default {
  	computed:{
  		...mapState(['hz','zhutingData']),
  		hzlist(){
+ 			if(this.queryflag){
+ 				return this.querydata;
+ 			}
  			// debugger obj = {'isfinish':0,'isneed':0,'order':13,'data':{},'result':{'systemvalue':{},'user_defined':{}},'db':0},
  			const hz = this.hz && Object.keys(this.hz).length !== 0 ? this.hz : this.hertz,
  				len = hz.length,

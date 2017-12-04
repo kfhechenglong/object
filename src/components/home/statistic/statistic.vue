@@ -47,10 +47,10 @@
                 </p>
                 <ul>
                     <li class="clearfix" v-for="(item,index) in typeObject">
-                        <span>{{item.key}}：</span>
+                        <span>{{item.name}}：</span>
                         <el-progress class="progress" :text-inside="true" :stroke-width="18" :percentage="item.progress" status="success"></el-progress>
                         <em class="fl">共<strong>{{item.overCount}}</strong>人完成</em>
-                        <a href="JavaScript:;" @click="showNoTestNameList(item.value,item.key)">未完列表</a>
+                        <a href="JavaScript:;" @click="showNoTestNameList(item.key,item.name)">未完列表</a>
                     </li>
                 </ul>
             </div>
@@ -68,8 +68,6 @@ require('echarts/lib/chart/pie');
 // 引入提示框和标题组件
 require('echarts/lib/component/tooltip');
 require('echarts/lib/component/title');
-// 引入删除数组的方法
-const typeObject =[{key:'助听听阈', value:6,progress:0,overCount:0},{key:'林氏六音', value:1,progress:0,overCount:0},{key:'音素识别', value:2,progress:0,overCount:0},{key:'声调识别', value:3,progress:0,overCount:0},{key:'声母识别', value:4,progress:0,overCount:0}];
 let list = [{key:'gender', value:'性别'},{key:'age', value:'年龄'},{key:'app', value:'助听设备'},{key:'lpta', value:'裸耳PTA'},{key:'zpta', value:'助听PTA'}];
 let myChart = ""
 import util from '../../../common/util'
@@ -85,10 +83,10 @@ export default {
     data (){
         return {
             list:list,
-            typeObject:typeObject,
+            typeObject:Options.typeObject,
             class_name_list:[],
             current:[],
-            count:Object,
+            count:{},
             legendData:['年龄','性别','耳聋性质','耳聋程度','助听设备'],
             seriesData:[{value:10, name:'年龄'},{value:10, name:'性别'},{value:10, name:'耳聋性质'},{value:10, name:'耳聋程度'},{value:10, name:'助听设备'}],
             allNum:0,
@@ -135,11 +133,11 @@ export default {
             };
             this.showArrow = !this.showArrow;
         },
-        showNoTestNameList(type,key){
-            this.contentType = {'key':key,'value':type};
+        showNoTestNameList(key,name){
+            this.contentType = {key,name};
             this.$refs.noTestName.noTestNameLists = true;
             // 获取未测人员名单
-            this.noTestNameListsData = this.pingGuData[key];
+            this.noTestNameListsData = this.pingGuData[name];
         },
         pingGuTime(str){//评估完成情况的周月季年统计
             this.currentTimeClass = str;
@@ -158,7 +156,7 @@ export default {
             for(var ky in str){
                 if(ky != 'count'){
                     for(var i = 0;i < typeObject.length; i++){
-                        if(typeObject[i].key == ky){
+                        if(typeObject[i].name == ky){
                             // debugger
                             // 获取百分比
                             let progress =  +(((str.count-str[ky].count)/+(str.count))*100).toFixed(0);

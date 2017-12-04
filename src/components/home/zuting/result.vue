@@ -3,13 +3,13 @@
 		<el-dialog title="测评结果"  v-model="dialogTableVisible" :close-on-press-escape = "false" :close-on-click-modal="false" @close="closeResult" class="res-dialog">
 			<div class="table clearfix">
 			<!-- 查看报告 -->
-				<div class="tabletest" v-show="'test' == tabs" style="height:649px;">
+				<div class="tabletest" style="height:649px;">
 					<div v-show = "!test">
 						<div v-if="!hasData" class="tips">
 								暂无数据！
 						</div>
-						<div v-for="( val,num) in testData">
-							<div :id="('main-table-'+val.ear)" :class="[testData.length === 2?'':'marginleft','fl']">
+						<div v-else v-for="( val,num) in testData">
+							<div :id="('main-table-'+val.ear)" :class="[testData.length === 2 ?'':'marginleft','fl']">
 								<h3>{{val.ear=="A" ? "双耳":(val.ear == "L" ?'左耳':'右耳')}}</h3>
 								<ul>
 									<li v-for="(item,index) in trueLine">{{item}}</li>
@@ -106,13 +106,13 @@ export default {
  	data(){
  		return {
 	        dialogTableVisible: false,
-	        tabs:'test',
+	        initTable:true,
 	        userid:'',
 	        exquisite :'',
 	        test:true,
 	        report: true,
 	        stringData:'',
-	        testData:{},
+	        testData:[],
 	        timer:null,
 	        plivate:'',
 	        showBtn:true,
@@ -182,8 +182,10 @@ export default {
  	methods:{
  		// 关闭模态框
  		closeResult(e){
-
- 			console.log(e)
+ 			this.test = true;
+ 			this.initTable = true;
+ 			this.$emit('closeResult',true)
+ 			console.log('close')
  		},
  		_bigSvg(e){//编辑数据时，隐藏按钮
  			this.showBtn = e;
@@ -259,7 +261,7 @@ export default {
  		// 保存跳转功能
  		save(){
  			// 调用
- 			this.$refs.addAudio.toParent();
+ 			// this.$refs.addAudio.toParent();
 			if((this.plivate[0] && this.plivate[0].data.length == 0)&&(this.plivate[1].data.length == 0)){
  				msgTipsErr(this,'请测试一组完整的数据用于保存！');
  				return;
@@ -277,9 +279,7 @@ export default {
  					...info,
  					...svgMarks,
  				},
- 				"headr":JSON.stringify(this.getServer),
- 				"plivate":JSON.stringify(this.plivate),
- 				"original":JSON.stringify(this.statisticsInfo)
+ 				"hear":JSON.stringify(this.stringData)
  			};
  			console.log(originalData)
  			let that = this;
@@ -304,13 +304,15 @@ export default {
  		},
  		tabShow(res){
  			if(res == 'test'){
- 				this.tabs = "test";
+ 				if(this.initTable && this.hasData){
+ 					this.setStyle()
+ 				}
+ 				this.initTable = false;
  				this.test = false;
  			}else{
- 				this.tabs = "test";
  				this.test = true;
  			}
- 			this.setStyle()
+ 			
  		},
  		// 计算表格的宽和高
  		getStyle(params,str){
@@ -329,7 +331,6 @@ export default {
 			width = table.offsetWidth -70;
 			cellHeight = height/this.trueLine.length;
 			cellWidth = width/(this.hz.length*2);
-			// console.log(cellHeight,cellWidth);
 			cell = table.getElementsByTagName('td');
 			cellHeader = tableHeader.getElementsByTagName('th');
 			for (var i = 0; i < cell.length; i++) {
@@ -337,29 +338,34 @@ export default {
 				cell[i].style.width = cellWidth+'px';
 			};
 			for (var i = 0; i < cellHeader.length; i++) {
-				// cellHeader[i].style.height = cellHeight*2+'px';
 				cellHeader[i].style.width = cellWidth*2 -3+'px';
 			}
  		},
  		setStyle(){
- 			this.testData = this.checkDataArray;
- 			const testData = this.checkDataArray;
- 			setTimeout(()=>{
- 				testData.forEach(item =>{
+ 			const fn1 = ()=>{
+ 				return new Promise(resolve =>{
+ 					this.testData = this.checkDataArray;
+ 					resolve(this.testData)
+ 				})
+ 			}
+ 			async function fn2(that){
+ 				const data = await fn1();
+ 				data.forEach(item =>{
 	 				switch(item.ear){
 	 					case 'A':
-	 					this.getStyle('main-table-A','Aheader');
+	 					that.getStyle('main-table-A','Aheader');
 	 					break;
 	 					case 'R':
-	 					this.getStyle('main-table-R','Rheader');
+	 					that.getStyle('main-table-R','Rheader');
 	 					break;
 	 					case 'L':
-	 					this.getStyle('main-table-L','Lheader');
+	 					that.getStyle('main-table-L','Lheader');
 	 					break;
-
 	 				}
 	 			})
- 			},0);
+ 				return data;
+ 			}
+ 			fn2(this);
  		}
  	}
 }

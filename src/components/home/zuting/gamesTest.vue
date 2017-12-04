@@ -191,7 +191,7 @@ export default {
  		save_confirm(){
  			this.isShowConfirm = false;
  			const data = {
- 				"user_id":sessionStorage.getItem('user_id'),
+ 				"user_id":JSON.parse(sessionStorage.getItem('user_id')),
  				'feedbackTime':this.feedbackTime,
  				'playTimer':this.value,
  				'games':this.currentgame

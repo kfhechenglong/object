@@ -290,7 +290,7 @@ export default{
     
   },
   props:{
-     svgData:{
+    svgData:{
   		type:[Object,String,Array],
   		default:function(){
   			return []
@@ -511,20 +511,20 @@ export default{
 	  }
 	},
     _creatElement(){
-    	console.log("创建")
       this.markFontSize = {size:14,top:5};
       // 设置听力线线宽
       this.tinglixianWidth = 1;
       var ming = 'http://www.w3.org/2000/svg'
       this.svgZuo = this.createTag('svg',{'xmlns': ming});
-      document.getElementById('leftEar' +this.svgId).appendChild(this.svgZuo);
-      document.getElementById('leftEar' +this.svgId).style = 'height:100%;background-size:100% 100%;'
+      jq('#leftEar' +this.svgId).appendChild(this.svgZuo);
+      jq('#leftEar' +this.svgId).style = 'height:100%;background-size:100% 100%;'
       this.svgZuo.id = 'zuo'+this.svgId;
       this.svgZuo.style = 'cursor:crosshair'
-      this.svgZuo.style.width = document.getElementById('leftEar' +this.svgId).clientWidth;
-      this.svgZuo.style.height = document.getElementById('leftEar' +this.svgId).clientHeight;
-      this.tu(this.svgZuo, this.svgZuo.getBoundingClientRect().width, this.svgZuo.getBoundingClientRect().height, '#0000FF',this.coord)
-      this.xian(this.svgZuo, this.svgZuo.getBoundingClientRect().width, this.svgZuo.getBoundingClientRect().height,this.coord)
+      this.svgZuo.style.width = jq('#leftEar' +this.svgId).clientWidth;
+      this.svgZuo.style.height = jq('#leftEar' +this.svgId).clientHeight;
+      const rect = this.svgYou.getBoundingClientRect();
+      this.tu(this.svgZuo, rect.width, rect.height, '#0000FF',this.coord)
+      this.xian(this.svgZuo, rect.width, rect.height,this.coord)
     },
     _creatElementyuo(){
       this.markFontSize = {size:14,top:5};
@@ -532,14 +532,15 @@ export default{
       this.tinglixianWidth = 1;
       var ming = 'http://www.w3.org/2000/svg'
       this.svgYou = this.createTag('svg',{'xmlns': ming});
-      document.getElementById('rightEar' +this.svgId).appendChild(this.svgYou)
-      document.getElementById('rightEar' +this.svgId).style = 'height:100%;background-size:100% 100%;'
+      jq('#rightEar' +this.svgId).appendChild(this.svgYou)
+      jq('#rightEar' +this.svgId).style = 'height:100%;background-size:100% 100%;'
       this.svgYou.id = 'you'+this.svgId;
       this.svgYou.style = 'cursor:crosshair'
-      this.svgYou.style.width = document.getElementById('rightEar' +this.svgId).clientWidth;
-      this.svgYou.style.height = document.getElementById('rightEar' +this.svgId).clientHeight;
-      this.tu(this.svgYou, this.svgYou.getBoundingClientRect().width, this.svgYou.getBoundingClientRect().height, '#FF0000',this.coord)
-      this.xian(this.svgYou, this.svgYou.getBoundingClientRect().width, this.svgYou.getBoundingClientRect().height,this.coord)
+      this.svgYou.style.width = jq('#rightEar' +this.svgId).clientWidth;
+      this.svgYou.style.height = jq('#rightEar' +this.svgId).clientHeight;
+      const rect = this.svgYou.getBoundingClientRect();
+      this.tu(this.svgYou, rect.width, rect.height, '#FF0000',this.coord)
+      this.xian(this.svgYou, rect.width, rect.height,this.coord)
     },
     _clearBigCanv(){
       	let parent = jq(this.svgParentId);
@@ -675,23 +676,24 @@ export default{
     },
     // 清空svg 下gTu标签
     clearTu: function (uid) {
-      if (document.getElementById(uid + 'tu')) {
-        var gtu = document.getElementById(uid + 'tu')
-        while (gtu.hasChildNodes()) {
-          gtu.removeChild(gtu.childNodes[0])
-        }
-        document.getElementById(uid).removeChild(gtu)
-      }
+    	var doc = document;
+    	var gtu = doc.getElementById(uid + 'tu')
+      	if (gtu) {
+       		 while (gtu.hasChildNodes()) {
+          		gtu.removeChild(gtu.childNodes[0])
+        	}
+        	doc.getElementById(uid).removeChild(gtu)
+      	}
     },
     clearTu1: function (id,index) {
-    	// debugger
+    	var doc = document;
       for (var i = 1; i < 7; i++) {
-        if (document.getElementById(id+ i +index+ 'tu')) {
-          var gtu = document.getElementById(id+ i+index + 'tu')
+      	var gtu = doc.getElementById(id+ i+index + 'tu')
+        if (gtu) {
           while (gtu.hasChildNodes()) {
             gtu.removeChild(gtu.childNodes[0])
           }
-          document.getElementById(id).removeChild(gtu)
+          doc.getElementById(id).removeChild(gtu)
         }
       }
     },
@@ -716,9 +718,9 @@ export default{
       }
     },
     removeImg: function () {
-      this.showNew = false
-      this.svgYou.removeChild(document.getElementById('pol'+this.svgId))
-      this.svgZuo.removeChild(document.getElementById('pol2'+this.svgId))
+      	this.showNew = false
+      	this.svgYou.removeChild(document.getElementById('pol'+this.svgId))
+      	this.svgZuo.removeChild(document.getElementById('pol2'+this.svgId))
     },
     toggle_btn: function (evt) {
       	if(this.onlyDraw){
@@ -750,15 +752,15 @@ export default{
     },
     // 添加无响应
     wu: function () {
-      this.yanbi = false
-      this.wufanying = true
-      this.buke = false
+      	this.yanbi = false
+      	this.wufanying = true
+      	this.buke = false
     },
     // 添加不可测量
     bu: function () {
-      this.yanbi = false
-      this.wufanying = false
-      this.buke = true
+      	this.yanbi = false
+      	this.wufanying = false
+      	this.buke = true
     },
     // 复制到另一侧耳朵
     copy: function () {
@@ -780,12 +782,12 @@ export default{
     },
     // 获取鼠标在canvas上的坐标
     getCanvasPos: function (svg, e) {
-      // 获取鼠标在canvas上的坐标
-      var rect = svg.getBoundingClientRect()
-      return {
-        x: e.clientX - Math.round(rect.left),
-        y: e.clientY - Math.round(rect.top)
-      }
+      	// 获取鼠标在canvas上的坐标
+      	var rect = svg.getBoundingClientRect()
+      	return {
+        	x: e.clientX - Math.round(rect.left),
+        	y: e.clientY - Math.round(rect.top)
+      	}
     },
     // 检查X轴点是否存在和此点坐标是否已经存在 为arrayyuan添加数据
     chcekX: function (x, y, arrayL, dataType,hand) {
@@ -856,7 +858,6 @@ export default{
       	let addData = this.addData,
       		arrayyuanzuo = this.arrayyuanzuo,
       		arrayyuan =this.arrayyuan;
-      		console.log(this.ear)
       	if(this.ear === "A"){
       		console.log(this.drawEar)
       		if(this.drawEar == "R"){
@@ -865,20 +866,23 @@ export default{
       			arrayyuan = arrayyuanzuo;
       		}
       	}
+      	let a = this.svgData.length > 0 ? this.svgData : addData;
     	this.control_arr.forEach((item) =>{
 	      	if (item.value) {
-		        for (let i = addData.length -1; i >= 0; i--) {
-		          	if (addData[i].type === item.key) {
-		            	addData.splice(i, 1)
-		          	}
-		        };
+		        // for (let i = addData.length -1; i >= 0; i--) {
+		        //   	if (addData[i].type === item.key) {
+		        //     	addData.splice(i, 1)
+		        //   	}
+		        // };
 		        if (arrayyuanzuo.length > 0) {
-		          	addData.push({'type': item.key, 'ears': '左', 'data': this.changeFormat(arrayyuanzuo)})
-		          	Utils.checkIsChange(this.svgData,{'type': item.key, 'ears': 'L', 'data': this.changeFormat(arrayyuanzuo)})
+		        	console.log(addData)
+		          	// addData.push({'type': item.key, 'ears': '左', 'data': this.changeFormat(arrayyuanzuo)})
+		          	Utils.checkIsChange(a,{'type': item.key, 'ears': 'L', 'data': this.changeFormat(arrayyuanzuo)},this.ear)
 		        }
 		        if (arrayyuan.length > 0) {
-		          	addData.push({'type': item.key, 'ears': '右', 'data': this.changeFormat(arrayyuan)})
-		          	Utils.checkIsChange(this.svgData,{'type': item.key, 'ears': 'R', 'data': this.changeFormat(arrayyuan)})
+		        	console.log(addData)
+		          	// addData.push({'type': item.key, 'ears': '右', 'data': this.changeFormat(arrayyuan)})
+		          	Utils.checkIsChange(a,{'type': item.key, 'ears': 'R', 'data': this.changeFormat(arrayyuan)},this.ear)
 		        }
 		    };
 	    })
@@ -1079,11 +1083,13 @@ export default{
     // 绘制底图
     add: function () {
       // 绘制右 底层画布
-      this.tu(this.svgYou, this.svgYou.getBoundingClientRect().width, this.svgYou.getBoundingClientRect().height, '#FF0000',this.coord)
-      this.xian(this.svgYou, this.svgYou.getBoundingClientRect().width, this.svgYou.getBoundingClientRect().height,this.coord)
+      const rectR = this.svgYou.getBoundingClientRect();
+      const rectL = this.svgZuo.getBoundingClientRect();
+      this.tu(this.svgYou, rectR.width, rectR.height, '#FF0000',this.coord)
+      this.xian(this.svgYou, rectR.width, rectR.height,this.coord)
       // 绘制左 底层画布
-      this.tu(this.svgZuo, this.svgZuo.getBoundingClientRect().width, this.svgZuo.getBoundingClientRect().height, '#0000FF',this.coord)
-      this.xian(this.svgZuo, this.svgZuo.getBoundingClientRect().width, this.svgZuo.getBoundingClientRect().height,this.coord)
+      this.tu(this.svgZuo, rectL.width, rectL.height, '#0000FF',this.coord)
+      this.xian(this.svgZuo, rectL.width, rectL.height,this.coord)
     },
     // 绘制听力图的x,y轴和计算数值记录
     tu: function (svg, x, y, colors,coord,fontSize) {
@@ -1228,35 +1234,34 @@ export default{
     // 放大图画圆
     _bigdrawyuan:function(flag){
       let objZong = this.addData;
-      for (var v in objZong) {
-        // 生成右耳图
-        if (objZong[v].ears === '右') {
-        	this.control_arr.forEach((item) =>{
-        		if(objZong[v].type === item.key){
-        			this.arrayyuan = this.ReadData(objZong[v].data);
-          			this.publicFn("right",null,item.markRight,true);
-        		}
-        	})
-        }
-        // 生成左耳图
-        if (objZong[v].ears === '左') {
+      // console.log(objZong)
+      	objZong.forEach(ele =>{
           	this.control_arr.forEach((item) =>{
-        		if(objZong[v].type === item.key){
-        			this.arrayyuanzuo = this.ReadData(objZong[v].data);
-        			this.publicFn("left",null,item.markLeft,true);
+        		if(ele.type === item.key){
+        			var arr = ele.earData 
+        			arr.forEach(arrele =>{
+        				const getObj = Utils.getReaderSvgData(arrele),
+	        			getReaderSvgData = getObj.alldata;
+        				if(arrele.ear === "R"){
+        					this.arrayyuan = this.ReadData(getReaderSvgData);
+	          				this.publicFn("right",null,item.markRight,true);
+        				}else if(arrele.ear === "L"){
+        					this.arrayyuanzuo = this.ReadData(getReaderSvgData);
+	        				this.publicFn("left",null,item.markLeft,true);
+        				}
+        			})
         		}
         	})
-        }
-      };
+        })
       // 获取当前类型的坐标点
       this.drawyuan(true)
     },
     // 读取数据,用于编辑数据
     _editor_drawyuan: function () {
       try{
-        const svgData = JSON.parse(JSON.stringify(this.svgMarks));
+        const svgData = this.svgMarks;
         // 获取数据，绘制svg
-        this.addData = svgData.data;
+        this.addData = JSON.parse(svgData.data);
         this._bigdrawyuan();
       } catch(err){
         alert(err +'读取数据出错！')
@@ -1289,13 +1294,14 @@ export default{
     },
      // 将svg转换成png图片
     createdPng: function (svg,flag) {
-      if(document.getElementById('moveline')){
+    	var doc =document;
+      if(doc.getElementById('moveline')){
         this.clearG(svg, this.gMove)
       }
       var ghtml;
       var htmlData = svg.outerHTML;
-      if(document.getElementById(svg.id + 'yuanshi')){
-         ghtml = document.getElementById(svg.id + 'yuanshi').outerHTML;
+      if(doc.getElementById(svg.id + 'yuanshi')){
+         ghtml = doc.getElementById(svg.id + 'yuanshi').outerHTML;
          htmlData = htmlData.replace(ghtml,'')
       } 
       var svgData = 'data:image/svg+xml;base64,' + window.btoa(unescape(encodeURIComponent(htmlData)));
@@ -1303,7 +1309,7 @@ export default{
       img.width = svg.clientWidth
       img.height = svg.clientHeight
       img.src = svgData
-      var c = document.createElement('canvas')
+      var c = doc.createElement('canvas')
       c.width = img.width
       c.height = img.height
       var ctx = c.getContext('2d');
@@ -1321,48 +1327,81 @@ export default{
         }
       }
     },
+    // 听力图档案查询画图
     handleData(objZong,color1,color2,str){
       // 根据数据生成表中数据
       	let arrayyuan = this.arrayyuan;
       	let arrayyuanzuo = this.arrayyuanzuo;
-        for (var v in objZong) {
-          // 生成右耳图
-          if (objZong[v].ears === '右') {
+      	// console.log(objZong)
+      	objZong.forEach(ele =>{
           	this.control_arr.forEach((item) =>{
-        		if(item.value && objZong[v].type === item.key){
-        			this.arrayyuan = this.ReadData(objZong[v].data);
-              		let obj = {
-			    		'ele' :this.svgYou,
-			    		'arr' : this.arrayyuan,
-			    		'color':color1,
-			    		'mask': item.markRight,
-			    		'type':objZong[v].type,
-			    		'str':str
-			    	};
-		    		this.yuan(obj);
-		          	this.average('L', obj.arr)
+        		if(item.value && ele.type === item.key){
+        			var arr = ele.earData 
+        			arr.forEach(arrele =>{
+        				const getObj = Utils.getReaderSvgData(arrele),
+	        			getReaderSvgData = getObj.alldata;
+	        			if(arrele.ear === 'R'){
+	        				this.arrayyuan = this.ReadData(getReaderSvgData);
+		              		let obj = {
+					    		'ele' :this.svgYou,
+					    		'arr' : this.arrayyuan,
+					    		'color':color1,
+					    		'mask': item.markRight,
+					    		'type':ele.type,
+					    		'str':str
+					    	};
+				    		this.yuan(obj);
+				          	this.average('R', obj.arr)
+				        } else if(arrele.ear === 'L'){
+		        			this.arrayyuanzuo = this.ReadData(getReaderSvgData);
+		              		let obj = {
+					    		'ele' :this.svgZuo,
+					    		'arr' : this.arrayyuanzuo,
+					    		'color':color2,
+					    		'mask': item.markLeft,
+					    		'type':ele.type,
+					    		'str':str
+					    	};
+				    		this.yuan(obj);
+				          	this.average('L', obj.arr)
+			        	}
+        			})
         		}
         	})
-          }
-          // 生成左耳图
-          if (objZong[v].ears === '左') {
-          	this.control_arr.forEach((item) =>{
-        		if(item.value && objZong[v].type === item.key){
-        			this.arrayyuanzuo = this.ReadData(objZong[v].data);
-              		let obj = {
-			    		'ele' :this.svgZuo,
-			    		'arr' : this.arrayyuanzuo,
-			    		'color':color2,
-			    		'mask': item.markLeft,
-			    		'type':objZong[v].type,
-			    		'str':str
-			    	};
-		    		this.yuan(obj);
-		          	this.average('L', obj.arr)
-        		}
-        	})
-          }
-        }
+      	})
+        // for (var v in objZong) {
+        //   	this.control_arr.forEach((item) =>{
+        //   		if (item.value && objZong[v].type === item.key) {
+		    		// if(objZong[v].ears === '右'){
+        //   				// 生成右耳图
+		    		// 	this.arrayyuan = this.ReadData(objZong[v].data);
+		      //     		let obj = {
+				    // 		'ele' :this.svgYou,
+				    // 		'arr' : this.arrayyuan,
+				    // 		'color':color1,
+				    // 		'mask': item.markRight,
+				    // 		'type':objZong[v].type,
+				    // 		'str':str
+				    // 	};
+			    	// 	this.yuan(obj);
+			     //      	this.average('L', obj.arr)
+		    		// }
+		    		// if (objZong[v].ears === '左') {// 生成左耳图
+		    		// 	this.arrayyuanzuo = this.ReadData(objZong[v].data);
+		      //     		let obj = {
+				    // 		'ele' :this.svgZuo,
+				    // 		'arr' : this.arrayyuanzuo,
+				    // 		'color':color2,
+				    // 		'mask': item.markLeft,
+				    // 		'type':objZong[v].type,
+				    // 		'str':str
+				    // 	};
+			    	// 	this.yuan(obj);
+			     //      	this.average('L', obj.arr)
+		      // 		}
+        //   		}
+        // 	})
+        // }
     },
     drawyuan: function (falg) {
     	if(falg){
@@ -1371,32 +1410,32 @@ export default{
     	}
       	let objZong = this.addData;
 	    // 根据数据生成表中数据
-	    for (var v in objZong) {
-	        // 生成右耳图
-	        if (objZong[v].ears === '右') {
-	          	this.control_arr.forEach((item) =>{
-	        		if(item.value && objZong[v].type === item.key){
-	        			this.arrayyuan = this.ReadData(objZong[v].data);
-	        		}
-	        	})
-	          	this.tableText(this.arrayyuan, 'r');
-	          	if(!falg){
-	          		this.publicFn("right");
-	          	}
-	        }
-	        // 生成左耳图
-	        if (objZong[v].ears === '左') {
-	          	this.control_arr.forEach((item) =>{
-	        		if(item.value && objZong[v].type === item.key){
-	        			this.arrayyuanzuo = this.ReadData(objZong[v].data);
-	        		}
-	        	})
-	          	this.tableText(this.arrayyuanzuo, 'l');
-	          	if(!falg){
-	          		this.publicFn("left");
-	          	}
-	        }
-	    }
+	    objZong.forEach(ele =>{
+	    	var arr = ele.earData;
+    		arr.forEach(arrele =>{
+    			const getObj = Utils.getReaderSvgData(arrele),
+        			getReaderSvgData = getObj.alldata;
+    			this.control_arr.forEach((item) =>{
+    				if(arrele.ear === "R"){
+    					if(item.value && ele.type === item.key){
+        					this.arrayyuan = this.ReadData(getReaderSvgData);
+        				}
+        				this.tableText(this.arrayyuan, 'r');
+			          	if(!falg){
+			          		this.publicFn("right");
+			          	}
+    				}else if(arrele.ear === "L"){
+    					if(item.value && ele.type === item.key){
+    						this.arrayyuanzuo = this.ReadData(getReaderSvgData);
+        				}
+        				this.tableText(this.arrayyuanzuo, 'l');
+			          	if(!falg){
+			          		this.publicFn("left");
+			          	}
+    				}
+    			})
+        	})
+        })
     },
     // 调用画圆和计算平均值的函数
     publicFn(hand,data_arr,mark,flag){
@@ -1420,7 +1459,7 @@ export default{
           	flag ? "" : this.average('L', obj.arr);
         }
     },
-    // 根据 是否能画图的标记 来判断画图的数据
+    // 助听听阈测试数据结果画图
     drawyuanzhu: function () {
     	let objZong = [];
 		 objZong = this.svgData[0];
@@ -1470,13 +1509,13 @@ export default{
     // 画图
     yuan: function (arg) {
       	this.gTu = this.createTag('g', {})
-      	const type = arg.type ? arg.type : "";
-      	const str = arg.str ? arg.str : "";
-      	const svg = arg.ele;
-      	const arr = arg.arr;
-      	const color = arg.color;
-      	const mask = arg.mask;
-      	const masks = type ? "" : arg.mask;
+      	const type = arg.type ? arg.type : "",
+      		str = arg.str ? arg.str : "",
+      		svg = arg.ele,
+      		arr = arg.arr,
+      		color = arg.color,
+      		mask = arg.mask,
+      		masks = type ? "" : arg.mask;
       	this.gTu.id = svg.id + masks + type + str + 'tu';
       	this.gTu.style.fill = color;
       	let fontOp;
@@ -1508,11 +1547,7 @@ export default{
       // console.log(arrayL)
       // 将画布上圆的x坐标从小到大排序
       arrayL.sort(this.sortNumber)
-      var x2
-      var y2
-      var xp
-      var yp
-      var num;
+      var x2,y2,xp,yp,num;
       let arrayXxiaCoordinate = this.arrayXxiaCoordinate;
       let arrayXcoordinate = this.arrayXcoordinate;
       let arrayYline2 = this.arrayYline2;
@@ -1573,8 +1608,9 @@ export default{
           }
         }
       }
-      if (document.getElementById(gTu.id)) {
-        document.getElementById(gTu.id).parentNode.removeChild(document.getElementById(gTu.id))
+      let ele = document.getElementById(gTu.id);
+      if (ele) {
+        ele.parentNode.removeChild(ele)
       }
       svg.appendChild(gTu)
     },

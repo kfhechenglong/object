@@ -87,10 +87,13 @@ export default {
 	},
 	methods:{
 		close(){
-			this.setXingIndex = 0;
-			this.setXiLIndex = 0;
-			this.setPinPaiIndex = 0;
-			this.productIndex = 0;
+			// this.setXingIndex = 0;
+			// this.setXiLIndex = 0;
+			// this.setPinPaiIndex = 0;
+			// this.productIndex = 0;
+			setTimeout(()=>{
+				this.setChanPin(this.product[0],0);
+			},50)
 			this.dele = true;
 			this.add = true;
 		},
@@ -123,17 +126,16 @@ export default {
 		addPinPai(val){//添加品牌
 			if(val){
 				let params = {"parent_id":this.productId,"name":val};
-				this.addApp(params,success);
-				function success(pointer){
-					pointer.setPinPaiIndex = pointer.pinData.length;
-					pointer.next(undefined,undefined,undefined);
+				this.addApp(params).then(()=>{
+					this.setPinPaiIndex = 0;
+					this.next(undefined,undefined,undefined);
 					// 新添加的品牌，其系列、型号为空值；
-					pointer.xingData = [];
-					pointer.xiData = [];
+					this.xingData = [];
+					this.xiData = [];
 					// 获取当前品牌的id值
-					let pinData = pointer.pinData;
-					pointer.PinPaiId = pinData[pinData.length-1]['id'];
-				}
+					let pinData = this.pinData;
+					this.PinPaiId = pinData[0]['id'];
+				})
 			}else{
 				msgTipsErr(this,'请输入品牌名！');
 			}
@@ -148,17 +150,15 @@ export default {
 				// 判断品牌是否为空？
 				if(currenPin){
 					let params = {"parent_id":currenPin.id,"name":val};
-					this.addApp(params,success);
-					function success(pointer){
-						// 选中当前新添加的系列
-						pointer.setXiLIndex = pointer.xiData.length;
-						pointer.next(true,undefined,undefined);	
+					this.addApp(params).then(()=>{
+						this.setXiLIndex = 0;
+						this.next(true,undefined,undefined);	
 						// 新添加的系列，其品牌为空值；
-						pointer.xingData = [];
+						this.xingData = [];
 						// 获取添加型号时要发送的父Id
-						let xiData = pointer.xiData;
-						pointer.XiLieId = xiData[xiData.length-1]['id'];
-					}
+						let xiData = this.xiData;
+						this.XiLieId = xiData[0]['id'];
+					})
 				}else{
 					msgTipsErr(this,'请先新增品牌！')
 				}
@@ -176,11 +176,10 @@ export default {
 				let currentXiLie = this.xiData[this.setXiLIndex];
 				if(currentXiLie){
 					let params = {"parent_id":currentXiLie.id,"name":val};
-					this.addApp(params,success);
-					function success(pointer){
-						pointer.setXingIndex = pointer.xingData.length;	
-						pointer.next(true,true,undefined);		
-					}
+					this.addApp(params).then(()=>{
+						this.setXingIndex = 0;
+						this.next(true,true,undefined);	
+					})
 				}else{
 					msgTipsErr(this,'请先二级子类！');
 				}
@@ -189,16 +188,20 @@ export default {
 			}
 		},
 		// 添加接口
-		addApp(params,fn){
-			this.$ajax.post('/app/add',params).then((res)=>{
-				if(res.code === 200){
-					this.options = res.data;
-					this.$store.commit('setProduct',this.options);
-	                fn(this);
-				}else{
-					msgTipsErr(this,'添加失败！')
-				}
+		addApp(params){
+			return new Promise((resolve,reject) =>{
+				this.$ajax.post('/app/add',params).then((res)=>{
+                	if(res.code === 200){
+                		this.options = res.data;
+						this.$store.commit('setProduct',this.options);
+                		resolve()
+                	}else{
+						msgTipsErr(this,'添加失败！')
+						reject('添加失败！')
+					}
+				})
 			})
+			
 		},
 		// 点击删除按钮，显示删除标识
 		deleEle(){

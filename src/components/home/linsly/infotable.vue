@@ -1,7 +1,7 @@
 <template>
     <div class="infotable">
         <div v-if="addStudent " class="my-d-h">
-            <el-dialog v-model="tableShow" :close-on-click-modal="false">
+            <el-dialog v-model="tableShow" :close-on-click-modal="false" @click="close">
                 <div class="infotablecontent">
                     <h3></h3>
                     <div class="search clearfix"> 
@@ -10,52 +10,39 @@
                             </el-input>
                         </div>
                         <div class="fl">
-                            <el-button
-                            type="primary"
-                            @click="dialogAddVisible"><i class="el-icon-plus"></i>&nbsp;新增
+                            <el-button type="primary" @click="dialogAddVisible"><i class="el-icon-plus"></i>&nbsp;新增
                             </el-button>
                         </div>
                         <ul class="last  clearfix fl" v-if="nearSt.length>0">
                             <li class="l-t">最近浏览：</li>
                             <li v-for="(item,index) in nearSt" @click="toPath(item.id)" :class="index % 2 == 0 ? 'sef':''" :id="index === 2 ? 'last_li' :''" :title="item.name" v-if="index < 3">{{item.name}}
-                                <!-- <span ></span> -->
                             </li>
                         </ul>
                     </div>
                     <div class="table">
                         <div class="clearfix" :class="{'t-6':flag == 6 }">
-                            <div @click="_studyList" class="fl t-s-l" :class="{'active':studylist}">
-                                <!-- <el-badge :value="infoStudent.length" class="item"> -->
-                                  <p>学生列表({{infoStudent.length}}人)</p>
-                                <!-- </el-badge> -->
+                            <div @click="_studyList" class="fl t-s-l" :class="{'active' :studylist === 'all'}">
+                                <p>学生列表({{infoStudent.length}}人)</p>
                             </div>
-                            <div v-show="flag == 6" @click="_studyList('dai')" class="fl t-s-z">
-                                  <p>暂存</p>
+                            <div v-show="flag == 6" @click="_studyList('moment')" class="fl t-s-z" :class="{'active':studylist==='moment'}">
+                                <el-badge :value="MomentStorageNum" class="item">
+                                    <p>暂存测试</p>
+                                </el-badge>
                             </div>
-                            <div @click="_studyList('dai')" class="fl t-s-d" :class="{'active':!studylist}">
+                            <div @click="_studyList('dai')" class="fl t-s-d" :class="{'active':studylist ==='dai'}">
                                 <el-badge :value="value" class="item">
                                   <p>待测名单</p>
                                 </el-badge>
                             </div>
                         </div>
-                        <ul class="clearfix" v-if="studylist">
-                            <li class="fl" v-for = "(item ,index) in infoStudent" @click="handleEdit(item)" :title="item.name">
-                                <!-- <img :src="imgSrc(item)" alt=""> -->
+                        <ul class="clearfix">
+                            <li class="fl" v-for = "(item ,index) in listsArr" @click="handleEdit(item)" :title="item.name">
                                 <img v-if="item.sex == '男' "  :src="imgSrc(item)" :onerror="errorImgBody">
                                 <img v-else :src="imgSrc(item)" :onerror="errorImgGirl">
                                 <span style="overflow:hidden;">{{item.name}}</span>
                             </li>
-                            <p v-if="infoStudent.length === 0">未找到相关信息！</p>
-                        </ul>
-                        <ul v-if="!studylist">
-                            <li class="fl no-test" v-for="(item,index) in noTestNameLists"  @click="handleEdit(item)">
-                                <img v-if="item.sex == '男' "  :src="imgSrc(item)" :onerror="errorImgBody">
-                                <img v-else :src="imgSrc(item)" :onerror="errorImgGirl">
-                                <span style="overflow:hidden;">{{item.name}}</span>
-                            </li>
-                            <p v-if="noTestNameLists.length === 0" style="margin-top:20px;">
-                                暂无待测名单！
-                            </p>
+
+                            <p v-if="listsArr.length === 0" style="margin-top:20px;">未找到相关信息！</p>
                         </ul>
                     </div>
                 </div>
@@ -91,12 +78,15 @@ export default {
             // 学生的基本信息
             infoBase :{},
             arr:'',
-            studylist:true,
+            studylist:"all",
             errorImgBody:'this.src="' + body + '"',
             errorImgGirl:'this.src="' + girl + '"' ,
             //待测名单
             noTestNameLists:[],
-            value:0
+            value:0,
+            MomentStorageNum:0,
+            listsArr:[],
+            storagelists:[]
         }
     },
     props:{
@@ -110,14 +100,24 @@ export default {
     watch:{
         flag:function(){
             this.getNoTestNameLists();
+            if( this.flag== 6){//获取暂存测试信息
+                this.getMomentStorageData();
+            }
         }
     },
     methods : {
+        close(){
+        },
         _studyList(evt){
             if(evt === 'dai'){
-                this.studylist = false;
+                this.studylist = "dai";
+                this.listsArr = this.noTestNameLists.concat();
+            }else if( evt === "moment"){
+                this.studylist = "moment";
+                this.listsArr = this.storagelists.concat();
             }else{
-                this.studylist = true;
+                this.studylist = "all";
+                this.listsArr = this.infoStudent.concat();
             }
         },
         imgSrc:function(item){
@@ -142,9 +142,34 @@ export default {
         showlist(e){
             this.addStudent = true;
         },
-
+        getMomentStorageData(){
+            let infoStudent = this.infoStudent;
+            let noTestNameLists = [];
+            let testNames = JSON.parse(localStorage.getItem('memoryStorageTestData'));
+            try{
+                // 获取用户的头像信息,同时筛选如果待测人员已经被删除了，则从待测名单中移除
+                for (let i = 0; i < testNames.length; i++) {
+                    for (let j = 0; j < infoStudent.length; j++){
+                        if(testNames[i].user_id == infoStudent[j].id){
+                            noTestNameLists.push(infoStudent[j])
+                            break;
+                        }
+                    }
+                }
+                this.storagelistsData = testNames;
+                this.storagelists = noTestNameLists;
+                if(noTestNameLists.length >0){
+                    this.MomentStorageNum = noTestNameLists.length;
+                    this.listsArr = this.storagelists.concat();
+                    this.studylist = "moment";  
+                }
+            } catch(err){
+                this.value = 0;
+                this.storagelists = [];
+            }
+            
+        },
         handleEdit(row) {
-            // console.log(index, row);
             // 现将该学生的信息存到本地localstorage;
             let val = {'name':row.name,'id':row.id};
             // 判断该对象是否添加过
@@ -158,14 +183,13 @@ export default {
             if(valueIndex==-1){
                 this.oldArry.unshift(val);
             }else if(valueIndex>0){
-                 this.oldArry.splice(valueIndex,1)
-                 this.oldArry.unshift(val);
+                this.oldArry.splice(valueIndex,1)
+                this.oldArry.unshift(val);
             }
             if(this.oldArry.length > 6){
                 this.oldArry.length = 5;
             }
-            localStorage.setItem("stName",JSON.stringify(this.oldArry))
-            // console.log(JSON.stringify(this.oldArry))
+            localStorage.setItem("stName",JSON.stringify(this.oldArry));
             // 跳转到相应的页面
             this.toPath(row.id);
           },
@@ -191,7 +215,8 @@ export default {
                 for (let i = 0; i < testName.length; i++) {
                     for (let j = 0; j < infoStudent.length; j++){
                         if(testName[i].user_id === infoStudent[j].id){
-                            noTestNameLists.push(infoStudent[j])
+                            noTestNameLists.push(infoStudent[j]);
+                            break;
                         }
                     }
                 }
@@ -203,9 +228,11 @@ export default {
             }
             //如果有未测名单，则显示未测名单，否则默认显示学生列表
             if(this.noTestNameLists.length > 0){
-                this.studylist = false;
+                this.studylist = "dai";
+                this.listsArr = this.noTestNameLists.concat();
             }else{
-                this.studylist = true;
+                this.studylist = "all";
+                this.listsArr = this.infoStudent.concat();
             }
         },
         getStorage(){
@@ -229,19 +256,17 @@ export default {
         },
         // 获取用户的学生列表信息
         getList(){
-            var info = "name"
-            var that = this
-            this.$ajax.post(`/user/showlist`,info).then(function(response){
-                console.log(response)
-                that.infoStudent = response.data;
+            this.$ajax.post(`/user/showlist`,"name").then((response)=>{
+                this.infoStudent = response.data;
                 // 进行对象深拷贝
-                that.arr = that.infoStudent.concat();
-                that.toPinName(that.arr);
+                this.arr = this.infoStudent.concat();
+                this.listsArr = this.infoStudent.concat();
+                this.toPinName(this.arr);
                  // 判断该学生ID是否已经被删除
-                that.nearSt = that.FilterData(that.nearSt,that.infoStudent);
-            }).catch(function(err){
-                that.error = true;
-                msgTipsErr(that,'列表请求失败!');
+                this.nearSt = this.FilterData(this.nearSt,this.infoStudent);
+            }).catch((err)=>{
+                this.error = true;
+                msgTipsErr(this,'列表请求失败!');
             }); 
         },
         // 查找两个数组中不同的元素
@@ -270,33 +295,39 @@ export default {
             sessionStorage.setItem('user_id', JSON.stringify(params));
             Vm.$emit('userId',params);
             // 页面跳转接收传递的参数id
+            let obj = {id:params};
+            if(this.studylist === "moment"){//如果选择暂存人员，则添加暂存的测试信息
+                Object.assign(obj,{data:JSON.stringify(this.getMoment(params)),flag:true})
+            }
             switch (this.flag){
                 case 1:
-                    console.log(this.flag)
-                    this.$router.push({ path: '/home/linsix',query:{id:params}});
+                    this.$router.push({ path: '/home/linsix',query:obj});
                     break;
                 case 6:
-                    this.$router.push({ path: '/home/zhuting',query:{id:params}} );
+                    this.$router.push({ path: '/home/zhuting',query:obj} );
                     break;
                 case 7:
-                    this.$router.push({ path: '/home/especial',query:{id:params}});
+                    this.$router.push({ path: '/home/especial',query:obj});
                     break;
                 case 2:
                 // 胡氏七词
-                    this.$router.push({ path: '/home/hseight',query:{id:params}});
+                    this.$router.push({ path: '/home/hseight',query:obj});
                     break;
                 case 4:
-                    this.$router.push({ path: '/home/syllable',query:{id:params}});
+                    this.$router.push({ path: '/home/syllable',query:obj});
                     break;
                 case 3:
                 // 声调
-                    this.$router.push({ path: '/home/tone',query:{id:params}});
+                    this.$router.push({ path: '/home/tone',query:obj});
                     break;
             }
         },
+        getMoment(id){
+            let arr = this.storagelistsData;
+            return arr.filter(ele =>{return ele.user_id == id })[0].data[0];
+        },
         handleSelectionChange(val) {
             this.multipleSelection = val;
-            console.log(val)
         },
         //关闭添加学生模块时，重置内容
         resetForm(formName) {
@@ -456,7 +487,7 @@ export default {
                 letter-spacing: 3px;
                 border-radius: 5px;
                 border:2px solid #449d44;
-                box-shadow: 4px 4px 10px  #999;
+                box-shadow: 0px 0px 10px #000;
                 color:#000;
                 margin:10px 15px;
                 img{width:90px;height:90px;

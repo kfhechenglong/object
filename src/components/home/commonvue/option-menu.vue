@@ -25,7 +25,7 @@ export default{
       value:'',
       title:'请选择要打印的类型',
       btn:'确定打印',
-      data:"",
+      data:Options.testType,
       set:new Set(),
       baseinfo:false,
       checkData:{},

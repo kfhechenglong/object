@@ -6,39 +6,9 @@
     <section >
       <div class="header clearfix">
         <el-form class="fl" ref="form" :inline="true" :model="form" label-width="35%">
-          <!-- <div class="td">
-            <div>
-              <h4>基本信息</h4>
-              <el-form-item label="姓名">
-                <el-input v-model.trim="form.user_name" placeholder="请输入姓名" class="name"></el-input>
-              </el-form-item>
-              <el-form-item label="性别">
-                <el-select v-model="form.gender" placeholder="请选择性别" class="gender">
-                  <el-option label="男" value="男"></el-option>
-                  <el-option label="女" value="女"></el-option>
-                </el-select>
-              </el-form-item>
-              <el-form-item label="年龄" class="age-warp">
-                <el-col :span="10">
-                  <el-input v-model.lazy.trim.number="form.min_age" class="age" :maxlength="3" @change="checkAge(form.min_age,'min')"  placeholder="数字"></el-input>
-                </el-col>
-                <el-col class="line" :span="4">&nbsp;—&nbsp;</el-col>
-                <el-col :span="10">
-                  <el-input v-model.lazy.trim.number="form.max_age" class="age old-age" :maxlength="3" @change="checkAge(form.max_age,'max')"  placeholder="数字"></el-input>
-                </el-col>
-                <span class="tips">{{tips}}</span>
-              </el-form-item>
-                <v-distpicker :province="form.province" :city="form.city" :area="form.area" @province="province" @city="city" @area="area"></v-distpicker>
-            </div>
-          </div> -->
           <div class="td">
             <div>
-              <!-- <h4>入园信息</h4> -->
               <el-form-item label="状态">
-                <!-- <el-select v-model="form.sc_status" placeholder="请选择" class="zhuang">
-                  <el-option label="在园" value="1"></el-option>
-                  <el-option label="离园" value="0"></el-option>
-                </el-select> -->
                 <el-radio-group v-model="form.sc_status" @change="toggle_status">
                   <el-radio-button label="1" class="in">在校</el-radio-button>
                   <el-radio-button label="0">离校</el-radio-button>
@@ -46,27 +16,9 @@
               </el-form-item>
               <el-form-item label="班级">
                 <el-input @focus ="_checked($event,4)" readonly="readonly" v-model="form.class_name" placeholder="请选择班级！"></el-input>
-                <!-- <el-select v-model="form.class_id" multiple placeholder="请选择班级" class="bottom checked-more">
-                    <el-option
-                      v-for="item in class_name_list"
-                      :key="item.class_id"
-                      :label="item.class_name"
-                      :value="item.class_id"
-                      >
-                    </el-option>
-                </el-select >-->
               </el-form-item>
               <el-form-item label="班主任">
                 <el-input @focus ="_checked($event,1)" readonly="readonly" v-model="teacher_name" placeholder="请选择班主任！"></el-input>
-                <!-- <el-select v-model="form.teacher" multiple placeholder="请选择班主任" class="bottom checked-more">
-                    <el-option
-                      v-for="item in teacher_list"
-                      :key="item.name"
-                      :label="item.name"
-                      :value="item.name"
-                      >
-                    </el-option>
-                </el-select> -->
               </el-form-item>
               <el-form-item label="入园时间">
                   <el-col :span="10" class="sh-year">
@@ -79,99 +31,6 @@
               </el-form-item>
             </div>
           </div>
-          <!-- <div class="td">
-            <div class="product">
-              <h4>助听设备</h4>
-              <p>左耳</p>
-              <el-cascader
-                :options="product"
-                change-on-select
-                v-model="form.eq_left"
-                @change="handleChangeLeft">
-              </el-cascader>
-              <p>右耳</p>
-              <el-cascader
-                :options="product"
-                v-model="form.eq_right"
-                change-on-select
-                @change="handleChangeRight">
-              </el-cascader>
-            </div>
-          </div> -->
-          <!-- <div class="td">
-            <div>
-              <h4>听力信息</h4>
-              <el-form-item label="耳聋性质">
-                <el-select v-model="form.deaf_nature" multiple placeholder="请选择" class="bottom checked-more">
-                    <el-option
-                      v-for="item in deaf_nature"
-                      :key="item.value"
-                      :label="item.label"
-                      :value="item.value"
-                      >
-                    </el-option>
-                </el-select>
-              </el-form-item>
-              <el-form-item label="耳聋程度">
-                <el-select v-model="form.deaf_degree" multiple placeholder="请选择" class="bottom checked-more">
-                    <el-option
-                      v-for="item in deaf_degree"
-                      :key="item.value"
-                      :label="item.label"
-                      :value="item.value"
-                      >
-                    </el-option>
-                </el-select>
-              </el-form-item>
-              <el-form-item label="裸耳PTA">
-                <el-select v-model="form.lpta" multiple placeholder="请选择" class="bottom checked-more">
-                    <el-option
-                      v-for="item in valuePTA"
-                      :key="item.value"
-                      :label="item.label"
-                      :value="item.value"
-                      >
-                    </el-option>
-                </el-select>
-              </el-form-item>
-              <el-form-item label="助听PTA">
-                <el-select v-model="form.zpta" multiple placeholder="请选择" class="bottom checked-more">
-                    <el-option
-                      v-for="item in valuePTA"
-                      :key="item.value"
-                      :label="item.label"
-                      :value="item.value"
-                      >
-                    </el-option>
-                </el-select>
-              </el-form-item>
-            </div>
-          </div> -->
-          <!-- <div class="td isover">
-            <div>
-              <h4>听力评估完成情况</h4>
-              <el-form-item label="评估类型">
-                <el-select v-model="checkedRadio" multiple placeholder="请选择" class="bottom checked-more">
-                    <el-option
-                      v-for="item in testType"
-                      :key="item.key"
-                      :label="item.name"
-                      :value="item.key"
-                      >
-                    </el-option>
-                </el-select>
-              </el-form-item>
-              <p>
-                <el-radio-group v-model="form.isover">
-                  <el-radio-button :disabled="isChecked" label="已完成"></el-radio-button>
-                  <el-radio-button :disabled="isChecked" label="未完成"></el-radio-button>
-                </el-radio-group>
-              </p>
-              <el-checkbox-group v-model="form.checkedTime" class="radio-time" @change="changeIsOverTime">
-                <el-checkbox-button :disabled="isChecked" label="周"></el-checkbox-button><el-checkbox-button :disabled="isChecked" label="月"></el-checkbox-button><el-checkbox-button :disabled="isChecked" label="季"></el-checkbox-button><el-checkbox-button :disabled="isChecked" label="年"></el-checkbox-button>
-              </el-checkbox-group>
-            </div>
-          </div> -->
           <ul class="fl">
             <div class="clearfix">
               <li class="fl"><el-button class="m-h-btn" type="success" @click="onSubmit(form)"><i class="iconfont icon-chaxun"></i>查询</el-button></li>
@@ -215,7 +74,6 @@
     <!-- 批量打印 start -->
     <div class="print-a">
       <div  style="width:1000px;height:100%;position: absolute;left: 0px;top: 0px;z-index: -1;">
-        <!-- <ele-print-all ref="printall" :distance="allDistance" :tableHeader="tableHeader" :resultData="renderData" :rederData="toneRenderData" :type="type" :userInfo="printUsersData" :userText="printUsersOtherData" :jieguo="jieguo" :starValue="starValue"></ele-print-all> -->
         <ele-print-all ref="printall" :data="printAllData"  :type="type" ></ele-print-all>
       </div>
     </div>
@@ -651,8 +509,7 @@ export default {
                 }
             }
           }).catch((err)=>{
-            console.log(err)
-            alert(err +"批量打印请求错误！")
+            console.log(err +"批量打印请求错误！")
           })
         },
         //筛选助听听阈信息
@@ -742,7 +599,7 @@ export default {
             function setSvgData (params){
                 return new Promise((resolve,reject) =>{
                     that.canvasData = [];
-                    that.canvasData.push(params[0].data);
+                    that.canvasData.push(JSON.parse(params[0].data));
                     resolve();
                 })
             };

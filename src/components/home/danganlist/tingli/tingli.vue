@@ -479,30 +479,24 @@ export default {
             this.$ajax.post('/audiogram/showone',{'audio_id':id}).then((response) =>{
                 console.log(response)
                 if(response.code === 200){
-                    this.$store.commit('hasCanvasData',response.data);
-                    let user_text = JSON.stringify(response.data);
+                    const resdata = response.data,
+                        svgData = JSON.parse(resdata.data);
+                    this.$store.commit('hasCanvasData',resdata);
+                    let user_text = JSON.stringify(resdata);
                     sessionStorage.setItem('user_text',user_text)
-                    this.getEar = response.data.radioEar;
+                    this.getEar = resdata.radioEar;
                     if(flag){
                         if(this.canvasData.length > 1){//最多保存两组数据，用于进行对比
                             this.canvasData.shift();
                         };
-                        this.canvasData.unshift(response.data.data);
+                        this.canvasData.unshift(svgData);
                     }else{
-                        this.canvasData = [response.data.data];
+                        this.canvasData = [svgData];
                     };
                     setTimeout(() =>{
                          this.$refs.tinglitu.drawyuan();//调用听力图中svg渲染
                      },50)
                 }
-            })
-        },
-        // 获取其它检查的列表数据
-        _response2(){
-            let num = 0;
-            let id = this.imgsData[num]['id'];
-            this.$ajax.post('/audiogram/otherimages',{'id':id}).then((response) =>{
-                console.log(response)
             })
         },
         handleNodeClick(data,node,str) {

@@ -520,7 +520,7 @@ import age from '../../../../common/age.js'
 	        	return this.study.eq_left['string'];
 	        },
 	        svgDataLook:function(){
-	        	const data = this.svgData.data;
+	        	const data = this.svgData.data ? JSON.parse(this.svgData.data) : false;
 	        	if(data){
 	        		return new Array(data);
 	        	}
@@ -590,6 +590,7 @@ import age from '../../../../common/age.js'
   			getSvgData(str){
 				const id = new Array(str);
 	        	this.$ajax.post('/info/getaudiograms',{user_id:id,type_id:"6"}).then((res)=>{
+	        		console.log(res)
 					if(res.code === 200 && res.data.users){
 						this.svgData = res.data.users[0];
 						this.$store.commit('hasCanvasData',res.data.users[0]);
@@ -691,7 +692,7 @@ import age from '../../../../common/age.js'
   						doSome(res.data);
   					}
   				}).catch((err) =>{
-  					alert(err +'获取数据出错！')
+  					console.log(err +'获取数据出错！')
   				});
   			},
   			filterData(data){
@@ -706,7 +707,7 @@ import age from '../../../../common/age.js'
 	        	this.$store.commit('clearAllPrintImgs',null);
   				for(let key in data){
   				    if(data.hasOwnProperty(key)){
-  					    testType.forEach((item,index)=>{
+  					    Options.testType.forEach((item,index)=>{
 		                if(item.key == key){
 		                    // 可以打印的类型id
 		                    testTypeId.push(item);
@@ -758,7 +759,7 @@ import age from '../../../../common/age.js'
 	            function setSvgData (params){
 	                return new Promise((resolve,reject) =>{
 	                    that.canvasData = [];
-	                    that.canvasData.push(params[0].data);
+	                    that.canvasData.push(JSON.parse(params[0].data));
 	                    resolve();
 	                })
 	            }
@@ -791,6 +792,7 @@ import age from '../../../../common/age.js'
 	                          that.printAllData.push(obj)
 	                        }
 	                        resolve(params);
+	                        return params;
 	                    },0)
 	                })
 	            }

@@ -216,7 +216,7 @@
              <!--听力图-->
              <div class="row clearfix" style="height:75%;" id="row">
                  <!--右耳听力图-->
-                <ele-svg  ref="addSvg" @newSvgDataToSave = "getNewSvgData" :svgData="objZong" :isShowInput="true" :svgId="1" :hzAaverage="hz_average" :svgMarks="canvasMarks" :svgWidth="43" @showBigSvg ="isShowBigSvg" :svgParentId="'#add-svg'">
+                <ele-svg  ref="addSvg" @newSvgDataToSave = "getNewSvgData" :isShowInput="true" :svgId="1" :hzAaverage="hz_average" :svgMarks="canvasMarks" :ear="ear" :svgWidth="43" @showBigSvg ="isShowBigSvg" :svgParentId="'#add-svg'">
                   <!--功能按钮-->
                   <div class=" c-btn fl ">
                     <div style="text-align:center">
@@ -402,6 +402,7 @@ export default{
       check_value:0,
       focusNum:0,
       hasInputValue:'',
+      ear:"RL"
     }
   },
   props:{
@@ -413,7 +414,7 @@ export default{
     this.updatetime = myDate.toLocaleDateString();//获取当前日期
   },
   computed:{// 获取产品列表
-    ...mapState(['canvasMarks']),
+    ...mapState(['canvasMarks'])
   },
   methods:{
     _checked(e,num){
@@ -534,8 +535,9 @@ export default{
         this.hz_average.LHTL = setDate(svgData.LHTL);
         this.hz_average.RHTL = setDate(svgData.RHTL);
       } catch(err){
-        alert(err +'读取数据出错！')
+        console.log(err +'读取数据出错！')
       }
+      this.ear = JSON.parse(this.canvasMarks.data)[0].order;
       this.$refs.addSvg._editor_drawyuan();
     },
     // 获取svg数据
@@ -604,6 +606,7 @@ export default{
       })
     },
     Close(){//关闭录入听力图时的回调
+      this.ear = "RL"
       this.add = true;
       this.active = '5';
       this.hz_average = {
