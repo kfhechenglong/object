@@ -1238,7 +1238,8 @@ export default{
       	objZong.forEach(ele =>{
           	this.control_arr.forEach((item) =>{
         		if(ele.type === item.key){
-        			var arr = ele.earData 
+        			var arr = ele.earData;
+        			if(!Array.isArray(arr)){return false;}
         			arr.forEach(arrele =>{
         				const getObj = Utils.getReaderSvgData(arrele),
 	        			getReaderSvgData = getObj.alldata;
@@ -1336,7 +1337,8 @@ export default{
       	objZong.forEach(ele =>{
           	this.control_arr.forEach((item) =>{
         		if(item.value && ele.type === item.key){
-        			var arr = ele.earData 
+        			var arr = ele.earData;
+        			if(!Array.isArray(arr)){return false;}
         			arr.forEach(arrele =>{
         				const getObj = Utils.getReaderSvgData(arrele),
 	        			getReaderSvgData = getObj.alldata;
@@ -1412,6 +1414,7 @@ export default{
 	    // 根据数据生成表中数据
 	    objZong.forEach(ele =>{
 	    	var arr = ele.earData;
+	    	if(!Array.isArray(arr)){return false;}
     		arr.forEach(arrele =>{
     			const getObj = Utils.getReaderSvgData(arrele),
         			getReaderSvgData = getObj.alldata;
@@ -1467,6 +1470,7 @@ export default{
         // 生成右耳图
         if (objZong.type === '6') {
         	const data = objZong.earData;
+        	if(!Array.isArray(data)){return false;}
         	// 生成渲染的数据格式
         	data.forEach(item =>{
         		const getObj = Utils.getReaderSvgData(item),

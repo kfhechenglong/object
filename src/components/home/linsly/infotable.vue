@@ -99,10 +99,10 @@ export default {
     },
     watch:{
         flag:function(){
-            this.getNoTestNameLists();
             if( this.flag== 6){//获取暂存测试信息
                 this.getMomentStorageData();
             }
+            this.getNoTestNameLists();
         }
     },
     methods : {
