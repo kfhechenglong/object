@@ -1,8 +1,13 @@
 <template>
 	<div class="voice-num clearfix">
-		<p class="fl">音量控制</p>
+		<p v-if="isZhu" class="fl">给声时长</p>
+		<p v-else class="fl">音量控制</p>
 		<div class="fl">
 			<el-input-number class="num" v-model="value" :step="1" @change="handleChangeVoiceNum" :min="1" :max="6"></el-input-number>
+		</div>
+		<div class="fz20 m-l-20" v-if="show && show == 2">
+			<span class="d-block height-30">有效次数：{{times}}次</span>
+			<span class="d-block height-30">平均反应时间：{{time}}s</span>
 		</div>
 	</div>
 </template>
@@ -11,19 +16,31 @@ import util from'../../../common/util.js'
 export default{
 	data(){
 		return{
-			value:6,
 			changeToggle:false,
-			initialVolumeNum:null
+			initialVolumeNum:null,
+			value:6
 		}
 	},
 	props:{
-		isLiu:{
+		isZhu:{
 			type:Boolean,
+			default:false
+		},
+		alltime:null,
+		times:null,
+		show:{
+			type:[Boolean,Number],
 			default:false
 		},
 	},
 	created(){
 		this.initialVolumeNum = this.$store.state.voiceData['1000'];
+	},
+	computed:{
+		time(){
+			let averageTime = this.alltime/this.times;
+			return isNaN(averageTime) ? 0 : averageTime.toFixed(2);
+		},
 	},
 	mounted(){
 		util._getVolumNum(this).then((res)=>{
@@ -37,6 +54,10 @@ export default{
 	},
 	methods:{
 		handleChangeVoiceNum(evt){
+			if(this.isZhu){
+				this.$emit('volume',evt);
+				return false;
+			}
 			let num = -(6-evt)*10 + this.initialVolumeNum;
 			this.$emit('volume',num);
 			// 保存音量差值

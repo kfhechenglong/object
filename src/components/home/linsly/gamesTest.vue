@@ -19,15 +19,7 @@
 					<el-button type="success" @click="toPause('jixun')"  :disabled="!start" v-show="!isPause"><i class="fa fa-play"></i>继续</el-button>
 				</div>
 				<!-- 距离控制组件 -->
-				<voiceNum  v-on:volume="toggleVol"></voiceNum>
-				<!-- <div>
-					<p>测听距离</p>
-					<el-radio-group v-model="currentDistance" size="large" @change="change">
-					    <el-radio-button label="0.5">0.5米</el-radio-button>
-					    <el-radio-button label="1.0">1.0米</el-radio-button>
-					    <el-radio-button label="2.0">2.0米</el-radio-button>
-					</el-radio-group>
-				</div> -->
+				<voiceNum  v-on:volume="toggleVol"  :show="step" :alltime="successResponseTime" :times="successTimesNum"></voiceNum>
 			</div>
 			<div class="train-main-middle">
 				<el-steps :space="100" direction="vertical" :active="step">
@@ -50,18 +42,20 @@
 		<div>
 			<StartTips :loadOver="dialogVisibleTips"></StartTips>
 		</div>
+		<GamesTime ref="gamestime" :games="currentgame" :feedbackTime="feedbackTime"></GamesTime>
   </div>
 </template>
 <script>
-import util from'../../../common/util'
 import Goback from '../commonvue/backup'
 import StartTips from '../commonvue/startprepare'
 import VoiceNum from '../commonvue/voiceNum.vue'
+import GamesTime from '../commonvue/games-time.vue'
 export default {
 	components:{
 		Goback,
 		StartTips,
-		VoiceNum
+		VoiceNum,
+		GamesTime
 	},
  	data(){
  		return {
@@ -96,7 +90,10 @@ export default {
  			distance:[],//测试距离
  			currentDistance:'0.5',//当前距离
  			environment:null,//测试环境
- 			currentVolume:0//当前音量
+ 			currentVolume:0,//当前音量
+ 			feedbackTime:0,
+ 			// 反应的总时间
+ 			successResponseTime:0,
  		}
  	},
  	// props:{
@@ -134,16 +131,16 @@ export default {
  		})
  		Vm.$on('servermsg',(msg,res,str)=>{
  			if(!that.closeLay){
-	 			util.ctld_tran_isOnline(that,res,str);
+	 			Utils.ctld_tran_isOnline(that,res,str);
 	 		}
  		});
  		// 获取出来后的数组数据
- 		const toArray = util.toArray(this.group);
+ 		const toArray = Utils.toArray(this.group);
  		this.groupList = toArray['newArr'];
 		this.newpath =  toArray['newpath'];
 		this.vpath =  toArray['vpath'];
 		// 将词组进行组合
- 		this.groupTeat = util.toArrayLin(this.groupList[0]);
+ 		this.groupTeat = Utils.toArrayLin(this.groupList[0]);
  		console.log(this.groupTeat)
  	},
  	beforeRouteLeave(to,form,next){
@@ -181,15 +178,6 @@ export default {
  			this.currentVolume = e;
  			console.log(e)
  		},
- 		// change(e){
- 		// 	let num = Math.ceil(+e - 0.5)*6;
- 		// 	this.currentVolume = this.volumeNum - num;
- 		// 	// 发送音量
- 		// 	let argument = this.wskt.wstoctld('games_audio_toggle',{'volume':this.currentVolume});
- 		// 	util._setVolumNum(this,{'decibel':num,'test_id':sessionStorage.getItem('test_id')});
- 		// 	console.log(this.currentVolume);
-			// websocket.send(JSON.stringify(argument));
- 		// },
  		// 开始开关
  		toStart(){
  			this.groupNum++;
@@ -210,13 +198,9 @@ export default {
 
  				this.group_num = 0;
  			};
-			// console.log(this.group_num)
-			// console.log(this.currentHzNum)
-	    	this.groupTeat = util.toArrayLin(this.groupList[this.group_num]);
-	    	let sendPath = util.toArrayLin(this.newpath[this.group_num]);
-	    	let vpath = this.vpath[this.group_num]
-	    	// console.log(this.groupTeat)
-	    	// console.log(sendPath)
+	    	this.groupTeat = Utils.toArrayLin(this.groupList[this.group_num]);
+	    	let sendPath = Utils.toArrayLin(this.newpath[this.group_num]);
+	    	let vpath = this.vpath[this.group_num];
 	    	let group = this.groupTeat[this.currentHzNum];
 	    	// let vpath = sendPath[this.group_num][2];
 	    	let groupurl = [vpath+sendPath[this.currentHzNum][0],'null'];
@@ -237,21 +221,21 @@ export default {
  		},
  		// 重新开关
  		angin(){
- 			util.angin(this);
+ 			Utils.angin(this);
  		},
  		// 暂停继续开关
  		toPause(str){
- 			util.toPause(str,this);
+ 			Utils.toPause(str,this);
  		},
  		stops(){
- 			util.stops(this);
+ 			Utils.stops(this);
  		},
  		successNum(){
- 			util.successNum(this);
+ 			Utils.successNum(this);
  		},
  		// 训练完成提示
  		_trainOverTips(){
- 			util._trainOverTips(this);
+ 			Utils._trainOverTips(this);
  		},
  		// 进入正式游戏测听界面
  		goNext(){

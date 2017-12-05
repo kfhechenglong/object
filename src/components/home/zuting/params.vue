@@ -92,6 +92,10 @@ export default {
  			this.radioEar = this.$route.query['isEar'];
  			this.leixing = this.$route.query['crtsign'];
  		}
+ 		if(this.$route.query && this.$route.query.flag){//暂存的参数
+ 			const data_obj = this.$route.query['data'];
+ 			this.radioEar = JSON.parse(data_obj).order;
+ 		}
  	},
  	watch:{
 		wsData:function(){

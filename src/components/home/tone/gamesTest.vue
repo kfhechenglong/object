@@ -18,7 +18,7 @@
 					<el-button type="success" @click="toPause('jixun')"  :disabled="!start" v-show="!isPause"><i class="fa fa-play"></i>继续</el-button>
 				</div>
 				<!-- 音量控制组件 -->
-				<voiceNum v-on:volume="toggleVol"></voiceNum>
+				<voiceNum v-on:volume="toggleVol" :show="step" :alltime="successResponseTime" :times="successTimesNum"></voiceNum>
 			</div>
 			<div class="train-main-middle">
 				<el-steps :space="100" direction="vertical" :active="step">
@@ -41,18 +41,20 @@
 		<div>
 			<StartTips :loadOver="dialogVisibleTips"></StartTips>
 		</div>
+		<GamesTime ref="gamestime" :games="currentgame" :feedbackTime="feedbackTime"></GamesTime>
   </div>
 </template>
 <script>
-import util from'../../../common/util'
 import Goback from '../commonvue/backup'
 import StartTips from '../commonvue/startprepare'
 import VoiceNum from '../commonvue/voiceNum.vue'
+import GamesTime from '../commonvue/games-time.vue'
 export default {
 	components:{
 		Goback,
 		StartTips,
-		VoiceNum
+		VoiceNum,
+		GamesTime
 	},
  	data(){
  		return {
@@ -84,7 +86,10 @@ export default {
  			successTimesNum:0,
  			// 传递到下个页面的数据
  			groupString:null,
- 			currentVolume:90
+ 			currentVolume:90,
+ 			feedbackTime:0,
+ 			// 反应的总时间
+ 			successResponseTime:0,
  		}
  	},
  	// props:{
@@ -116,15 +121,15 @@ export default {
  		})
  		Vm.$on('servermsg',(msg,res,str)=>{
  			if(!that.closeLay){
-	 			util.ctld_tran_isOnline(that,res,str);
+	 			Utils.ctld_tran_isOnline(that,res,str);
 	 		}
  		});
  		// 获取出来后的数组数据
- 		const toArray = util.toArray(this.group);
+ 		const toArray = Utils.toArray(this.group);
  		this.groupList = toArray['newArr'];
 		this.newpath =  toArray['newpath'];
 		this.vpath =  toArray['vpath'];
- 		this.groupTeat = util.groupArray(this.groupList[0]);
+ 		this.groupTeat = Utils.groupArray(this.groupList[0]);
  	},
  	beforeRouteLeave(to,form,next){
  		this.closeLay = true;
@@ -138,14 +143,6 @@ export default {
 			};
 			// 判断当前训练的关数
 			this.stops();
-			// 判断是否在暂停状态
-			// if(this.wsData.params['gameType'] == 'drill' && this.wsData.params['pause'] == 'true'){
-			// 	console.log(111)
-			// 	this.isPause = !this.isPause;
-			// 	this.isfinish = 'finish';
-			// 	this.topause = false;
-			// }
-			// console.log(222)
 			if(this.wsData.params['testType'] == 'yinsu'){
 				this.groupNum++;
 				console.log(this.groupNum)
@@ -186,8 +183,8 @@ export default {
 	    	if(this.group_num >= this.groupList.length){
  				this.group_num = 0;
  			};
-	    	this.groupTeat = util.groupArray(this.groupList[this.group_num]);
-	    	let sendPath = util.groupArray(this.newpath[this.group_num]);
+	    	this.groupTeat = Utils.groupArray(this.groupList[this.group_num]);
+	    	let sendPath = Utils.groupArray(this.newpath[this.group_num]);
 	    	let vpath = this.vpath[this.group_num]
 	    	// console.log(this.groupTeat)
 	    	// console.log(sendPath)
@@ -211,25 +208,25 @@ export default {
  		},
  		// 重新开关
  		angin(){
- 			util.angin(this);
+ 			Utils.angin(this);
  		},
  		// 暂停继续开关
  		toPause(str){
- 			util.toPause(str,this);
+ 			Utils.toPause(str,this);
  		},
  		stops(){
- 			util.stops(this);
+ 			Utils.stops(this);
  		},
  		successNum(){
- 			util.successNum(this);
+ 			Utils.successNum(this);
  		},
  		// 训练完成提示
  		_trainOverTips(){
- 			util._trainOverTips(this);
+ 			Utils._trainOverTips(this);
  		},
  		goNext(){
  			// let nub = this.volumeNum - this.currentVolume;
- 			// util._setVolumNum(this,{'decibel':nub,'test_id':sessionStorage.getItem('test_id')});
+ 			// Utils._setVolumNum(this,{'decibel':nub,'test_id':sessionStorage.getItem('test_id')});
  			window.isToggle = false;
 			let param = {'isEar':this.currentear,'crtgame':this.currentgame,'data': this.groupString,'level':this.$route.query['level']};
  			websocket.send(JSON.stringify(this.wskt.goaudioplan('yinsu','official',this.currentgame)));

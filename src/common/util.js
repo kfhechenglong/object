@@ -219,19 +219,29 @@ export default {
             pointer.step = 2;
         };
     },
-    successNum:function(pointer,time = 3,callback){
-        if(pointer.step === 2){
-            if(pointer.wsData.params['success'] == 'true'){
-                pointer.successTimesNum++;
-                if(callback && Object.prototype.toString.call(callback) === "[object Function]"){
-                    callback();
+    successNum:function(th,falg){
+        let obj = th.wsData.params;
+        if(th.step === 2){
+            if(obj['success'] === "false") {
+                th.$refs.gamestime.isShowConfirm = false;
+                return false;
+            }
+            if(obj['success'] == 'true'){
+                th.successTimesNum++;
+                th.successAllNum++;//正确的总次数
+                // 记录反应时长
+                th.feedbackTime = +obj['feedbackTime'].toFixed(2);
+                th.successResponseTime += th.feedbackTime;
+                if(falg){
+                    th.gamesvalue = th.value > th.feedbackTime ? th.feedbackTime : th.value;
                 }
-                if(pointer.successTimesNum === time){//如果连续对三次则结束训练
-                    pointer._trainOverTips();
+                th.$refs.gamestime.isShowConfirm = true;
+                if(th.successTimesNum === 3){//如果连续对三次则结束训练
+                    th._trainOverTips();
                 }
-                return;
+                return false;
             }else{
-                pointer.successTimesNum = 0;
+                th.successTimesNum = 0;
             }
         }
     },

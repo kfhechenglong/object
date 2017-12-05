@@ -514,7 +514,7 @@ export default {
 		        		if(true){
 		        			const id = JSON.parse(sessionStorage.getItem('user_id')),
 		        				time = parseInt(new Date().getTime());
-		        			const obj = {'user_id':id,'time':time,'data':this.checkDataArray};
+		        			const obj = {'user_id':id,'time':time,'data':this.checkDataArray,'order':this.currentear};
 		        			let getLocalStorage = JSON.parse(localStorage.getItem('memoryStorageTestData'));
 		        			if(!getLocalStorage){
 		        				let lists = [obj];
@@ -527,7 +527,6 @@ export default {
 		        				}
 		        				getLocalStorage.unshift(obj)
 		        			}
-		        			console.log(getLocalStorage)
 		        			return Utils.checkLocalStorageSize().then(()=>{
 		        				localStorage.setItem('memoryStorageTestData',JSON.stringify(getLocalStorage));
 								resolve()

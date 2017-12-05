@@ -19,6 +19,10 @@
 				<div class="fl voice-num">
 					<p class="fl">给声时长</p>
 					<el-input-number class="num" v-model="value" :step="1" @change="change" :min="1" :max="5"></el-input-number>
+					<div class="fz20 m-l-20" v-if="step && step == 2">
+						<span class="d-block height-30">有效次数：{{successTimesNum}}次</span>
+						<span class="d-block height-30">平均反应时间：{{time}}s</span>
+					</div>
 				</div>
 			</div>
 			<div class="train-main-middle">
@@ -43,21 +47,20 @@
 		<div>
 			<StartTips :loadOver="loadOver"></StartTips>
 		</div>
-		<div class="confirm" v-show="isShowConfirm">
-			<h3>游戏训练反馈时长</h3>
-			<p>平均反应时间：{{feedbackTime}}&nbsp;秒，播放时长：{{value}}&nbsp;秒</p>
-			<button class="cancal" @click="close_confirm">取消</button>
-			<button @click="save_confirm">保存</button>
-		</div>
+		<GamesTime ref="gamestime" :show="true" :games="currentgame" :value="gamesvalue" :feedbackTime="feedbackTime"></GamesTime>
   </div>
 </template>
 <script>
 import Goback from '../commonvue/backup'
 import StartTips from '../commonvue/startprepare'
+import GamesTime from '../commonvue/games-time.vue'
+import VoiceNum from '../commonvue/voiceNum.vue'
 export default {
 	components:{
 		Goback,
-		StartTips
+		VoiceNum,
+		StartTips,
+		GamesTime
 	},
  	data(){
  		return {
@@ -84,7 +87,7 @@ export default {
  			successResponseTime:0,
  			value: 5,
  			feedbackTime:5,
- 			isShowConfirm:false
+ 			gamesvalue:5
  		}
  	},
  	// props:{
@@ -134,7 +137,11 @@ export default {
  			if(averageTime > 5 || isNaN(averageTime)){return averageTime = 5};
  			if(averageTime < 1){return averageTime = 1};
  			return  averageTime;
- 		}
+ 		},
+ 		time:function(){
+			let averageTime = this.successResponseTime/this.successAllNum;
+			return isNaN(averageTime) ? 0 : averageTime.toFixed(2);
+		},
  	},
  	beforeRouteLeave(to,form,next){
  		// console.log(to,form,next);
@@ -151,6 +158,7 @@ export default {
 		    	'game':this.currentgame,//游戏类别
 		    	'time':evt,//给声时长
 		    };
+		    this.gamesvalue = evt;
 		    Utils.chang_params(this,params);
  		},
  		// 开始开关
@@ -175,32 +183,7 @@ export default {
  			this.topause = false;
  		},
  		successNum(){
- 			if(this.wsData.params['success'] === "false") return false;
-			const callback = ()=>{
-				this.successAllNum++;//正确的总次数
-				// 记录反应时长
-				this.feedbackTime = +this.wsData.params['feedbackTime'].toFixed(2);
-				this.successResponseTime += this.feedbackTime;
-				this.isShowConfirm = true;
-			}
-			Utils.successNum(this,30,callback);
- 		},
- 		close_confirm(){
- 			this.isShowConfirm = false;
- 		},
- 		save_confirm(){
- 			this.isShowConfirm = false;
- 			const data = {
- 				"user_id":JSON.parse(sessionStorage.getItem('user_id')),
- 				'feedbackTime':this.feedbackTime,
- 				'playTimer':this.value,
- 				'games':this.currentgame
- 			};
- 			this.$ajax.post('/game/log',data).then((res)=>{
- 				if(res.code !== 200){
- 					msgTipsErr(this,"保存失败！")
- 				}
- 			});
+			Utils.successNum(this,true);
  		},
  		// 重新开关
  		angin(){
@@ -232,45 +215,4 @@ export default {
 </script>
 <style lang ="less" scoped>
 .train{position: relative;}
-.confirm{
-	background: #eef1f6;
-	position: fixed;
-	left:50%;
-	top:40%;
-	transform:translate(-50%,-50%);
-	border-radius:10px;
-	width: 400px;
-	height: 250px;
-	box-sizing: border-box;
-	padding: 10px;
-	z-index:3000;
-	box-shadow: 0px 0px 50px #000;
-	h3{
-		font-size: 20px;
-		line-height: 30px;
-		text-align: center;
-	}
-	p{
-		margin-top: 20px;
-		text-indent:2em;
-		line-height: 100px;
-		height: 130px;
-		font-size: 18px;
-	}
-	button{
-		width: 100px;
-		height: 40px;
-		background: #5bb75b;
-		border:1px solid #5bb75b;
-		box-shadow: 2px 2px 2px #000;
-		float: right;
-		margin-right:20px;
-	}
-	.cancal{
-		float: left;
-		margin-left:20px;
-		background-color: #dd4c4c;
-		border:1px solid #dd4c4c;
-	}
-}
 </style>

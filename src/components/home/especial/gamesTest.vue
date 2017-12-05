@@ -19,7 +19,7 @@
 					<el-button type="success" @click="toPause('jixun')"  :disabled="!start" v-show="!isPause"><i class="fa fa-play"></i>继续</el-button>
 				</div>
 				<!-- 音量控制组件 -->
-				<voiceNum  v-on:volume="toggleVol"></voiceNum>
+				<voiceNum  v-on:volume="toggleVol" :show="step" :alltime="successResponseTime" :times="successTimesNum"></voiceNum>
 			</div>
 			<div class="train-main-middle">
 				<el-steps :space="100" direction="vertical" :active="step">
@@ -42,18 +42,20 @@
 		<div>
 			<StartTips :loadOver="dialogVisibleTips"></StartTips>
 		</div>
+		<GamesTime ref="gamestime" :games="currentgame" :feedbackTime="feedbackTime"></GamesTime>
   </div>
 </template>
 <script>
-import util from'../../../common/util'
 import Goback from '../commonvue/backup'
 import StartTips from '../commonvue/startprepare'
 import VoiceNum from '../commonvue/voiceNum.vue'
+import GamesTime from '../commonvue/games-time.vue'
 export default {
 	components:{
 		Goback,
 		StartTips,
-		VoiceNum
+		VoiceNum,
+		GamesTime
 	},
  	data(){
  		return {
@@ -83,7 +85,10 @@ export default {
  			// 记录发送词组的发送位置
  			group_num:0,
  			successTimesNum:0,
- 			currentVolume:0
+ 			currentVolume:0,
+ 			feedbackTime:0,
+ 			// 反应的总时间
+ 			successResponseTime:0,
  		}
  	},
  	// props:{
@@ -92,7 +97,6 @@ export default {
  	mounted(){
  		// 默认显示连接对话框
  		this.dialogVisibleTips = true;
-
  		this.getUrlData();
  		// 接收websocket数据
  		var that = this;
@@ -101,7 +105,7 @@ export default {
  		})
  		Vm.$on('servermsg',(msg,res,str)=>{
  			if(!that.closeLay){
-	 			util.ctld_tran_isOnline(that,res,str);
+	 			Utils.ctld_tran_isOnline(that,res,str);
 	 		}
  		});
  	},
@@ -192,21 +196,21 @@ export default {
  		},
  		// 重新开关
  		angin(){
- 			util.angin(this);
+ 			Utils.angin(this);
  		},
  		// 暂停继续开关
  		toPause(str){
- 			util.toPause(str,this);
+ 			Utils.toPause(str,this);
  		},
  		stops(){
- 			util.stops(this);
+ 			Utils.stops(this);
  		},
  		successNum(){
- 			util.successNum(this);
+ 			Utils.successNum(this);
  		},
  		// 训练完成提示
  		_trainOverTips(){
- 			util._trainOverTips(this);
+ 			Utils._trainOverTips(this);
  		},
  		goNext(){
  			window.isToggle = false;

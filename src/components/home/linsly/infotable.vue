@@ -14,8 +14,8 @@
                             </el-button>
                         </div>
                         <ul class="last  clearfix fl" v-if="nearSt.length>0">
-                            <li class="l-t">最近浏览：</li>
-                            <li v-for="(item,index) in nearSt" @click="toPath(item.id)" :class="index % 2 == 0 ? 'sef':''" :id="index === 2 ? 'last_li' :''" :title="item.name" v-if="index < 3">{{item.name}}
+                            <li class="l-t fz16 t-c b-radius5 t-overflow">最近浏览：</li>
+                            <li class="t-c fz16 cursor b-radius5 t-overflow" v-for="(item,index) in nearSt" @click="toPath(item.id)" :class="index % 2 == 0 ? 'sef':''" :id="index === 2 ? 'last_li' :''" :title="item.name" v-if="index < 3">{{item.name}}
                             </li>
                         </ul>
                     </div>
@@ -36,12 +36,12 @@
                             </div>
                         </div>
                         <ul class="clearfix">
-                            <li class="fl" v-for = "(item ,index) in listsArr" @click="handleEdit(item)" :title="item.name">
+                            <li class="fl box-b cursor m-20b-radius5 b-show10 fz20 l-s-3px" v-for = "(item ,index) in listsArr" @click="handleEdit(item)" :title="item.name">
                                 <img v-if="item.sex == '男' "  :src="imgSrc(item)" :onerror="errorImgBody">
                                 <img v-else :src="imgSrc(item)" :onerror="errorImgGirl">
-                                <span style="overflow:hidden;">{{item.name}}</span>
+                                <span class="t-overflow t-c" style="overflow:hidden;">{{item.name}}</span>
                             </li>
-
+                            <p v-if="studylist !=='all'" class="clear fl cursor height-100 h100 w100 m-20 b-radius5 b-show10 l-s-3px fz25" @click="clearStorage">清除</p>
                             <p v-if="listsArr.length === 0" style="margin-top:20px;">未找到相关信息！</p>
                         </ul>
                     </div>
@@ -107,6 +107,20 @@ export default {
     },
     methods : {
         close(){
+        },
+        clearStorage(){
+            let flag = this.flag;
+            console.log(flag)
+             let testNames = JSON.parse(localStorage.getItem('noTestNames'));
+             let memoryStorage = JSON.parse(localStorage.getItem('memoryStorageTestData'));
+            console.log(testNames)
+            console.log(memoryStorage)
+            // console.log(this.noTestNameListsData)
+            if(this.studylist === "dai"){
+                // localStorage.removeItem('noTestNames')
+            }else if(this.studylist === "moment"){
+                // localStorage.removeItem('memoryStorageTestData')
+            }
         },
         _studyList(evt){
             if(evt === 'dai'){
@@ -220,6 +234,7 @@ export default {
                         }
                     }
                 }
+                this.noTestNameListsData = testName;
                 this.noTestNameLists = noTestNameLists;
                 this.value = + noTestNameLists.length;
             } catch(err){
@@ -324,7 +339,7 @@ export default {
         },
         getMoment(id){
             let arr = this.storagelistsData;
-            return arr.filter(ele =>{return ele.user_id == id })[0].data[0];
+            return arr.filter(ele =>{return ele.user_id == id })[0];
         },
         handleSelectionChange(val) {
             this.multipleSelection = val;
@@ -479,31 +494,26 @@ export default {
             }
             li{
                 width:110px;
-                box-sizing:border-box;
-                cursor:pointer;
                 height: 140px;
-                font-size: 20px;
                 font-weight: 500;
-                letter-spacing: 3px;
-                border-radius: 5px;
                 border:2px solid #449d44;
-                box-shadow: 0px 0px 10px #000;
                 color:#000;
                 margin:10px 15px;
                 img{width:90px;height:90px;
                     border-radius:50%;
-                    display:block;margin:5px auto;}
+                    display:block;
+                    margin:5px auto;
+                }
                 span{
-                    box-sizing:border-box;
-                    overflow: hidden;
-                    white-space: nowrap;
                     display: block;
                     padding:0 10px;
-                    text-align:center;
                 }
             }
             .no-test{
                 border:2px solid red;
+            }
+            .clear{
+                background: #f0f0f0;
             }
         }
         .el-table_1_column_5{
@@ -515,26 +525,17 @@ export default {
             // background-color: #eee;
             margin-left:20px;
             li{
-                text-align:center;
                 list-style:none;
                 float: left;
-                cursor:pointer;
                 margin:3px 3px;
                 color:#20a0ff;
                 background-color: #e9f6ff;
-                border-radius:5px;
                 padding:0px 8px;
                 line-height:35px;
                 border: 1px solid #c0e5ff;
-                // width: 47px;
-                font-size:16px;
-                overflow: hidden;
-                text-overflow: ellipsis;
-                white-space: nowrap;
                 box-shadow:2px 2px 5px #bbb; 
             }
             .l-t{
-                font-size: 16px;
                 width:80px;
                 cursor:auto;
                 border: 1px solid #eee;
