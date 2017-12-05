@@ -838,7 +838,7 @@ export default {
                     if(!(Object.keys(objsystemvalue).length == 0)){
                         sys_arr.push(objsystemvalue);
                     }
-                    if(!(Object.keys(objsystemvalue).length == 0) && !(Object.keys(objdefinvvalue).length == 0)){
+                    if(!(Object.keys(objsystemvalue).length == 0) && (objdefinvvalue.y)){
                         dist.push(objsystemvalue)
                     }
                     if(!(Object.keys(objsystemvalue).length == 0) && (Object.keys(objdefinvvalue).length == 0)){
@@ -889,6 +889,7 @@ export default {
                         let object = ele.dataDetail;
                         // 对当前数组的点进行赋值
                         arr.forEach(ele2 =>{
+                            // console.log(ele2)
                             for(var i in object){
                                 if(i == ele2.x){
                                     var obj = object[i];
@@ -909,14 +910,13 @@ export default {
                         // 对当前数组中不存在的点进行清空，包含取消系统值
                         for(var key in object){
                             var obj2 = object[key];
-
-                            if(!obj2.my && obj2.result.systemvalue.y){
-                                console.log(obj2)
+                            if(!obj2.my){
                                 obj2.isneed = 0;
                                 obj2.isfinish = 0;
                                 obj2.resultdb = 0;
                                 obj2.data = {};
-                                obj2.result.systemvalue = {};
+                                // obj2.result.systemvalue = {};
+                                obj2.result.user_defined = {};
                                 continue
                             }
                             delete obj2.my
@@ -1016,6 +1016,7 @@ export default {
         })
     },
     /**
+     * 学生测试完毕，将其从待测名单移除
      * *获取本地localstorage
      * @param  {[string,number]} user_id [学生的id值]
      * @param  {[string,number]} type_id [测试类型的id值]
@@ -1045,6 +1046,44 @@ export default {
         }
     },
     /**
+     * *获取暂存信息，未测学生名单
+     * @param  {[String]} name [description]
+     * @param  {[alllist]} allList [all student lists]
+     * @param  {[String,Number]} type [testType]
+     * @return {[obj]}      [description]
+     */
+    lookLocalStorageMsg(name,allList,type){
+        // debugger
+        // 所有学生列表的信息
+        let infoStudent = allList;
+        // 获取待测名单
+        let NameLists = [];
+        let testName = [];
+        let getLocalStorageLists = JSON.parse(localStorage.getItem(name));
+        console.log(getLocalStorageLists)
+        try{
+            for(let i = 0; i< getLocalStorageLists.length; i++){
+                if(getLocalStorageLists[i].testType == type){
+                    testName = getLocalStorageLists[i].nameList;
+                }
+            }
+            // 获取用户的头像信息,同时筛选如果待测人员已经被删除了，则从待测名单中移除
+            for (let i = 0; i < testName.length; i++) {
+                for (let j = 0; j < infoStudent.length; j++){
+                    if(testName[i].user_id === infoStudent[j].id){
+                        NameLists.push(infoStudent[j]);
+                        break;
+                    }
+                }
+            }
+        } catch(err){
+            console.log(err)
+        } finally{
+            return Promise.resolve({showList:NameLists,realList:testName})
+        }
+    },
+    /**
+     * 添加暂存信息，未测学生名单到本地缓存
      * *set LocalStorage
      * @param {[String]} localStorageName [本地存储name]
      * @param {[Array]} typeObject       [description]
@@ -1073,17 +1112,13 @@ export default {
                     if(getLocalStorage[i].testType === currentType.key){
                         //如果有待测名单，先合并再去重
                         let _localStorage = getLocalStorage[i].nameList;
-                        let a = _localStorage.concat(data);
-                        //  去重
-                        let res = [];
-                        let json = {};
-                        for(let j = 0; j < a.length; j++){
-                            if(!json[a[j].user_id]){
-                                res.push(a[j]);
-                                json[a[j].user_id] = 1;
+                        for(let i = _localStorage.length -1; i >= 0 ;i--){
+                            if(_localStorage[i].user_id === data.user_id){
+                                _localStorage.splice(i,1);
                             }
                         }
-                        getLocalStorage[i].nameList = res;
+                        _localStorage.unshift(obj)
+                        getLocalStorage[i].nameList = _localStorage;
                     }
                 }
                 // 检测是空间是否用完

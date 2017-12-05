@@ -159,18 +159,25 @@ export default {
         getMomentStorageData(){
             let infoStudent = this.infoStudent;
             let noTestNameLists = [];
+            let currentnames = []
             let testNames = JSON.parse(localStorage.getItem('memoryStorageTestData'));
+            console.log(testNames)
             try{
+                for(let i = 0; i< testNames.length; i++){
+                    if(testNames[i].testType === this.flag){
+                        currentnames = testNames[i].nameList;
+                    }
+                }
                 // 获取用户的头像信息,同时筛选如果待测人员已经被删除了，则从待测名单中移除
-                for (let i = 0; i < testNames.length; i++) {
+                for (let i = 0; i < currentnames.length; i++) {
                     for (let j = 0; j < infoStudent.length; j++){
-                        if(testNames[i].user_id == infoStudent[j].id){
+                        if(currentnames[i].user_id == infoStudent[j].id){
                             noTestNameLists.push(infoStudent[j])
                             break;
                         }
                     }
                 }
-                this.storagelistsData = testNames;
+                this.storagelistsData = currentnames;
                 this.storagelists = noTestNameLists;
                 if(noTestNameLists.length >0){
                     this.MomentStorageNum = noTestNameLists.length;
@@ -178,7 +185,7 @@ export default {
                     this.studylist = "moment";  
                 }
             } catch(err){
-                this.value = 0;
+                this.MomentStorageNum = 0;
                 this.storagelists = [];
             }
             
@@ -212,43 +219,24 @@ export default {
             // this.studylist = true;
             this.tableShow = true;
         },
-        getNoTestNameLists(){
-            // 所有学生列表的信息
-            let infoStudent = this.infoStudent;
-            // 获取待测名单
-            let noTestNameLists = [];
-            let testName = [];
-            let getLocalStorageNoTestNameLists = JSON.parse(localStorage.getItem('noTestNames'));
-            try{
-                for(let i = 0; i< getLocalStorageNoTestNameLists.length; i++){
-                    if(getLocalStorageNoTestNameLists[i].testType === this.flag){
-                        testName = getLocalStorageNoTestNameLists[i].nameList;
-                    }
-                }
-                // 获取用户的头像信息,同时筛选如果待测人员已经被删除了，则从待测名单中移除
-                for (let i = 0; i < testName.length; i++) {
-                    for (let j = 0; j < infoStudent.length; j++){
-                        if(testName[i].user_id === infoStudent[j].id){
-                            noTestNameLists.push(infoStudent[j]);
-                            break;
-                        }
-                    }
-                }
-                this.noTestNameListsData = testName;
-                this.noTestNameLists = noTestNameLists;
-                this.value = + noTestNameLists.length;
-            } catch(err){
+        getNoTestNameLists(name){
+            Utils.lookLocalStorageMsg('noTestNames',this.infoStudent,this.flag).then((res)=>{
+                this.noTestNameListsData = res.realList;
+                this.noTestNameLists = res.showList;
+                this.value = + res.showList.length;
+            }).catch(()=>{
                 this.value = 0;
                 this.noTestNameLists = [];
-            }
-            //如果有未测名单，则显示未测名单，否则默认显示学生列表
-            if(this.noTestNameLists.length > 0){
-                this.studylist = "dai";
-                this.listsArr = this.noTestNameLists.concat();
-            }else{
-                this.studylist = "all";
-                this.listsArr = this.infoStudent.concat();
-            }
+            }).then(()=>{
+                //如果有未测名单，则显示未测名单，否则默认显示学生列表
+                if(this.noTestNameLists.length > 0){
+                    this.studylist = "dai";
+                    this.listsArr = this.noTestNameLists.concat();
+                }else{
+                    this.studylist = "all";
+                    this.listsArr = this.infoStudent.concat();
+                }
+            })
         },
         getStorage(){
             // 首选获取本地缓存

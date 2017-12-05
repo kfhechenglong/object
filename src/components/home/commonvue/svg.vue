@@ -465,9 +465,16 @@ export default{
 	    };
 	    // let data = argument.average === "R" ? this.arrayyuan : this.arrayyuanzuo;
 	    // 检查X轴点是否存在和此点坐标是否已经存在
-	    this.chcekX(indexx, indexy,argument.data, this.dataType2 ,argument.average)
-	    if(!(argument.zhu)){this.tableText(argument.data, argument.tableText)}
-	    argument.average === "R" ? this.publicFn("right",null,this.fontMask) : this.publicFn("left",null,this.fontMask);
+	    const fn1 = async ()=>{
+	    	this.chcekX(indexx, indexy,argument.data, this.dataType2 ,argument.average)
+	    }
+	    const fn2 = async ()=>{
+	    	await fn1();
+	    	await this._saveShowData(true);
+	    	if(!(argument.zhu)){this.tableText(argument.data, argument.tableText)}
+	    	await argument.average === "R" ? this.publicFn("right",null,this.fontMask) : this.publicFn("left",null,this.fontMask);
+	    }
+	    fn2()
 	  }
 	},
 	toMove(e,svgZuo,argument,coord) {//鼠标移动时的函数
@@ -576,12 +583,13 @@ export default{
         	parent.removeChild(canvs);//清除大图
       	}
       	// 绘制数据
-      	this._saveShowData();//保存数据
-      	this._bigdrawyuan()//读取数据
-      	if(this.isCreatedPng){
-      		this.createdPng(this.svgZuo);
-      		this.createdPng(this.svgYou);
-  		}
+  		this._saveShowData().then(()=>{
+			this._bigdrawyuan()//读取数据
+	      	if(this.isCreatedPng){
+	      		this.createdPng(this.svgZuo);
+	      		this.createdPng(this.svgYou);
+	  		}	
+		});
     },
     _bigCanv(zy,aaa){//放大canvas
     	if(this.onlyDraw)return false;
@@ -649,9 +657,10 @@ export default{
       	if(this.showNew === true){
         	this.addImg(beijing);
       	}
-      	this._saveShowData();
-      	this._bigdrawyuan();//读取数据
-      	this.gMove = this.createTag('g', {})
+		this._saveShowData().then(()=>{
+			this._bigdrawyuan();//读取数据
+			this.gMove = this.createTag('g', {})	
+		});
     },
     // 创建svg标签以及子标签
     createTag: function (tag, attributes) {
@@ -791,37 +800,22 @@ export default{
     },
     // 检查X轴点是否存在和此点坐标是否已经存在 为arrayyuan添加数据
     chcekX: function (x, y, arrayL, dataType,hand) {
-    	const sys_data = hand === "R" ? this.sys_arr_r :this.sys_arr_l ;
-    	const set = hand === "R" ? this.set_r :this.set_l ;
-    	sys_data.forEach(item =>{
-    		if(item[0] === x){
-    			set.forEach((ele)=>{
-    				if(ele[0] === x){//先删除该hz上面的值
-    					set.delete(item)
-    				}
-    			})
-    			if(item[1] != y) {//如果修改的值和系统值不相等
-	            	set.add(item)
-	          	}
-    		}
-    	})
-    	this.sys_yuan_fn(hand,set);
-
 	    for (var i = 0; i < arrayL.length; i++) {
 	        if (arrayL[i][0] === x) {
 	          // 检查此点坐标是否已经存在
 	          if (arrayL[i][1] === y) {
 	            arrayL.splice(i, 1)
 	            arrayL.push([x, -1, dataType])
-	            return
+	            return Promise.resolve()
 	          } else {
 	            arrayL.splice(i, 1)
 	            arrayL.push([x, y, dataType])
-	            return
+	            return  Promise.resolve()
 	          }
 	        }
 	    }
 	    arrayL.push([x, y, dataType])
+		return  Promise.resolve();
     },
     // 绘制系统修改的原始值
     sys_yuan_fn(hand,set){
@@ -854,41 +848,73 @@ export default{
       this.arrayyuanzuo = [];
       this.arrayyuan = [];
     },
-    _saveShowData(){
+    _saveShowData(isclick){
       	let addData = this.addData,
       		arrayyuanzuo = this.arrayyuanzuo,
       		arrayyuan =this.arrayyuan;
       	if(this.ear === "A"){
-      		console.log(this.drawEar)
       		if(this.drawEar == "R"){
       			arrayyuanzuo = arrayyuan;
       		}else if(this.drawEar == "L"){
       			arrayyuan = arrayyuanzuo;
       		}
       	}
-      	let a = this.svgData.length > 0 ? this.svgData : addData;
-    	this.control_arr.forEach((item) =>{
-	      	if (item.value) {
-		        // for (let i = addData.length -1; i >= 0; i--) {
-		        //   	if (addData[i].type === item.key) {
-		        //     	addData.splice(i, 1)
-		        //   	}
-		        // };
-		        if (arrayyuanzuo.length > 0) {
-		        	console.log(addData)
-		          	// addData.push({'type': item.key, 'ears': '左', 'data': this.changeFormat(arrayyuanzuo)})
-		          	Utils.checkIsChange(a,{'type': item.key, 'ears': 'L', 'data': this.changeFormat(arrayyuanzuo)},this.ear)
-		        }
-		        if (arrayyuan.length > 0) {
-		        	console.log(addData)
-		          	// addData.push({'type': item.key, 'ears': '右', 'data': this.changeFormat(arrayyuan)})
-		          	Utils.checkIsChange(a,{'type': item.key, 'ears': 'R', 'data': this.changeFormat(arrayyuan)},this.ear)
-		        }
-		    };
-	    })
-	    this.sys_yuan_fn("R",this.set_r)
-	    this.sys_yuan_fn("L",this.set_l)
-	    this.$emit('newSvgDataToSave',addData);
+      	const fnasync = async ()=>{
+      		let a = this.svgData.length > 0 ? this.svgData : addData;
+	    	this.control_arr.forEach((item) =>{
+		      	if (item.value) {
+			        if (arrayyuanzuo.length > 0) {
+			          	Utils.checkIsChange(a,{'type': item.key, 'ears': 'L', 'data': this.changeFormat(arrayyuanzuo)},this.ear)
+			        }
+			        if (arrayyuan.length > 0) {
+			          	Utils.checkIsChange(a,{'type': item.key, 'ears': 'R', 'data': this.changeFormat(arrayyuan)},this.ear)
+			        }
+			    };
+		    })
+      	};
+      	const sys_async = async ()=>{
+      		if(!isclick){ return false}
+      		let arr = this.svgData.length > 0 ? this.svgData : this.addData;
+	        // 生成右耳图
+	        	arr.forEach(inele =>{
+		        	if (inele.type === '6') {
+			        	const data = inele.earData;
+			        	if(!Array.isArray(data)){return false;}
+			        	// 生成渲染的数据格式
+			        	data.forEach(item =>{
+			        		const getObj = Utils.getReaderSvgData(item),
+			        			dist = getObj.dist;
+			        		if(item.ear === "R"){
+								this.set_data(this.set_r,dist)
+			        		}
+			        		if(item.ear === "L"){
+								this.set_data(this.set_l,dist)
+			        		}
+			        	})
+			        }
+		        })
+	        console.log(2)
+      	};
+      	const dowork = async ()=>{
+			await fnasync();
+		    await sys_async();
+		    if(this.ear === "A"){
+	      		if(this.drawEar == "R"){
+	      			this.sys_yuan_fn("R",this.set_r)
+		    		this.sys_yuan_fn("L",this.set_r)
+	      		}else if(this.drawEar == "L"){
+	      			this.sys_yuan_fn("R",this.set_l)
+	      			this.sys_yuan_fn("L",this.set_l)
+	      		}
+	      	}else{
+	      		this.sys_yuan_fn("R",this.set_r)
+		    	this.sys_yuan_fn("L",this.set_l)
+	      	}
+		    this.$emit('newSvgDataToSave',addData);
+		    console.log(3)
+		    return Promise.resolve();
+      	};
+      	return dowork()
     },
     // 将听力图数组改变成后台传输格式
     changeFormat: function (arrayL) {
@@ -900,7 +926,6 @@ export default{
           Data.push({'x': arrayX2[arrayL[i][0]], 'y': this.arrayYline1[arrayL[i][1]], 'dataType': arrayL[i][2]})
         }
       }
-      console.log(Data)
       return Data
     },
     // 读取数据
@@ -1233,8 +1258,9 @@ export default{
     },
     // 放大图画圆
     _bigdrawyuan:function(flag){
-      let objZong = this.addData;
-      // console.log(objZong)
+      	let objZong = this.addData;
+      	// console.log(objZong)
+      	console.log(5)
       	objZong.forEach(ele =>{
           	this.control_arr.forEach((item) =>{
         		if(ele.type === item.key){
@@ -1371,39 +1397,6 @@ export default{
         		}
         	})
       	})
-        // for (var v in objZong) {
-        //   	this.control_arr.forEach((item) =>{
-        //   		if (item.value && objZong[v].type === item.key) {
-		    		// if(objZong[v].ears === '右'){
-        //   				// 生成右耳图
-		    		// 	this.arrayyuan = this.ReadData(objZong[v].data);
-		      //     		let obj = {
-				    // 		'ele' :this.svgYou,
-				    // 		'arr' : this.arrayyuan,
-				    // 		'color':color1,
-				    // 		'mask': item.markRight,
-				    // 		'type':objZong[v].type,
-				    // 		'str':str
-				    // 	};
-			    	// 	this.yuan(obj);
-			     //      	this.average('L', obj.arr)
-		    		// }
-		    		// if (objZong[v].ears === '左') {// 生成左耳图
-		    		// 	this.arrayyuanzuo = this.ReadData(objZong[v].data);
-		      //     		let obj = {
-				    // 		'ele' :this.svgZuo,
-				    // 		'arr' : this.arrayyuanzuo,
-				    // 		'color':color2,
-				    // 		'mask': item.markLeft,
-				    // 		'type':objZong[v].type,
-				    // 		'str':str
-				    // 	};
-			    	// 	this.yuan(obj);
-			     //      	this.average('L', obj.arr)
-		      // 		}
-        //   		}
-        // 	})
-        // }
     },
     drawyuan: function (falg) {
     	if(falg){
@@ -1465,8 +1458,9 @@ export default{
     // 助听听阈测试数据结果画图
     drawyuanzhu: function () {
     	let objZong = [];
-		 objZong = this.svgData[0];
-		 console.log(objZong)
+    	this.addData = this.svgData;
+		objZong = this.svgData[0];
+		console.log(objZong)
         // 生成右耳图
         if (objZong.type === '6') {
         	const data = objZong.earData;
@@ -1480,16 +1474,12 @@ export default{
         		if(item.ear === "R"){
         			this.arrayyuan = this.ReadData(getReaderSvgData);
             		this.sys_arr_r = this.ReadData(sysSvgData);
-        			this.set_r.clear();
-            		dist.length > 0 ? this.set_r.add(this.ReadData(dist)[0]) : "";
-            		this.sys_yuan_fn(item.ear,this.set_r)
+            		this.show_sys_yuan(this.set_r,item.ear,dist);
         		}
         		if(item.ear === "L"){
         			this.arrayyuanzuo = this.ReadData(getReaderSvgData);
             		this.sys_arr_l = this.ReadData(sysSvgData);
-        			this.set_l.clear();
-            		dist.length > 0 ? this.set_l.add(this.ReadData(dist)[0]) : "";
-            		this.sys_yuan_fn(item.ear,this.set_l)
+            		this.show_sys_yuan(this.set_l,item.ear,dist);
         		}
         	})
           	this.publicFn("right");
@@ -1498,20 +1488,20 @@ export default{
       	this.createdPng(this.svgZuo);
       	this.createdPng(this.svgYou);
     },
-    // 恢复原始数据画图
-    yuanshi: function () {
-    	// if(this.arrayyuanshi.length >0 || this.arrayyuanshizuo.length >0){
-    		this.publicFn("right",this.arrayyuanshi);
-    		this.publicFn("left",this.arrayyuanshizuo);
-    		this.arrayyuanzuo = this.arrayyuanshizuo.concat();
-    		this.arrayyuan = this.arrayyuan.concat();
-    		this._saveShowData();
-    	// }else{
-    		// console.log("原始数据未被编辑！")
-    	// }
+    show_sys_yuan(set,ear,dist){
+		this.sys_yuan_fn(ear,this.set_data(set,dist))
+    },
+    set_data(set,dist){
+    	set.clear();
+		let b = this.ReadData(dist);
+		b.forEach(e =>{
+			set.add(e)
+		})
+		return set;
     },
     // 画图
     yuan: function (arg) {
+    	console.log('yuan')
       	this.gTu = this.createTag('g', {})
       	const type = arg.type ? arg.type : "",
       		str = arg.str ? arg.str : "",

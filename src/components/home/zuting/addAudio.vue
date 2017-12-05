@@ -280,7 +280,7 @@ export default{
     getNewSvgData(e){
       this.emit();
       this.toParentSvgData = e;
-      console.log(e)
+      // console.log(e)
     },
     _bigCanv(str){
       this.$refs.addSvg._bigCanv(str);

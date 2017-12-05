@@ -510,30 +510,11 @@ export default {
 		            //type: 'warning'
 		        }).then(() => {
 		        	// 保存数据
-		        	return new Promise((resolve,reject) =>{
-		        		if(true){
-		        			const id = JSON.parse(sessionStorage.getItem('user_id')),
-		        				time = parseInt(new Date().getTime());
-		        			const obj = {'user_id':id,'time':time,'data':this.checkDataArray,'order':this.currentear};
-		        			let getLocalStorage = JSON.parse(localStorage.getItem('memoryStorageTestData'));
-		        			if(!getLocalStorage){
-		        				let lists = [obj];
-		        				getLocalStorage = lists;
-		        			}else{
-		        				for(let i = getLocalStorage.length -1; i >= 0 ;i--){
-		        					if(getLocalStorage[i].user_id === id){
-		        						getLocalStorage.splice(i,1);
-		        					}
-		        				}
-		        				getLocalStorage.unshift(obj)
-		        			}
-		        			return Utils.checkLocalStorageSize().then(()=>{
-		        				localStorage.setItem('memoryStorageTestData',JSON.stringify(getLocalStorage));
-								resolve()
-		        			})
-		        		}
-		        		reject('err')
-		        	})
+        			const id = JSON.parse(sessionStorage.getItem('user_id')),
+        				time = parseInt(new Date().getTime()),
+        				obj = {'user_id':id,'time':time,'data':this.checkDataArray,'order':this.currentear},
+        				typeObject = Options.testType;
+        			return Utils.setLocalStorage("memoryStorageTestData",typeObject,{"key":6},obj)
 		        }).then(()=>{
 		        	this.$router.push({ path: '/home' });
 		            window.isToggle = false;
