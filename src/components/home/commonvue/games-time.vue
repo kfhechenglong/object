@@ -3,8 +3,8 @@
 		<div class="confirm" v-show="isShowConfirm">
 			<h3>游戏训练反馈时长</h3>
 			<p>反馈时间：{{feedbackTime}}&nbsp;秒<span v-if="show">，播放时长：{{value}}&nbsp;秒</span></p>
-			<button class="cancal" @click="close_confirm">取消</button>
-			<button @click="save_confirm">保存</button>
+			<button class="cancal" @click="close_confirm">无效</button>
+			<button @click="save_confirm">有效</button>
 		</div>
 	</div>
 </template>
@@ -12,7 +12,9 @@
 export default{
 	data(){
 		return{
- 			isShowConfirm:false
+ 			isShowConfirm:false,
+ 			times:0,
+ 			alltime:0
 		}
 	},
 	props:{
@@ -31,14 +33,23 @@ export default{
 	methods:{
 		close_confirm(){
  			this.isShowConfirm = false;
+ 			if(this.times === 0){
+				this.$store.commit('gamesTimes',{time:0,times:0,step:true});
+ 			}
  		},
  		save_confirm(){
  			const data = {
  				"user_id":JSON.parse(sessionStorage.getItem('user_id')),
  				'feedbackTime':this.feedbackTime,
  				'playTimer':this.value,
- 				'games':this.gamse
+ 				'games':this.gamse,
+ 				'type_id':JSON.parse(sessionStorage.getItem('test_id'))
  			};
+ 			this.times++;
+ 			this.alltime += this.feedbackTime;
+ 			let averageTime = this.alltime/this.times;
+			let time = isNaN(averageTime) ? 0 : averageTime.toFixed(2);
+			this.$store.commit('gamesTimes',{time:time,times:this.times,step:true});
  			this.$ajax.post('/game/log',data).then((res)=>{
  				if(res.code !== 200){
  					msgTipsErr(this,"保存失败！")

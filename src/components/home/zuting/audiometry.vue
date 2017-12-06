@@ -366,12 +366,11 @@ export default {
  			if(this.isfinish == "false"){
  				backfalg = true
  			}
- 			// console.log(backfalg)
  			return backfalg;
  		},
  		// 喇叭播放声音时的样式
  		hornStartStyle:function(){
- 			return this.gobackFalg && this.hasSound;
+ 			return this.hasSound;
  		},
  		// 监听喇叭是否显示
  		hornhidden:function(){
@@ -444,13 +443,20 @@ export default {
  			this.showCheckDb = !this.showCheckDb;
  			this.user_defined_db = null;
  			this.to_next_hz = null;
+ 			Utils.removeClassName('#checked-db','fl');
  		},
  		// 选择强度值
  		_check_db(e,ele,flag){
  			Utils.removeClassName('#checked-db','fl');
       		e.currentTarget.className = "fl li-active";
       		// 记录当前选中的db或者hz
-      		flag ? this.user_defined_db = ele : this.to_next_hz = ele;
+      		if(flag || ele === "wait"){
+      			this.user_defined_db = ele
+      			this.to_next_hz = null
+      		}else{
+      			this.to_next_hz = ele;
+      		}
+      		console.log(this.user_defined_db,this.to_next_hz)
  		},
  		save_defined(){
  			// 设置当前hz的db值
@@ -717,8 +723,10 @@ export default {
  				this.start = !this.start;
  				this.overTest = false;
 		        this.startLoad = true;
-		        // 发送继续指令
- 				websocket.send(JSON.stringify(this.wskt.wstoctld('games_audio_continue','')));
+		        if(this.hasOver){
+		        	this.toPause('false')
+		        	this.hasOver = false;
+		        }
 	 			// 点击开始向被控端发送测听参数
 				this.toParams();
 	 			// 发送最大强度数据;
@@ -763,6 +771,7 @@ export default {
  		},
  		toPause(str){
  			this.isfinish = str;
+ 			this.hasSound = false;
  			// 发送暂停指令
  			if('finish' == str){
  				this.isPause = false;
@@ -986,13 +995,13 @@ export default {
 			window.isToggle = false;
 			this.gameOverAddData();
 			this.toPause('finish');
+			this.hasOver = true;
 			this.start = false;
 			this.$refs.result.show();
 			// 如果被控端连接成功
 			if(this.isOnline){
-				// websocket.send(JSON.stringify(this.wskt.wstoctld('games_audio_over','')));
+				websocket.send(JSON.stringify(this.wskt.wstoctld('games_audio_over','')));
 			}
-
 		},
 		// 测试完成，判断是否增加空数据
 		gameOverAddData(){

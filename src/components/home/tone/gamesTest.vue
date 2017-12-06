@@ -18,7 +18,7 @@
 					<el-button type="success" @click="toPause('jixun')"  :disabled="!start" v-show="!isPause"><i class="fa fa-play"></i>继续</el-button>
 				</div>
 				<!-- 音量控制组件 -->
-				<voiceNum v-on:volume="toggleVol" :show="step" :alltime="successResponseTime" :times="successTimesNum"></voiceNum>
+				<voiceNum v-on:volume="toggleVol" :show="step"></voiceNum>
 			</div>
 			<div class="train-main-middle">
 				<el-steps :space="100" direction="vertical" :active="step">
@@ -89,7 +89,7 @@ export default {
  			currentVolume:90,
  			feedbackTime:0,
  			// 反应的总时间
- 			successResponseTime:0,
+ 			// successResponseTime:0,
  		}
  	},
  	// props:{

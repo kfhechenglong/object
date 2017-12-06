@@ -19,7 +19,7 @@
 					<el-button type="success" @click="toPause('jixun')"  :disabled="!start" v-show="!isPause"><i class="fa fa-play"></i>继续</el-button>
 				</div>
 				<!-- 距离控制组件 -->
-				<voiceNum  v-on:volume="toggleVol"  :show="step" :alltime="successResponseTime" :times="successTimesNum"></voiceNum>
+				<voiceNum  v-on:volume="toggleVol"  :show="step"></voiceNum>
 			</div>
 			<div class="train-main-middle">
 				<el-steps :space="100" direction="vertical" :active="step">
@@ -92,8 +92,8 @@ export default {
  			environment:null,//测试环境
  			currentVolume:0,//当前音量
  			feedbackTime:0,
- 			// 反应的总时间
- 			successResponseTime:0,
+ 			// // 反应的总时间
+ 			// successResponseTime:0,
  		}
  	},
  	// props:{

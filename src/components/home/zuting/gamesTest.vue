@@ -19,9 +19,9 @@
 				<div class="fl voice-num">
 					<p class="fl">给声时长</p>
 					<el-input-number class="num" v-model="value" :step="1" @change="change" :min="1" :max="5"></el-input-number>
-					<div class="fz20 m-l-20" v-if="step && step == 2">
-						<span class="d-block height-30">有效次数：{{successTimesNum}}次</span>
-						<span class="d-block height-30">平均反应时间：{{time}}s</span>
+					<div class="fz20 m-l-20" v-if="step && gamesTimesObj.step">
+						<span class="d-block height-30">有效次数：{{gamesTimesObj.times}}次</span>
+						<span class="d-block height-30">平均反应时间：{{gamesTimesObj.time}}s</span>
 					</div>
 				</div>
 			</div>
@@ -55,6 +55,7 @@ import Goback from '../commonvue/backup'
 import StartTips from '../commonvue/startprepare'
 import GamesTime from '../commonvue/games-time.vue'
 import VoiceNum from '../commonvue/voiceNum.vue'
+import {mapState} from 'vuex'
 export default {
 	components:{
 		Goback,
@@ -128,6 +129,7 @@ export default {
 		}
  	},
  	computed:{
+ 		...mapState(['gamesTimesObj']),
  		gobackFalg:function(){
  			let backfalg = this.start && ('finish' != this.isfinish)
  			return backfalg;
@@ -138,10 +140,6 @@ export default {
  			if(averageTime < 1){return averageTime = 1};
  			return  averageTime;
  		},
- 		time:function(){
-			let averageTime = this.successResponseTime/this.successAllNum;
-			return isNaN(averageTime) ? 0 : averageTime.toFixed(2);
-		},
  	},
  	beforeRouteLeave(to,form,next){
  		// console.log(to,form,next);

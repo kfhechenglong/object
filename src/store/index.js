@@ -33,6 +33,7 @@ const state = {
     allPrintImgs:[],
     hadDeleStudy:[],
     product:[],//设备产品
+    gamesTimesObj:{}
 }
 // console.log(state)
 // console.log(Vuex)

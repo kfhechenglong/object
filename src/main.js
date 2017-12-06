@@ -10,6 +10,7 @@ import Element from 'element-ui'
 import Animate from 'animate.css'
 import JQ from './common/util.js'
 import Utils from './common/util.js'
+import Common from './common/util2.js'
 import Options from './common/options-data.js'
 import QRCode from 'qrcodejs2'
 // import VDistpicker from 'v-distpicker'
@@ -32,6 +33,7 @@ import Slider from 'element-ui/packages/slider'
 // 引入自定义jq
 window.jq = JQ.jq;
 window.Utils = Utils;
+window.Common = Common;
 window.Options = Options;
 window.msgTipsErr = Utils.msgTipsErr;//错误信息的提示
 window.msgTipsSuccess = Utils.msgTipsSuccess;//正确信息的提示
@@ -68,9 +70,8 @@ axios.interceptors.response.use((response) =>{
           return;
       }
     } catch(err){
-      // alert(err)
+      console.error(err)
     }
-    
      return response;
    },function(error){
      //请求错误时做些事
@@ -78,8 +79,6 @@ axios.interceptors.response.use((response) =>{
 });
 // 判断是否登录
 router.beforeEach((to, from, next) => { 
-	// console.log(to.path);
-	// console.log(from);
 	if(false){
 		next();
 	}else{

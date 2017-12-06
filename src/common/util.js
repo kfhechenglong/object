@@ -219,6 +219,12 @@ export default {
             pointer.step = 2;
         };
     },
+    /**
+     * *游戏训练第三阶段时的逻辑处理
+     * @param  {[type]} th   [this]
+     * @param  {[type]} falg [助听听阈]
+     * @return {[type]}      [description]
+     */
     successNum:function(th,falg){
         let obj = th.wsData.params;
         if(th.step === 2){
@@ -227,7 +233,7 @@ export default {
                 return false;
             }
             if(obj['success'] == 'true'){
-                th.successTimesNum++;
+                // th.successTimesNum++;
                 th.successAllNum++;//正确的总次数
                 // 记录反应时长
                 th.feedbackTime = +obj['feedbackTime'].toFixed(2);
@@ -236,12 +242,12 @@ export default {
                     th.gamesvalue = th.value > th.feedbackTime ? th.feedbackTime : th.value;
                 }
                 th.$refs.gamestime.isShowConfirm = true;
-                if(th.successTimesNum === 3){//如果连续对三次则结束训练
-                    th._trainOverTips();
-                }
+                // if(th.successTimesNum === 3){//如果连续对三次则结束训练
+                //     th._trainOverTips();
+                // }
                 return false;
             }else{
-                th.successTimesNum = 0;
+                // th.successTimesNum = 0;
             }
         }
     },

@@ -78,5 +78,8 @@ export default {
     // 打印学生基本信息
     printInfoBase(state,flag){
         state.isToPrintBase = flag;
+    },
+    gamesTimes(state,obj){//游戏训练平均反应时间
+        state.gamesTimesObj= obj;
     }
 }
