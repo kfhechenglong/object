@@ -10,7 +10,7 @@
 		  custom-class="dialog_gobackup" 
 		  v-model="goBackTips"
 		  top="40%">
-		  <div class="fz" style="margin-bottom:10px;">确定返回到参数设置吗？</div>
+		  <div class="fz" style="margin-bottom:10px;">确定返回到上一页面吗？</div>
 		  <!-- <div class="fz">确认后将放弃本次的测听数据！</div> -->
 		  <span slot="footer" class="dialog-footer">
 		    <el-button @click="goBackTips = false">取 消</el-button>
@@ -39,7 +39,6 @@ export default{
 
 	created(){
 		this.params = this.$route.query;
-		console.log(this.params)
 	},
 	methods:{
 		goBack(){
@@ -52,12 +51,15 @@ export default{
  			this._argument();
  		},
  		_argument(){
+ 			let flag = this.$route.query.flag;
  			this.goBackTips = false;
-			let url = "";
-			url = sessionStorage.getItem('path_url');
  			window.isToggle = false;
- 			console.log({query:this.params})
- 			this.$router.push({path:url,query:this.params});
+ 			if(flag){
+ 				this.$router.push({path:"/home"});
+ 			}else{
+				let url = sessionStorage.getItem('path_url');
+ 				this.$router.push({path:url,query:this.params});
+ 			}
  			// 返回游戏主页
             var argument = this.wskt.gohome();
             websocket.send(JSON.stringify(argument));

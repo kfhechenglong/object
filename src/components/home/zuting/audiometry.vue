@@ -256,15 +256,19 @@ export default {
 	 		resolve(this.currentear)
  		});
  		getEar.then((res)=> {
- 			const getParamsPageData = JSON.parse(this.$route.query.data);
- 			const a = [];
-			for (var i = 0; i < res.length; i++) {
-				const currentTestEarHz = new Utils.earDataClass();
-				currentTestEarHz.ear = (res[i]);
-				currentTestEarHz.dataDetail = JSON.parse(JSON.stringify(getParamsPageData));
-				a.push(currentTestEarHz)
-			}
-			this.checkDataArray = a;
+ 			if(this.$route.query && this.$route.query.flag){
+ 				this.checkDataArray = JSON.parse(this.$route.query.data);
+ 			}else{
+ 				const getParamsPageData = JSON.parse(this.$route.query.data);
+	 			const a = [];
+				for (var i = 0; i < res.length; i++) {
+					const currentTestEarHz = new Utils.earDataClass();
+					currentTestEarHz.ear = (res[i]);
+					currentTestEarHz.dataDetail = JSON.parse(JSON.stringify(getParamsPageData));
+					a.push(currentTestEarHz)
+				}
+				this.checkDataArray = a;
+ 			}
 			this._getHzAndDb(0);
 	 		return new Promise((resolve,reject) =>{
 	 			resolve()
@@ -512,7 +516,15 @@ export default {
 		        	// 保存数据
         			const id = JSON.parse(sessionStorage.getItem('user_id')),
         				time = parseInt(new Date().getTime()),
-        				obj = {'user_id':id,'time':time,'data':this.checkDataArray,'order':this.currentear},
+        				obj = {
+        					'user_id':id,
+        					'time':time,
+        					'data':JSON.stringify(this.checkDataArray),
+        					'isEar':this.currentear,
+							'crtgame':this.currentgame,
+							'crtsign':this.leixing,
+							'level':this.level
+        				},
         				typeObject = Options.testType;
         			return Utils.setLocalStorage("memoryStorageTestData",typeObject,{"key":6},obj)
 		        }).then(()=>{
@@ -630,7 +642,7 @@ export default {
 			if(receive_db > this.maxDb){
 				this.checkData[this.frequency] = receive_db;
 				this.toPause('finish');
-				this.toParams();
+				// this.toParams();
 				alert("接收的强度大于最大值");
 			}else{
 				this.intensity = this.wsData.params['nextdb'];
@@ -658,7 +670,7 @@ export default {
  				obj[crtDb] = {'true':0,'false':0};
  				obj[crtDb][isSuccess] +=1;
  			};
- 			if(obj[crtDb][isSuccess] >= 3){//判断对错次数是否进行换频
+ 			if(obj[crtDb]['true'] >= 3 || (obj[crtDb]['false'] >= 3 && crtDb == this.maxDb)){//判断该点正取次数是否大于等于3次,或者错误次数大于等于三次，且为最大值时跳转
  				this.toParams();
  			}
  		},

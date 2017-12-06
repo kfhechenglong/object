@@ -41,7 +41,7 @@
                                 <img v-else :src="imgSrc(item)" :onerror="errorImgGirl">
                                 <span class="t-overflow t-c" style="overflow:hidden;">{{item.name}}</span>
                             </li>
-                            <p v-if="studylist !=='all'" class="clear fl cursor height-100 h100 w100 m-20 b-radius5 b-show10 l-s-3px fz25" @click="clearStorage">清除</p>
+                            <p v-if="studylist !=='all' && listsArr.length > 0" class="clear fl cursor height-100 h100 w100 m-20 b-radius5 b-show10 l-s-3px fz25" @click="clearStorage">清除</p>
                             <p v-if="listsArr.length === 0" style="margin-top:20px;">未找到相关信息！</p>
                         </ul>
                     </div>
@@ -109,18 +109,29 @@ export default {
         close(){
         },
         clearStorage(){
-            let flag = this.flag;
-            console.log(flag)
-             let testNames = JSON.parse(localStorage.getItem('noTestNames'));
-             let memoryStorage = JSON.parse(localStorage.getItem('memoryStorageTestData'));
-            console.log(testNames)
-            console.log(memoryStorage)
-            // console.log(this.noTestNameListsData)
-            if(this.studylist === "dai"){
-                // localStorage.removeItem('noTestNames')
-            }else if(this.studylist === "moment"){
-                // localStorage.removeItem('memoryStorageTestData')
-            }
+            this.$confirm('是否要清除当前类型的本地缓存？', '提示', {
+                    type: 'warning',
+                    customClass:'clear-storage b-show10'
+                }).then((e)=>{
+                    let flag = this.flag;
+                    let name = ""
+                    if(this.studylist === "dai"){
+                        name = 'noTestNames';
+                    }else if(this.studylist === "moment"){
+                        name = "memoryStorageTestData";
+                    }
+                    let listNames = JSON.parse(localStorage.getItem(name));
+                    listNames.forEach((item) =>{
+                        if(item.testType == flag){
+                            item.nameList.length = 0;
+                        }
+                    })
+                    localStorage.setItem(name,JSON.stringify(listNames));
+                    this.studylist === "dai" ? this.getNoTestNameLists() : this.getMomentStorageData();
+                }).catch((e)=>{
+                    console.log(e)
+                })
+            
         },
         _studyList(evt){
             if(evt === 'dai'){
@@ -156,39 +167,23 @@ export default {
         showlist(e){
             this.addStudent = true;
         },
-        getMomentStorageData(){
-            let infoStudent = this.infoStudent;
-            let noTestNameLists = [];
-            let currentnames = []
-            let testNames = JSON.parse(localStorage.getItem('memoryStorageTestData'));
-            console.log(testNames)
-            try{
-                for(let i = 0; i< testNames.length; i++){
-                    if(testNames[i].testType === this.flag){
-                        currentnames = testNames[i].nameList;
-                    }
-                }
-                // 获取用户的头像信息,同时筛选如果待测人员已经被删除了，则从待测名单中移除
-                for (let i = 0; i < currentnames.length; i++) {
-                    for (let j = 0; j < infoStudent.length; j++){
-                        if(currentnames[i].user_id == infoStudent[j].id){
-                            noTestNameLists.push(infoStudent[j])
-                            break;
-                        }
-                    }
-                }
-                this.storagelistsData = currentnames;
-                this.storagelists = noTestNameLists;
-                if(noTestNameLists.length >0){
-                    this.MomentStorageNum = noTestNameLists.length;
+        getMomentStorageData(){//获取暂存的人员名单
+            Utils.lookLocalStorageMsg('memoryStorageTestData',this.infoStudent,this.flag).then((res)=>{
+                this.storagelistsData = res.realList;
+                this.storagelists = res.showList;
+                if(res.realList.length >0){
+                    this.MomentStorageNum = res.realList.length;
                     this.listsArr = this.storagelists.concat();
                     this.studylist = "moment";  
+                }else{
+                    this.MomentStorageNum = 0;
+                    this.studylist = "all";
+                    this.listsArr = this.infoStudent.concat();
                 }
-            } catch(err){
+            }).catch(()=>{
                 this.MomentStorageNum = 0;
                 this.storagelists = [];
-            }
-            
+            })            
         },
         handleEdit(row) {
             // 现将该学生的信息存到本地localstorage;
@@ -219,7 +214,7 @@ export default {
             // this.studylist = true;
             this.tableShow = true;
         },
-        getNoTestNameLists(name){
+        getNoTestNameLists(name){//获取待测人员的名单
             Utils.lookLocalStorageMsg('noTestNames',this.infoStudent,this.flag).then((res)=>{
                 this.noTestNameListsData = res.realList;
                 this.noTestNameLists = res.showList;
@@ -300,7 +295,24 @@ export default {
             // 页面跳转接收传递的参数id
             let obj = {id:params};
             if(this.studylist === "moment"){//如果选择暂存人员，则添加暂存的测试信息
-                Object.assign(obj,{data:JSON.stringify(this.getMoment(params)),flag:true})
+                let queryobj = this.getMoment(params)
+                Object.assign(queryobj,{flag:true})
+                switch (this.flag){
+                    case 1:
+                        break;
+                    case 6:
+                        Utils.gamesPath('audiometry','games_audio_plan','official',this.getMoment(params),"zhuting",this);
+                        break;
+                    case 7:
+                        break;
+                    case 2:
+                        break;
+                    case 4:
+                        break;
+                    case 3:
+                        break;
+                }
+                return false
             }
             switch (this.flag){
                 case 1:
@@ -313,14 +325,12 @@ export default {
                     this.$router.push({ path: '/home/especial',query:obj});
                     break;
                 case 2:
-                // 胡氏七词
                     this.$router.push({ path: '/home/hseight',query:obj});
                     break;
                 case 4:
                     this.$router.push({ path: '/home/syllable',query:obj});
                     break;
                 case 3:
-                // 声调
                     this.$router.push({ path: '/home/tone',query:obj});
                     break;
             }
@@ -546,5 +556,8 @@ export default {
         p{
             color:#fff;
         }
+    }
+    .clear-storage{
+
     }
 </style>

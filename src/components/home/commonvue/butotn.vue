@@ -42,40 +42,12 @@ export default{
 			this._util('train','games_train_plan','drill');
 	    },
 	    _util(url,mescon,str){
-	    	let that =this;
-	    	// 判断是否选择词组
-	    	if(this.paramData.data.length == 0){
-	    		function tips(){
-	    			msgTipsErr(that,'请选择测试数据！');
-	    		};
-	    		// 避免频繁点击触发
-			    util.throttle(tips,500,1000)();
-	    		return;
-	    	}
-	    	// 页面跳转的时候向被控端发送指令，通知准备游戏训练
-	    	if(this.baseurl ==="zhuting"){
-	    		var params = {
-			    	'testType':'zhuting',//测听类型
-			    	'gameType':str,
-			    	'time':5,
-			    	'url':this.paramData.crtgame//跳转页面
-        		};
-	    	}else{
-	    		var params = {
-			    	'testType':'yinsu',//测听类型
-			    	'gameType':str,
-			    	'url':this.paramData.crtgame//跳转页面
-			    }
-	    	}
-	    	console.log(params);
-	    	this.urlQuery('/home/'+this.baseurl+'/'+url);
-	    	let argument = this.wskt.wstoctld(mescon,params);
-	    	websocket.send(JSON.stringify(argument));
-			 // 路由跳转，并通过路由传参数
-			
+	    	Utils.gamesPath(url,mescon,str,this.paramData,this.baseurl,this)
+	    	return
 	    },
 	    // 路由传参函数
 	    urlQuery(str){
+	    	console.log(str)
 	    	 // 路由跳转，并通过路由传参数
 	    	window.isToggle = false;
 	    	var aa = {'aa':1}

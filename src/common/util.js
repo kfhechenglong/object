@@ -303,6 +303,49 @@ export default {
         str2 = newTitle;
         return {newArr,newTitle,newpath,vpath}
     },
+    /**
+     * *
+     * @param  {[String]} url    [games url]
+     * @param  {[String]} mescon [websocket command]
+     * @param  {[String]} str    [games name]
+     * @param  {[Object]} data   [query data]
+     * @param  {[type]} game   [当前的游戏类型]
+     * @return {[Promse]}        [description]
+     */
+    gamesPath(url,mescon,str,data,game,that){
+        // 判断是否选择词组
+        if(data.data.length == 0){
+            function tips(){
+                msgTipsErr(that,'请选择测试数据！');
+            };
+            // 避免频繁点击触发
+            util.throttle(tips,500,1000)();
+            return;
+        }
+        // 页面跳转的时候向被控端发送指令，通知准备游戏训练
+        if(game ==="zhuting"){
+            var params = {
+                'testType':'zhuting',//测听类型
+                'gameType':str,
+                'time':5,
+                'url':data.crtgame//跳转页面
+            };
+        }else{
+            var params = {
+                'testType':'yinsu',//测听类型
+                'gameType':str,
+                'url':data.crtgame//跳转页面
+            }
+        }
+        console.log(params);
+         // 路由跳转，并通过路由传参数
+        window.isToggle = false;
+        var a = '/home/'+game+'/'+url;
+        that.$router.push({ path:a,query:data});
+        let argument = that.wskt.wstoctld(mescon,params);
+        websocket.send(JSON.stringify(argument));
+        return Promise.resolve()
+    },
     // 日期格式转换
     dateToggle:function(year,month,day,data1){
         let date = null;
@@ -1060,7 +1103,6 @@ export default {
         let NameLists = [];
         let testName = [];
         let getLocalStorageLists = JSON.parse(localStorage.getItem(name));
-        console.log(getLocalStorageLists)
         try{
             for(let i = 0; i< getLocalStorageLists.length; i++){
                 if(getLocalStorageLists[i].testType == type){
@@ -1093,40 +1135,55 @@ export default {
     setLocalStorage(localStorageName,typeObject,currentType = {'key':6} ,data){
         return new Promise((resolve,reject)=>{
             // 获取本地的待测名单
-                let getLocalStorage = JSON.parse(localStorage.getItem(localStorageName));
-                // 先查看本地有没有待测名单
-                if(!getLocalStorage){
-                    // 没有待测名单，则创建名单
-                    let nameLists = [];
-                    for (var i = 0; i < typeObject.length; i++) {
-                        let data = {
-                            testType:typeObject[i].key,
-                            nameList:[]
-                        }
-                        nameLists.push(data)
+            let getLocalStorage = JSON.parse(localStorage.getItem(localStorageName));
+            // 先查看本地有没有待测名单
+            if(!getLocalStorage){
+                // 没有待测名单，则创建名单
+                let nameLists = [];
+                for (var i = 0; i < typeObject.length; i++) {
+                    let data = {
+                        testType:typeObject[i].key,
+                        nameList:[]
                     }
-                    getLocalStorage = nameLists;
+                    nameLists.push(data)
                 }
-                // 添加当前测试类型的未测名单
-                for (let i = 0; i < getLocalStorage.length; i++) {
-                    if(getLocalStorage[i].testType === currentType.key){
+                getLocalStorage = nameLists;
+            }
+            // 添加当前测试类型的未测名单
+            for (let i = 0; i < getLocalStorage.length; i++) {
+                if(getLocalStorage[i].testType === currentType.key){
+                    //如果有待测名单，先合并再去重
+                    let _localStorage = getLocalStorage[i].nameList;
+                    if(Array.isArray(data)){
                         //如果有待测名单，先合并再去重
-                        let _localStorage = getLocalStorage[i].nameList;
+                        let a = _localStorage.concat(data);
+                        //  去重
+                        let res = [],json = {};
+                        for(let j = 0; j < a.length; j++){
+                            if(!json[a[j].user_id]){
+                                res.push(a[j]);
+                                json[a[j].user_id] = 1;
+                            }
+                        }
+                        _localStorage = res;
+                    }else{
                         for(let i = _localStorage.length -1; i >= 0 ;i--){
                             if(_localStorage[i].user_id === data.user_id){
                                 _localStorage.splice(i,1);
+                                break;
                             }
                         }
-                        _localStorage.unshift(obj)
-                        getLocalStorage[i].nameList = _localStorage;
+                        _localStorage.unshift(data)
                     }
+                    getLocalStorage[i].nameList = _localStorage;
+                    break;
                 }
-                // 检测是空间是否用完
-                this.checkLocalStorageSize().then(()=>{
-                    localStorage.setItem(localStorageName,JSON.stringify(getLocalStorage));
-                    resolve();
-                })
-                
+            }
+            // 检测是空间是否用完
+            this.checkLocalStorageSize().then(()=>{
+                localStorage.setItem(localStorageName,JSON.stringify(getLocalStorage));
+                resolve();
+            })  
         })
     },
     // 检测本地存储大小
@@ -1143,7 +1200,7 @@ export default {
         let sizeUsed = (size / 1024).toFixed(2);
         console.log('当前localStorage容量为' + sizeUsed + 'KB');
         return new Promise(resolve =>{
-            if(sizeUsed > 5*1024){
+            if(sizeUsed > 5*1000){
                 msgTipsErr(this,'本地存储已满，请清除缓存！')
                 return false;
             }else{

@@ -46,20 +46,18 @@ export default {
  	},
  	created(){
  		// 获取点击返回按钮的参数
- 		if(this.$route.query && this.$route.query['isEar']){//返回的路由传参
- 			// this.checkList = this.$route.query['data'];
+ 		if(this.$route.query && this.$route.query['isEar'] && !this.$route.query.flag){//返回的路由传参
  			const data_obj = this.$route.query['data'];
  			this.checkList = Utils.getCheckHz(JSON.parse(data_obj));
  			this.isCheck(this.checkList);
  		}
- 		if(this.$route.query && this.$route.query.flag){//暂存的参数
- 			this.queryflag = true;
- 			const data_obj = this.$route.query['data'];
- 			this.querydata = JSON.parse(data_obj).data;
- 			console.log(this.querydata)
- 			this.checkList = Utils.getCheckHz(this.querydata[0].dataDetail);
- 			this.isCheck(this.checkList);
- 		}
+ 		// if(this.$route.query && this.$route.query.flag){//暂存的参数
+ 		// 	this.queryflag = true;
+ 		// 	const data_obj = this.$route.query['data'];
+ 		// 	this.querydata = JSON.parse(data_obj);
+ 		// 	this.checkList = Utils.getCheckHz(this.querydata[0].dataDetail);
+ 		// 	this.isCheck(this.checkList);
+ 		// }
  		this.$nextTick(function(){
  			this.toRotuer();
  		});
@@ -67,9 +65,9 @@ export default {
  	computed:{
  		...mapState(['hz','zhutingData']),
  		hzlist(){
- 			if(this.queryflag){
- 				return this.querydata[0].dataDetail;
- 			}
+ 			// if(this.queryflag){
+ 			// 	return this.querydata[0].dataDetail;
+ 			// }
  			const hz = this.hz && Object.keys(this.hz).length !== 0 ? this.hz : this.hertz,
  				len = hz.length,
  				setobj = {};
@@ -90,7 +88,6 @@ export default {
  		
  	},
  	methods:{
- 		
  		handleCheckedCitiesChange(value) {
 	        let checkedCount = value.length;
 	        this.isCheck(value);

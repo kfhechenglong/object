@@ -68,6 +68,7 @@ export default{
       timerInterval:null,
       hiddenEchart:false,
       // percentProgress:0
+      // progress:[]
 		}
 	},
 	mounted (){
@@ -311,7 +312,13 @@ export default{
         this.closeModeal = false;//校准时，禁止关闭窗口
         this.setRandomValue();
         console.log('开始校准');
-        // return;
+        // this.progress = [];
+        // let arr = [{'db':100},{'db':105},{'db':95},{'db':95},{'db':100},{'db':100},{'db':95},{'db':105},{'db':110},{'db':110},{'db':105},,{'db':100}]
+        // let i = 0;
+        // setInterval(()=>{
+        //   this.progress.push(arr[i++])
+        //   console.log(11)
+        // },500)
         var argument = this.wskt.wstosper('cal','');
         websocket.send(JSON.stringify(argument));
     },
