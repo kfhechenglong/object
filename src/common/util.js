@@ -236,9 +236,9 @@ export default {
                     th.gamesvalue = th.value > th.feedbackTime ? th.feedbackTime : th.value;
                 }
                 th.$refs.gamestime.isShowConfirm = true;
-                if(th.successTimesNum === 3){//如果连续对三次则结束训练
-                    th._trainOverTips();
-                }
+                // if(th.successTimesNum === 3){//如果连续对三次则结束训练
+                //     th._trainOverTips();
+                // }
                 return false;
             }else{
                 th.successTimesNum = 0;

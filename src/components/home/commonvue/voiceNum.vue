@@ -5,14 +5,15 @@
 		<div class="fl">
 			<el-input-number class="num" v-model="value" :step="1" @change="handleChangeVoiceNum" :min="1" :max="6"></el-input-number>
 		</div>
-		<div class="fz20 m-l-20" v-if="show && show == 2">
-			<span class="d-block height-30">有效次数：{{times}}次</span>
-			<span class="d-block height-30">平均反应时间：{{time}}s</span>
+		<div class="fz20 m-l-20" v-if="show && gamesTimesObj.step">
+			<span class="d-block height-30">有效次数：{{gamesTimesObj.times}}次</span>
+			<span class="d-block height-30">平均反应时间：{{gamesTimesObj.time}}s</span>
 		</div>
 	</div>
 </template>
 <script>
 import util from'../../../common/util.js'
+import {mapState} from 'vuex'
 export default{
 	data(){
 		return{
@@ -26,8 +27,8 @@ export default{
 			type:Boolean,
 			default:false
 		},
-		alltime:null,
-		times:null,
+		// alltime:null,
+		// times:null,
 		show:{
 			type:[Boolean,Number],
 			default:false
@@ -37,10 +38,7 @@ export default{
 		this.initialVolumeNum = this.$store.state.voiceData['1000'];
 	},
 	computed:{
-		time(){
-			let averageTime = this.alltime/this.times;
-			return isNaN(averageTime) ? 0 : averageTime.toFixed(2);
-		},
+		...mapState(['gamesTimesObj']),
 	},
 	mounted(){
 		util._getVolumNum(this).then((res)=>{

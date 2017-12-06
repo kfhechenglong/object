@@ -27,14 +27,14 @@
 					<div style="margin-top:10px">
 						<el-checkbox-group v-model="check" @change="handleCheckedChange">
 							<ul class="clearfix">
-								<li v-for="(item,index) in group" class="fl">
+								<li v-for="(item,index) in group" class="fl height-35 b-radius5">
 									<el-checkbox @change.native="checkedList(index)" :label="JSON.stringify(item)" :key="index" v-if="item"></el-checkbox>
 									<div class="check-main clearfix" @click="chengedLabel(index,item,$event)">
-										<span class="fl">
+										<span class="fl fz16">
 											<i v-if="item">{{item["group"]}}</i>
 										</span>
-										<div v-if="item">
-											<p class="fl" v-for = "(val,index) in item['children'].split(',')">
+										<div class="clearfix fl" v-if="item">
+											<p class="fl fz16" v-for = "(val,index) in item['children'].split(',')">
 												<em >{{val}}</em>
 											</p>
 										</div>
@@ -297,7 +297,7 @@ export default {
     		}
 		}
 		.params-main {
-			padding-left: 100px;
+			padding-left: 50px;
 			/*单选按钮开始*/
 			.checkradio{
 				.el-radio-button__orig-radio:checked+.el-radio-button__inner{
@@ -310,30 +310,28 @@ export default {
 				width: 850px;
 			}
 			ul li{
-				width: 375px;
+				width: 400px;
 				position: relative;
-				height: 35px;
-				line-height: 35px;
 				border:1px solid #ccc;
-				border-radius:5px;
-				margin:5px 30px 5px 0px;
+				margin:5px 0px 5px 0px;
+				&:nth-child(2n-1){
+					margin:5px 30px 5px 0px;
+				}
 				.check-main{
 					position: absolute;
 					left:0px;
 					top:0px;
-					width: 380px;
+					/*width: 400px;*/
 					span{
 						border-radius:5px 0 0 5px;
 						background-color: @bgc;
 						width: 80px;
 						color: #fff;
-						font-size: 16px;
 						font-weight: 600;
 						text-indent: 40px;
 						height: 35px;
 					}
 					p{
-						font-size: 20px;
 						em{
 							float: left;
 							margin-left: 10px;
@@ -352,20 +350,6 @@ export default {
 				font-size: 18px;
 				color:#3377b8;
 			}
-			/*dd{
-				.active{
-					background-color: #13ce66;
-					color:#fff;
-				}
-				img{
-					width: 100px;
-					height: 100px;
-					border-radius: 50%;
-					border: 5px solid #e6f0e5;
-					box-shadow: 1px 1px 1px;
-					display: block;
-				}
-			}*/
 			.check{
 				margin-left: 115px;
 				margin-top: 20px;
