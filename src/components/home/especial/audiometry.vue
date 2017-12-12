@@ -249,29 +249,8 @@ export default {
  		},
  		// 点击开始按钮
  		toStart(){
- 			// 测试的组数
- 			this.currentIndex = 0 ;
- 			this.showTable(0);
- 			// 禁止列表切换
- 			this.toggle = false;
- 			// 禁用开始按钮
- 			this.start = !this.start;
- 			this.pauseFalse = false;
- 			// 向被控端发送参数
- 			this.toSendParams();
+ 			Common.toStart(this)
  		},
- 		// 切换给声音量
- 		// change(evt){
- 		// 	// 页面初始化后不主动发送数据
- 		// 	if(this.changeToggle){
- 		// 		this.getVolumNum = (6-evt)*10;
- 		// 		var volumeNum = this.initialVolumeNum - this.getVolumNum;
-			//     var argument = this.wskt.wstoctld('games_audio_toggle',{'volume':volumeNum});
- 		// 		//更新音量值
- 		// 		util._setVolumNum(this,{'decibel':this.getVolumNum,'test_id':sessionStorage.getItem('test_id')});
-			// 	websocket.send(JSON.stringify(argument));
- 		// 	};
- 		// },
  		// 切换给声音量
  		toggleVol(e){
  			this.currentVolume = e;

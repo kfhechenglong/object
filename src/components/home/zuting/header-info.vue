@@ -75,7 +75,7 @@ export default {
  		}
  	},
  	created(){
- 		this.study_id = this.$route.query.id;
+ 		this.study_id = this.$route.query.id ? this.$route.query.id : this.$route.query.user_id;
  		// 获取当前id学生的信息
  		this.getStInfo();
  		util.getterIp(this);
@@ -102,28 +102,26 @@ export default {
 	    this.$store.commit('getterIp',null);
 	},
  	methods:{
- 		text(){
- 			// 保存记录信息
- 			const str = {
- 				'selectL':this.study_info.selectL,
- 				'selectR':this.study_info.selectR,
- 				'eq_right':this.study_info.eq_right,
- 				'eq_left':this.study_info.eq_left,
- 			};
- 			sessionStorage.setItem('user_text', JSON.stringify(str));
- 		},
  		getStInfo(){
  			const str = {"id":this.study_id};
-      this.$ajax.post(`/user/info`,str).then((response)=>{
-        console.log(response)
-        if(response.code !== 200){alert(response.data);return;}
-          this.study_info = response.data;
-          sessionStorage.setItem('user_info', JSON.stringify(response.data));
-          this.study_info_length = this.study_info.user_name;
-          this.text();
-      }).catch((err)=>{
-          msgTipsErr(this,'学生信息请求失败！');
-      })
+		    this.$ajax.post(`/user/info`,str).then((response)=>{
+		        // console.log(response)
+		        if(response.code !== 200){throw Error(response.data);return;}
+	          	this.study_info = response.data;
+	          	sessionStorage.setItem('user_info', JSON.stringify(response.data));
+	          	this.study_info_length = this.study_info.user_name;
+	          	return Promise.resolve(response.data)
+		    }).catch((err)=>{
+		        msgTipsErr(this,'学生信息请求失败！');
+		   	}).then((res)=>{
+		   		const str = {
+					'selectL':res.selectL,
+					'selectR':res.selectR,
+					'eq_right':res.eq_right,
+					'eq_left':res.eq_left,
+				};
+				sessionStorage.setItem('user_text', JSON.stringify(str));
+		   	})
  		},
  	}
 }

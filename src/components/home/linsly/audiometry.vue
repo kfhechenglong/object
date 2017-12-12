@@ -261,16 +261,7 @@ export default {
  		},
  		// 点击开始按钮
  		toStart(){
- 			// 测试的组数
- 			this.currentIndex = 0 ;
- 			this.showTable(0);
- 			// 禁止列表切换
- 			this.toggle = false;
- 			// 禁用开始按钮
- 			this.start = !this.start;
- 			this.pauseFalse = false;
- 			// 向被控端发送参数
- 			this.toSendParams();
+ 			Common.toStart(this)
  		},
  		// 接收被控端的数据进行分析
  		storagedata(str){

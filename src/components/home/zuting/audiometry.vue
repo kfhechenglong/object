@@ -735,36 +735,7 @@ export default {
  			}
 			// 开始测听前，先提示当前测试耳的信息，双耳同时测得话，不进行任何提示
 			if(this.currentear !== "A"){
-				const getFirstEar = this.curtEar,
-					oneear = getFirstEar == 'L'?'左':'右',
-					twoear = getFirstEar == 'R'?'左':'右';
-				const h = this.$createElement;
-				this.$msgbox({
-					title:'重要提示',
-			        message: h('p', {style:'font-size:18px'}, [
-			            h('div', { class: 'seconddiv' }, [
-			            	h('span',null,'请'),
-			            	h('strong',{style:'font-weight:700'},'打开'+oneear+'耳'),
-			            	h('span',null,'助听设备，同时'),
-			            	h('strong',{style:'font-weight:700'},'关闭'+twoear+'耳'),
-			            	h('span',null,'设备或'),
-			            	h('strong',{style:'font-weight:700'},'掩蔽'+twoear+'耳'),
-			            	h('span',null,'耳道')
-			            	])
-			          ]),
-			        customClass:'msgboxClass',
-					confirmButtonText: '继续',
-					closeOnClickModal:false,
-					closeOnPressEscape:false,
-	              	showCancelButton:true,
-	              	cancelButtonText: '取消',
-		        }).then((btn) => {
-		        	if(btn === "confirm"){
-		        		send_instructions();
-		        	}
-		        }).catch((err) => {
-					console.log(err)
-		        });
+		  		Common.earTips(this,this.curtEar,send_instructions);
 	    	}else{
 	    		send_instructions();
 	    	}
@@ -886,7 +857,7 @@ export default {
 					if(!that.isFirst){
 						// 获取上以测试hz的的db值
 						const db = Utils.getBeforeHzResult(that.checkData);
-						const num = db ? parseInt(Object.values(db)[0].resultdb) + 20 : that.maxDb;
+						const num = db ? parseInt(Object.values(db)[0].resultdb) + 5 : that.maxDb;
 						that.intensity = num < that.maxDb ? num : that.maxDb;
 					};
 					console.log('换频')
@@ -902,7 +873,8 @@ export default {
 				    	'time':that.value,//给声时长
 				    	'hz':that.frequency,//当前赫兹
 				    	'db':that.intensity,//当前强度that.currentDb
-				    	'level':that.$route.query['level']
+				    	'level':that.$route.query['level'],
+				    	'validTime':'3',//有效时长
 				    };
 				    console.log(JSON.stringify(params));
 					var argument = that.wskt.wstoctld('games_audio_start',params);

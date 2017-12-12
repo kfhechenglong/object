@@ -39,11 +39,10 @@ export default {
         };
         if(str['mescon'] === 'ad_regist_suss' || str['mescon'] === 'cal_finish'){
           let obj = str['params']['cal_data'];
-          // this.$store.commit('calibrationData',maxDb);
           this.$store.commit('inint_calibrationData',obj);
         }
       }catch(err){
-        alert(err)
+        throw Error(err)
       }
     },
     tese_data(str){
@@ -117,7 +116,7 @@ export default {
               // console.log(websocketData.mescon)
               Vm.$emit('servermsg',websocketData,isOnline,window.isToggle);
             } catch(err){
-              alert(err)
+              throw Error(err)
             }
           };
           // console.log(window.isToggle,isOnline)
@@ -138,10 +137,9 @@ export default {
         };
         websocket.onerror = function (evt) {
           //产生异常
-          alert("websocket 连接出现异常！")
+          throw Error("websocket 连接出现异常！")
           console.log(evt);
         };
-
       })();
     }
 

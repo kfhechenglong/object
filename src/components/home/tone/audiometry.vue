@@ -148,7 +148,6 @@ export default {
  		this.dialogVisibleTips = true;
  		this.currentear = this.$route.query['isEar'];
  		let groupString = this.$route.query['data'];
- 		// console.log(groupString)
  		if (Object.prototype.toString.call(groupString) !== "[object Array]"){
  				groupString.split('');
  				groupString = [groupString]
@@ -247,16 +246,7 @@ export default {
  		},
  		// 点击开始按钮
  		toStart(){
- 			// 测试的组数
- 			this.currentIndex = 0 ;
- 			this.showTable(0);
- 			// 禁止列表切换
- 			this.toggle = false;
- 			// 禁用开始按钮
- 			this.start = !this.start;
- 			this.pauseFalse = false;
- 			// 向被控端发送参数
- 			this.toSendParams();
+	   		Common.toStart(this)
  		},
  		// 切换给声音量
  		toggleVol(e){
@@ -299,8 +289,7 @@ export default {
  		_statisticsAccuracy(){
  			let statistics = this.resultData;
  			let currentItem = {};//正确率
-// 			 debugger;
-//      保存综合评价的结果
+			//保存综合评价的结果
     		let result = {};
  			for(let key in statistics){
  				// console.log(typeof statistics[key]);
