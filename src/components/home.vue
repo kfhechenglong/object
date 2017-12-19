@@ -71,7 +71,7 @@ export default {
     }
   },
   watch:{
-    '$route':'hah'
+    // '$route':'hah'
   },
   computed:{
     ...mapGetters(['hasCal_data']),
