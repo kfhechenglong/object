@@ -81,5 +81,9 @@ export default {
     },
     gamesTimes(state,obj){//游戏训练平均反应时间
         state.gamesTimesObj= obj;
+    },
+    // 游戏测听退出按钮提示
+    gamesGoBackTips(state,flag){
+        state.btn_tips = flag;
     }
 }

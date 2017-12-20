@@ -186,7 +186,7 @@ export default{
       this.readerdata = getResult.readerData;
       // const lis = jq('#o-product-li').getElementsByTagName('li');
       // this.for_li(lis);
-      Utils.removeClassName('o-product-li','');
+      Utils.removeClassName('#o-product-li','');
     },
     submit(){//确认调换
       this.lastNode ? this.checkedArray.push(this.lastNode) : this.checkedArray;

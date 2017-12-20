@@ -97,7 +97,7 @@
   }
   .login{
     background-color: #1c84c6;
-    background: url(../../../static/images/bg.jpg) no-repeat 0 0 ;
+    background: url(../../common/images/bg.jpg) no-repeat 0 0 ;
     background-size:100% 100%;
     height: 100%;
     position: relative;
@@ -108,14 +108,14 @@
       position: absolute;
       left:7%;
       top:8%;
-      background: url(../../../static/images/login-logo.png) no-repeat 0 0 ;
+      background: url(../../common/images/login-logo.png) no-repeat 0 0 ;
     }
     .b_img{
       width:115px;
       height:49px;
       margin-left:275px;
       margin-bottom:10px;
-      background: url(../../../static/images/bg2.png) no-repeat 0 0 ;
+      background: url(../../common/images/bg2.png) no-repeat 0 0 ;
     }
     /****重启板块样式*******/ 
     .g_btn{

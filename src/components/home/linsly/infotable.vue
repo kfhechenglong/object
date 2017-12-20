@@ -20,18 +20,18 @@
                         </ul>
                     </div>
                     <div class="table">
-                        <div class="clearfix" :class="{'t-6':flag == 6 }">
+                        <div class="clearfix" :class="{'t-6':flag !== 7 }">
                             <div @click="_studyList" class="fl t-s-l" :class="{'active' :studylist === 'all'}">
-                                <p>学生列表({{infoStudent.length}}人)</p>
+                                <p>学生列表({{number}}人)</p>
                             </div>
-                            <div v-show="flag == 6" @click="_studyList('moment')" class="fl t-s-z" :class="{'active':studylist==='moment'}">
+                            <div v-show="flag !== 7" @click="_studyList('moment')" class="fl t-s-z" :class="{'active':studylist==='moment'}">
                                 <el-badge :value="MomentStorageNum" class="item">
-                                    <p>暂存测试</p>
+                                    <p>暂存测试列表</p>
                                 </el-badge>
                             </div>
                             <div @click="_studyList('dai')" class="fl t-s-d" :class="{'active':studylist ==='dai'}">
                                 <el-badge :value="value" class="item">
-                                  <p>待测名单</p>
+                                  <p>待测学生列表</p>
                                 </el-badge>
                             </div>
                         </div>
@@ -58,8 +58,6 @@ import AddStudent from './../danganlist/dangan/add.vue'
 import {showList,deleStudentInfo,showStudentInfo} from '../../../api/api'
 import code from '../../../common/code.js'
 import util from '../../../common/util.js'
-const body = require('../../../../static/images/body.png');
-const girl = require('../../../../static/images/girl.png');  
 export default {
     components : {
         'ele-add' : AddStudent
@@ -79,14 +77,15 @@ export default {
             infoBase :{},
             arr:'',
             studylist:"all",
-            errorImgBody:'this.src="' + body + '"',
-            errorImgGirl:'this.src="' + girl + '"' ,
+            errorImgBody:'this.src="' + Options.boy + '"',
+            errorImgGirl:'this.src="' + Options.girl + '"' ,
             //待测名单
             noTestNameLists:[],
             value:0,
             MomentStorageNum:0,
             listsArr:[],
-            storagelists:[]
+            storagelists:[],
+            number:0
         }
     },
     props:{
@@ -99,9 +98,7 @@ export default {
     },
     watch:{
         flag:function(){
-            if( this.flag== 6){//获取暂存测试信息
-                this.getMomentStorageData();
-            }
+            this.getMomentStorageData();
             this.getNoTestNameLists();
         }
     },
@@ -128,33 +125,30 @@ export default {
                     })
                     localStorage.setItem(name,JSON.stringify(listNames));
                     this.studylist === "dai" ? this.getNoTestNameLists() : this.getMomentStorageData();
+                    this.search = "";
                 }).catch((e)=>{
                     console.log(e)
                 })
             
         },
         _studyList(evt){
+            this.search = "";
             if(evt === 'dai'){
                 this.studylist = "dai";
                 this.listsArr = this.noTestNameLists.concat();
+                this.arr = this.noTestNameLists.concat();
             }else if( evt === "moment"){
                 this.studylist = "moment";
                 this.listsArr = this.storagelists.concat();
+                this.arr = this.storagelists.concat();
             }else{
                 this.studylist = "all";
                 this.listsArr = this.infoStudent.concat();
+                this.arr = this.infoStudent.concat();
             }
         },
         imgSrc:function(item){
-            if(!item.picture){
-                if(item.gender == "男"){
-                    return body;
-                }else{
-                    return girl;
-                }
-            }else{
-                return web_url+ item.picture;
-            }
+            return Common.isBodyOrGirl(item);
         },
          // 添加学生信息模态框
         dialogAddVisible(){
@@ -174,6 +168,7 @@ export default {
                 if(res.realList.length >0){
                     this.MomentStorageNum = res.realList.length;
                     this.listsArr = this.storagelists.concat();
+                    this.arr = this.storagelists.concat();
                     this.studylist = "moment";  
                 }else{
                     this.MomentStorageNum = 0;
@@ -227,6 +222,7 @@ export default {
                 if(this.noTestNameLists.length > 0){
                     this.studylist = "dai";
                     this.listsArr = this.noTestNameLists.concat();
+                    this.arr = this.noTestNameLists.concat();
                 }else{
                     this.studylist = "all";
                     this.listsArr = this.infoStudent.concat();
@@ -259,6 +255,7 @@ export default {
                 // 进行对象深拷贝
                 this.arr = this.infoStudent.concat();
                 this.listsArr = this.infoStudent.concat();
+                this.number =  this.arr.length;
                 this.toPinName(this.arr);
                  // 判断该学生ID是否已经被删除
                 this.nearSt = this.FilterData(this.nearSt,this.infoStudent);
@@ -294,44 +291,55 @@ export default {
             Vm.$emit('userId',params);
             // 页面跳转接收传递的参数id
             let obj = {id:params};
+            const fn = (params,url)=>{
+                Utils.gamesPath('audiometry','games_audio_plan','official',this.getMoment(params),url,this);
+            };
             if(this.studylist === "moment"){//如果选择暂存人员，则添加暂存的测试信息
                 let queryobj = this.getMoment(params)
                 Object.assign(queryobj,{flag:true})
                 switch (this.flag){
                     case 1:
+                        fn(params,"linsix");
                         break;
                     case 6:
-                        Utils.gamesPath('audiometry','games_audio_plan','official',this.getMoment(params),"zhuting",this);
+                        fn(params,"zhuting");
                         break;
                     case 7:
+                        fn(params,"especial");
                         break;
                     case 2:
+                        fn(params,"hseight");
                         break;
                     case 4:
+                        fn(params,"syllable");
                         break;
                     case 3:
+                        fn(params,"tone");
                         break;
                 }
                 return false
             }
+            const path = (url)=>{
+                this.$router.push({ path: url,query:obj});
+            };
             switch (this.flag){
                 case 1:
-                    this.$router.push({ path: '/home/linsix',query:obj});
+                    path('/home/linsix');
                     break;
                 case 6:
-                    this.$router.push({ path: '/home/zhuting',query:obj} );
+                    path('/home/zhuting');
                     break;
                 case 7:
-                    this.$router.push({ path: '/home/especial',query:obj});
+                    path('/home/especial');
                     break;
                 case 2:
-                    this.$router.push({ path: '/home/hseight',query:obj});
+                    path('/home/hseight');
                     break;
                 case 4:
-                    this.$router.push({ path: '/home/syllable',query:obj});
+                    path('/home/syllable');
                     break;
                 case 3:
-                    this.$router.push({ path: '/home/tone',query:obj});
+                    path('/home/tone');
                     break;
             }
         },
@@ -357,7 +365,9 @@ export default {
         // 点击搜索触发函数
         handleIconClick(ev){
              // 判断搜索框的内容是否为空
-             this.infoStudent = util.searchName(this.search,this.arr);
+            //  this.infoStudent = util.searchName(this.search,this.arr);
+             this.listsArr = util.searchName(this.search,this.arr);
+             this.studylist === "all" ? this.number =  this.listsArr.length :  this.number =  this.infoStudent.length
         },
         // 接收子组件传的数据添加信息
         infoList(row, event, column){
@@ -410,7 +420,7 @@ export default {
                 top:-90px;
                 width:300px;
                 height:90px;
-                background: url(../../../../static/images/new-title.png) no-repeat 0 -185px ;
+                background: url(../../../common/images/new-title.png) no-repeat 0 -185px ;
             }
         }
         .el-dialog--small{

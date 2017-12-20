@@ -113,7 +113,7 @@ export default {
                     {
                         name: '数据明细',
                         type: 'pie',
-                        radius : '70%',
+                        radius : '60%',
                         center: ['50%', '50%'],
                         data:currentData,
                         label:{
@@ -153,7 +153,11 @@ export default {
 </script>
 <style  lang="less">
 .level-two{
-    .el-dialog{width:1000px;height: 750px;margin-bottom: 0; top:7% !important;}
+    .el-dialog{
+        width:1150px;
+        height: 800px;
+        margin-bottom: 0;
+        top:7% !important;}
     h3{
         font-size: 20px;
         font-weight: 600;
@@ -164,8 +168,8 @@ export default {
         li{
             position: relative;
             .l-t{display: inline-block;
-                width: 450px;
-                height: 300px;
+                width: 550px;
+                height: 330px;
             }
             .no-data{
                 display:none;

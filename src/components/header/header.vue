@@ -3,7 +3,7 @@
     <div class="header-content clearfix"> 
         <div class="navbar-header">
             <h1>
-                <a><img src="../../../static/images/logomin.png">
+                <a><img src="../../common/images/logomin.png">
                  智能测评听能管理互动系统</a>
             </h1>   
         </div>
@@ -55,13 +55,13 @@
                         </ul>
                 </li>
                 <li class="dropdown">
-                    <span class="el-dropdown-link" @click="showdown">
-                        <i class="iconfont icon-yonghu"></i>
-                        <p>{{user_name}}</p>
+                    <span class="el-dropdown-link" @click="dialogPsVisible">
+                        <i class="iconfont icon-xiugaimima"></i>
+                        <p>修改密码</p>
                     </span>
-                    <ul  class="dropdown-child">
-                        <li @click="dialogPsVisible"><i class="fa fa-unlock"></i>修改密码</li>
-                    </ul>
+                    <!-- <ul  class="dropdown-child">
+                        <li><i class="fa fa-unlock"></i>修改密码</li>
+                    </ul> -->
                 </li>
                 <li @click="shutdownSystem" ><i class="fa fa-power-off"></i><p>关机</p></li>
                 <li @click="logout" ><i class="fa fa-sign-out"></i><p>退出</p></li>
@@ -191,11 +191,9 @@ export default {
     },
     // 获取用户信息
     getUserInfo(){
-        var that = this
-        getUserInfo().then(function(response){
-            // console.log(response)
-            that.user_name = response.data.operator_name;
-        }).catch(function(error) {
+        getUserInfo().then((response)=>{
+            this.user_name = response.data.operator_name;
+        }).catch((error)=>{
             console.log(error)
         });
     },
@@ -371,9 +369,6 @@ export default {
         }
         a{
             text-decoration: none;
-        }
-        .header-content{
-            /*overflow: hidden;*/
         }
         .info{
                 padding-left:20px;

@@ -1,7 +1,7 @@
 <template>
     <div class="n-l-name my-d-h">
         <el-dialog  v-model="noTestNameLists" :close-on-click-modal="false">
-            <h3 class="n-l-t"><em>本{{time}}</em>—{{currType.key}}—未测名单</h3>
+            <h3 class="n-l-t"><em>本{{time}}</em>—{{currType.name}}—未测名单</h3>
             <div class="table-content" v-loading.body="loading">
                 <el-table
                     ref="table"

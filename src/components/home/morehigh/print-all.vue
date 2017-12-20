@@ -162,7 +162,7 @@
                                     </tr>
                                     <tr>
                                         <td></td>
-                                        <td>B</td>
+                                        <td><i class="testicon testicon-FF-S-M"></i></td>
                                         <td></td>
                                         <td>裸耳</td>
                                         
@@ -273,10 +273,6 @@ import printButton from '../commonvue/print/print-button.vue'
 import baseInfoPrint from '../danganlist/base/info-print.vue'
 import {mapState,mapGetters} from'vuex'
 import util from '../../../common/util.js'
-const rank_1 = require('../../../../static/images/rank_1.gif');
-const rank_2 = require('../../../../static/images/rank_2.gif');
-const rank_3 = require('../../../../static/images/rank_3.gif');
-const rank_4 = require('../../../../static/images/rank_4.gif');
 export default {
     components : {
         printButton,
@@ -296,10 +292,10 @@ export default {
             testResults:{},
             infoJigou:{'full_name':''},
             tableTr : ['识别率','混淆'],
-            rank_1:rank_1,
-            rank_2:rank_2,
-            rank_3:rank_3,
-            rank_4:rank_4,
+            rank_1:Options.rank_1,
+            rank_2:Options.rank_2,
+            rank_3:Options.rank_3,
+            rank_4:Options.rank_4,
             rederTableData:[],
             // 词组的id值
             groupId:[]
@@ -375,24 +371,7 @@ export default {
         },
         _star(id2,id1,index){
           let imgs = jq('#imgs' + id2 +id1).getElementsByTagName('img');
-          for (var i = 0; i < index; i++) {
-            var str = imgs[i].src;//先把每一个img元素的src取出来
-            if(i % 2 === 0){
-              str = rank_1;
-            }else{
-              str = rank_2;
-            }
-            imgs[i].src = str;//把替换后的字符赋值给src
-          }
-          for (var j = index; j < imgs.length; j++) {
-            var str = imgs[j].src;//先把每一个img元素的src取出来
-            if(j % 2 === 0){
-              str = rank_3;
-            }else{
-              str = rank_4;
-            }
-            imgs[j].src = str;//把替换后的字符赋值给src
-          }
+          Common.printStar(index,imgs);
         },
         // 获取测试耳
         getEar(str){
@@ -439,7 +418,6 @@ export default {
 }
 </script>
 <style lang ="less">
-@import"../../../../static/css/testicon.css";
 .reportAllClass{
     color:#000;
     font-size: 14px;

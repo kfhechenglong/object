@@ -1,7 +1,6 @@
 <template>
 	<div class="img">
-    	<div class="topBigimg" id="img-print" v-loading="loading"
-    element-loading-text="拼命旋转中">
+    	<div class="topBigimg" id="img-print">
 	    	<div id="imgp-p-s">
 	    		<i class="el-icon-arrow-left" @click="preImg"></i>
 	    		<i class="el-icon-arrow-right" @click="nextImg"></i>
@@ -33,7 +32,7 @@ import util from'../../../common/util'
 export default {
  	data(){
  		return {
-        	bigImg:'',
+        	bigImg:Options.noData,
 			currentImg:0,
 			web_url:web_url,
 			port:port,
@@ -380,7 +379,7 @@ export default {
 			right:0;
 			margin:auto;
 			z-index: 100;
-			background-image: url('../../../../static/images/fancyboxoverlay.png');
+			background-image: url('../../../common/images/fancyboxoverlay.png');
 			.box-preview{
 				position: absolute;
 				left:50%;
@@ -403,7 +402,7 @@ export default {
 					width: 36px;
 					height: 34px;
 					z-index:1000;
-					background-image: url('../../../../static/images/fancybox_sprite.png');
+					background-image: url('../../../common/images/fancybox_sprite.png');
 				}
 				img{
 				max-height:700px;

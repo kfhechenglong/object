@@ -79,6 +79,7 @@ export default {
  					data_obj.order = 1;
  				}else{data_obj.order = len - index + 2;}
  				data_obj.db = this.zhutingData ? this.zhutingData[item] : null;
+ 				data_obj.index = index;
  				setobj[item] = data_obj;
  			});
  			return setobj;

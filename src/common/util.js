@@ -9,7 +9,7 @@ function padding(s, len) {
 var timer = null;
 var previous = null;
 import code from './code.js'
-import html2canvas from'../api/html2canvas.js'
+import html2canvas from '../api/html2canvas.js'
 export default {
     getQueryStringByName: function (name) {
         var reg = new RegExp("(^|&)" + name + "=([^&]*)(&|$)", "i");
@@ -219,12 +219,6 @@ export default {
             pointer.step = 2;
         };
     },
-    /**
-     * *游戏训练第三阶段时的逻辑处理
-     * @param  {[type]} th   [this]
-     * @param  {[type]} falg [助听听阈]
-     * @return {[type]}      [description]
-     */
     successNum:function(th,falg){
         let obj = th.wsData.params;
         if(th.step === 2){
@@ -233,7 +227,7 @@ export default {
                 return false;
             }
             if(obj['success'] == 'true'){
-                // th.successTimesNum++;
+                th.successTimesNum++;
                 th.successAllNum++;//正确的总次数
                 // 记录反应时长
                 th.feedbackTime = +obj['feedbackTime'].toFixed(2);
@@ -247,7 +241,7 @@ export default {
                 // }
                 return false;
             }else{
-                // th.successTimesNum = 0;
+                th.successTimesNum = 0;
             }
         }
     },
@@ -660,12 +654,10 @@ export default {
     _getVolumNum(pointer){
         return new Promise((resolve,reject)=>{
             pointer.$ajax.post('/info/getvolume',{'test_id':sessionStorage.getItem('test_id')}).then((response)=>{
-                // console.log(response.data)
+                console.log(response.data)
                 if(response.code === 200){
                     pointer.getVolumNum = response.data.decibel;
-                    resolve(response.data.decibel)
-                    if(response.data.decibel == 0){return}
-                    pointer.value = 6 - (+response.data.decibel/10);
+                    resolve(response.data)
                 }
             }).catch((err)=>{
                 alert(err)
@@ -681,10 +673,25 @@ export default {
     },
     // 组听听阈给声时长
     chang_params(pointer,params){
-        this._setVolumNum(pointer,{'decibel':params.time,'test_id':sessionStorage.getItem('test_id')});
-        const argument = pointer.wskt.wstoctld('games_audio_toggle',params);
-        // console.log(argument)
+        this._setVolumNum(pointer,{'time':params.time,'test_id':sessionStorage.getItem('test_id')});
+        const argument = pointer.wskt.wstoctld('games_time_toggle',params);
+        console.log(argument)
         websocket.send(JSON.stringify(argument));
+    },
+    setFeedTime(th,url,data){
+        let obj = {
+            ...data,
+            "user_id":JSON.parse(sessionStorage.getItem('user_id')),
+            'type_id':JSON.parse(sessionStorage.getItem('test_id'))
+        };
+        console.log(obj)
+        return th.$ajax.post(url,obj).then((res)=>{
+            if(res.code !== 200){
+                msgTipsErr(th,"保存失败！")
+            }else{
+                return Promise.resolve(true)
+            }
+        });
     },
     /**
      * @param  {[Object]} obj [hz对象]
@@ -707,7 +714,8 @@ export default {
      * @param  {[Object]} obj [hz对象]
      * @return {[Object]}     [返回待测频率优先级最高的]
      */
-    getBeforeHzResult(obj) {
+    getBeforeHzResult(obj,index) {
+        // console.log(index)
         if(!this.isObject(obj,'Object')){return false;}
         const arr = [];
         for(let i in obj){
@@ -716,14 +724,20 @@ export default {
                 o[i] = obj[i];
                 arr.push(o)
             }
-            
         }
-        console.log(arr)
-        arr.sort(this.compare('order'))
-        return arr[arr.length - 1];
+        arr.sort(this.compare('order'));
+        arr.sort(this.compare2('index',index))
+        if(arr.length >0 ){
+            let temp1 = arr[0],
+                temp2 = temp1[Object.keys(temp1)[0]];
+            if(Math.abs(temp2.index - index) <= 2){
+                return temp2.resultdb
+            }
+        }
+        return false;
     },
     // 根据属性值进行排序
-    compare(propertyName){
+    compare(propertyName,res = 1){
         return function (object1, object2) {
             let obj1_child = {},
                 obj2_child = {};
@@ -735,13 +749,28 @@ export default {
             };
             const value1 = obj1_child[propertyName],
                 value2 = obj2_child[propertyName];
-            if (value2 < value1) {
-                return -1;
+            if (value2 < value1 ) {
+                return -1*res;
             } else if (value2 > value1) {
-                return 1;
+                return 1*res;
             } else {
                 return 0;
             }
+        }
+    },
+    compare2(propertyName,index){
+        return function (object1, object2) {
+            let obj1_child = {},
+                obj2_child = {};
+            for(let i in object1){
+                obj1_child = object1[i]
+            };
+            for(let i in object2){
+                obj2_child = object2[i]
+            };
+            const value1 = obj1_child[propertyName],
+                value2 = obj2_child[propertyName];
+            return Math.abs(value1 - index) - Math.abs(value2 - index);
         }
     },
     /**
@@ -802,6 +831,7 @@ export default {
     earDataDetailClass:function (){
         this.isfinish = 0;
         this.isneed = 0;
+        this.issys = 0;
         this.order = 13;
         this.data = {};
         this.db = 0;
@@ -863,9 +893,11 @@ export default {
             list  = b.concat();
         for(let i in obj){
             obj[i].isneed = 0;
+            obj[i].issys = 0;
         }
         list.forEach((item) =>{
             obj[item].isneed = 1;
+            obj[item].issys = 1;
         });
         return obj
     },
@@ -904,7 +936,7 @@ export default {
             return {'sysdata':sys_arr,'alldata':defin_arr,'dist':dist};
         }
     },
-    checkIsChange(a,b,orderear){
+    checkIsChange2(a,b,orderear,istrue){
         // console.log(a,b)
         // 判断有没有这个type,没有则添加
         function hastype(){
@@ -938,38 +970,37 @@ export default {
                         let object = ele.dataDetail;
                         // 对当前数组的点进行赋值
                         arr.forEach(ele2 =>{
-                            // console.log(ele2)
                             for(var i in object){
-                                if(i == ele2.x){
+                                if(i == ele2.x && ele2.y){
                                     var obj = object[i];
-                                    obj.my = 222;
-                                    // 如果修改的值和系统值相等，则结果不变；
-                                    if(obj.result.systemvalue && obj.result.systemvalue.y == ele2.y && obj.result.systemvalue.dataType == ele2.dataType){
-                                        obj.result.user_defined ={};
-                                        return false;
+                                    if(istrue){
+                                        // 如果修改的值和系统值相等，则结果不变，将修改的自定义值清空；
+                                        // 否则就是增加自定义值
+                                        if(obj.result.systemvalue && obj.result.systemvalue.y == ele2.y && obj.result.systemvalue.dataType == ele2.dataType){
+                                            obj.result.user_defined ={};
+                                            return false;
+                                        }
+                                        obj.isneed = 1;
+                                        obj.isfinish = 1;
+                                        obj.resultdb = ele2.y;
+                                        obj.result.user_defined = ele2;
+                                        return true;
+                                    }else{
+                                        //如果是删除点，且该点是系统值，则保留系统值数据，
+                                        //如果是自定义点，则清空自定义点数据
+                                        if(obj.result.systemvalue && !obj.result.systemvalue.x){
+                                            obj.isfinish = 0;
+                                            obj.data = {};
+                                            obj.resultdb = 0;
+                                        }
+                                        obj.isneed = 0;
+                                        obj.result.user_defined = {};
+                                        return true;
                                     }
-                                    obj.isneed = 1;
-                                    obj.isfinish = 1;
-                                    obj.resultdb = ele2.y;
-                                    obj.result.user_defined = ele2;
-                                    return true;
                                 }
                             }
                         })
                         // 对当前数组中不存在的点进行清空，包含取消系统值
-                        for(var key in object){
-                            var obj2 = object[key];
-                            if(!obj2.my){
-                                obj2.isneed = 0;
-                                obj2.isfinish = 0;
-                                obj2.resultdb = 0;
-                                obj2.data = {};
-                                // obj2.result.systemvalue = {};
-                                obj2.result.user_defined = {};
-                                continue
-                            }
-                            delete obj2.my
-                        }
                     }
                 })
             }
@@ -1022,7 +1053,7 @@ export default {
                 msgTipsErr(pointer,"暂时无法连接服务！")
             }
         }).catch((err) =>{
-            alert(err +"获取ip出错")
+            console.log(err +"获取ip出错")
         });
     },
     getClass(pointer,fn){
@@ -1071,26 +1102,27 @@ export default {
      * @param  {[string,number]} type_id [测试类型的id值]
      * @return {[type]}         [description]
      */
-    getLocalStorage(user_id,type_id){
-        let getLocalStorage = JSON.parse(localStorage.getItem("noTestNames"));
+    removeLocalStorage(user_id,type_id,name = "noTestNames"){
+        let getLocalStorage = JSON.parse(localStorage.getItem(name));
         // 先查看本地有没有待测名单
         if(!getLocalStorage){
             return false;
         }else{
             // 获取当前用户的id
+            outer:
             for (let i = 0; i < getLocalStorage.length; i++) {
                 if(getLocalStorage[i].testType == type_id){
                     //查看当前测试者是否在未测名单中，如果在，则移除，否则忽略
                     const nameLists = getLocalStorage[i].nameList;
-                    // debugger
                     for (let j = 0; j < nameLists.length; j++) {
                         if(nameLists[j].user_id == user_id){
                             nameLists.splice(j,1)
+                            break outer;
                         }
                     }
                 }
             }
-            localStorage.setItem("noTestNames",JSON.stringify(getLocalStorage));
+            localStorage.setItem(name,JSON.stringify(getLocalStorage));
             return true;
         }
     },
@@ -1110,17 +1142,19 @@ export default {
         let testName = [];
         let getLocalStorageLists = JSON.parse(localStorage.getItem(name));
         try{
-            for(let i = 0; i< getLocalStorageLists.length; i++){
-                if(getLocalStorageLists[i].testType == type){
-                    testName = getLocalStorageLists[i].nameList;
+            if (getLocalStorageLists){
+                for(let i = 0; i< getLocalStorageLists.length; i++){
+                    if(getLocalStorageLists[i].testType == type){
+                        testName = getLocalStorageLists[i].nameList;
+                    }
                 }
-            }
-            // 获取用户的头像信息,同时筛选如果待测人员已经被删除了，则从待测名单中移除
-            for (let i = 0; i < testName.length; i++) {
-                for (let j = 0; j < infoStudent.length; j++){
-                    if(testName[i].user_id === infoStudent[j].id){
-                        NameLists.push(infoStudent[j]);
-                        break;
+                // 获取用户的头像信息,同时筛选如果待测人员已经被删除了，则从待测名单中移除
+                for (let i = 0; i < testName.length; i++) {
+                    for (let j = 0; j < infoStudent.length; j++){
+                        if(testName[i].user_id === infoStudent[j].id){
+                            NameLists.push(infoStudent[j]);
+                            break;
+                        }
                     }
                 }
             }
@@ -1278,9 +1312,9 @@ export default {
               for(var val in data[key]){
                 title.push(val);
                 if(val === 'm'){
-                  for(var l in data[key][val]){
-                    distance.push(l)//获得距离
-                  }
+                    for(var l in data[key][val]){
+                        distance.push(l)//获得距离
+                    }
                 };
               }
               title.unshift('距离（米）');
@@ -1308,7 +1342,7 @@ export default {
             }
             renderData.push(data);
             if(params[i].advise){
-              advise.push(JSON.parse(params[i].advise))
+                advise.push(JSON.parse(params[i].advise))
             }
         }
         const rederTableData = new Array;

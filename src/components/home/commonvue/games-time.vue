@@ -20,15 +20,17 @@ export default{
 	props:{
 		value:null,
  		feedbackTime:null,
- 		gamse:String,
+ 		games:String,
  		show:{
  			type:Boolean,
  			default:false
  		}
 	},
-
 	created(){
-		
+		this.$store.commit('gamesTimes',{time:0,times:0,step:false});
+	},
+	destroyed(){
+		this.$store.commit('gamesTimes',{time:0,times:0,step:false});
 	},
 	methods:{
 		close_confirm(){
@@ -39,24 +41,25 @@ export default{
  		},
  		save_confirm(){
  			const data = {
- 				"user_id":JSON.parse(sessionStorage.getItem('user_id')),
  				'feedbackTime':this.feedbackTime,
  				'playTimer':this.value,
- 				'games':this.gamse,
- 				'type_id':JSON.parse(sessionStorage.getItem('test_id'))
+ 				'games':this.games
  			};
  			this.times++;
  			this.alltime += this.feedbackTime;
  			let averageTime = this.alltime/this.times;
 			let time = isNaN(averageTime) ? 0 : averageTime.toFixed(2);
 			this.$store.commit('gamesTimes',{time:time,times:this.times,step:true});
- 			this.$ajax.post('/game/log',data).then((res)=>{
- 				if(res.code !== 200){
- 					msgTipsErr(this,"保存失败！")
- 				}else{
- 					this.isShowConfirm = false;
- 				}
- 			});
+ 			// this.$ajax.post('/game/log',data).then((res)=>{
+ 			// 	if(res.code !== 200){
+ 			// 		msgTipsErr(this,"保存失败！")
+ 			// 	}else{
+ 			// 		this.isShowConfirm = false;
+ 			// 	}
+ 			// });
+ 			Utils.setFeedTime(this,'/game/log',data).then((res)=>{
+ 				this.isShowConfirm = false;
+ 			})
  		},
 	}
 }

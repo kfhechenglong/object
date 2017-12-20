@@ -2,7 +2,7 @@
 <div class="tinglituclass">
   <div class="ibox-content">
     <div style="height:calc(100% - 80px)">
-      <showSvg ref="svg" :svgData="objZong"  :onlyDraw="true"></showSvg>
+      <showSvg ref="svg" :svgData="objZong"  :onlyDraw="true" :ear="ear"></showSvg>
     </div>
   <!-- 听力检测结果 -->
     <div class="row clearfix">
@@ -61,6 +61,7 @@ export default{
   },
   data () {
     return {
+      ear:"RL"
     }
   },
   destroyed(){
@@ -77,6 +78,7 @@ export default{
   },
   methods: {
     drawyuan(flag){
+      this.ear = this.objZong[0][0].order;
       this.$refs.svg.contrast(flag);
     }
   }

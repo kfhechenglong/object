@@ -71,7 +71,7 @@ export default {
     }
   },
   watch:{
-    // '$route':'hah'
+    '$route':'hah'
   },
   computed:{
     ...mapGetters(['hasCal_data']),
@@ -113,23 +113,24 @@ export default {
 <style scoped lang="less">
   .home-r-m ul{
     padding:50px 20px 20px 20px;
-    border:1px solid #797979;
+    // border:1px solid #797979;
     width:270px;
     height:240px;
     border-radius:20px;
     position: relative;
+    box-shadow:0 0 65px #000;
     .titleIMG{
       position: absolute;
       width:280px;
       height:60px;
       left:20px;
       top:-30px;
-      background: url(../../static/images/dangan1.png) no-repeat 0 0 ;
+      background: url(../common/images/dangan1.png) no-repeat 0 0 ;
       background-size:280px 60px;
     }
     li{
       height:50px;
-          font-size: 16px;
+      font-size: 16px;
       line-height: 50px;
       margin: 20px auto;
       border-radius:10px;
@@ -176,27 +177,30 @@ export default {
       margin:220px auto;
       .nav-right{
         background-color: #ff9900;
+        border:1px solid #ff9900;
         margin-left: 110px;
         li{
           background-color: #ffcc00;
         }
          .titleIMG{
-          background: url(../../static/images/tese.png) no-repeat 0 0 ;
+          background: url(../common/images/tese.png) no-repeat 0 0 ;
           background-size:280px 60px;
         }
       }
       .nav-last{
         background-color: #e53d78;
+        border:1px solid #e53d78;
         li{
           background-color: #ff689d;
         }
         .titleIMG{
-          background: url(../../static/images/jingxi.png) no-repeat 0 0 ;
+          background: url(../common/images/jingxi.png) no-repeat 0 0 ;
           background-size:280px 60px;
         }
       }
       .nav-left{
         background-color: #66cc66;
+        border:1px solid #66cc66;
         li{
           background-color: #00cc00;
         }

@@ -21,17 +21,23 @@
 }
 .icon-qudiaoquanxuan:before { content: "\e685"; }
 
+.icon-hxzfont15:before { content: "\e65e"; }
+
 .icon-shezhi:before { content: "\e614"; }
 
 .icon-yinxiang2xian:before { content: "\e736"; }
 
 .icon-xuanze1:before { content: "\e60d"; }
 
+.icon-xiugaimima:before { content: "\e61d"; }
+
 .icon-ip:before { content: "\e602"; }
 
 .icon-jixu:before { content: "\e615"; }
 
 .icon-iconfontdayinji:before { content: "\e605"; }
+
+.icon-liebiao13:before { content: "\e762"; }
 
 .icon-kaishi:before { content: "\e796"; }
 
@@ -61,11 +67,15 @@
 
 .icon-lishi:before { content: "\e63f"; }
 
+.icon-bendizancun:before { content: "\e689"; }
+
 .icon-jinru:before { content: "\e6f0"; }
 
 .icon-jilu:before { content: "\e604"; }
 
 .icon-class:before { content: "\e642"; }
+
+.icon-weibiaoti-_fuzhi:before { content: "\e638"; }
 
 .icon-shezhi2:before { content: "\e618"; }
 
@@ -79,9 +89,13 @@
 
 .icon-dayinji_lianjie:before { content: "\e626"; }
 
+.icon-chakan:before { content: "\e609"; }
+
 .icon-zanting:before { content: "\e600"; }
 
 .icon-xuanzhuan:before { content: "\e60a"; }
+
+.icon-xiayige:before { content: "\e61f"; }
 
 .icon-unselected:before { content: "\e617"; }
 

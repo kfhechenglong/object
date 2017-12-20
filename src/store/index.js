@@ -33,7 +33,8 @@ const state = {
     allPrintImgs:[],
     hadDeleStudy:[],
     product:[],//设备产品
-    gamesTimesObj:{}
+    gamesTimesObj:{},
+    btn_tips:false//游戏测听退出按钮提示
 }
 // console.log(state)
 // console.log(Vuex)

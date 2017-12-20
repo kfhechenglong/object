@@ -102,6 +102,7 @@ var {
 }
 .d-inline{display:inline-block}
 .d-block{display:block}
+.d-none{display:none}
 .box-b{
   box-sizing:border-box;
 }
@@ -160,12 +161,13 @@ var {
 }
 /*********病例档案，评估档案，听力档案标题***********/ 
 .main-right .content-title{
-  height:40px;
+  height:50px;
   width:855px;
   padding-bottom: 5px;
   border-top:5px solid #65c0df;
   border-bottom: 2px solid #65c0df;
-  line-height: 40px;
+  box-sizing: border-box;
+  line-height: 50px;
 }
 .main-right .content-title ul li{
   float: left;
@@ -181,6 +183,12 @@ var {
   color:#fff;
   box-shadow: 2px 2px 2px #ccc;
 }
+.tingli .ting_warp,.assessment .assessment_warp{
+    width: 90%;
+    height: 100%;
+}
+.assessment .assessment-details,.tingli .tingliright{width:80% ;}
+.assessment .assessment-test,.tingli .tinglileft{width:18%;}
 /************记录表按钮********/
 .group {
   margin: 20px 0;

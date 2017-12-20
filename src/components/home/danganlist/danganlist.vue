@@ -1,11 +1,5 @@
 <template>
   <div style="height:94%;">
-  <!-- <div id="main"> -->
-    <!-- 头部信息 -->
-    <!-- <ele-header></ele-header> -->
-    <!-- 个人档案 -->
-    <!-- <div class="main clearfix"> -->
-      <!-- <mainTitle></mainTitle> -->
       <el-col :span="6" class="main-left">
         <div class="left-main">
           <ele-dang>档案</ele-dang>
@@ -29,19 +23,12 @@
           <router-view></router-view>
         <!-- </keep-alive> -->
       </el-col>
-    <!-- </div> -->
-    <!-- <footervue> -->
-    <!-- </footervue> -->
-  <!-- </div> -->
   </div>
 </template>
 
 <script>
 // 引入头部组件
-// import Header from '../../header/header'
 import Dang from './dangan/dangan'
-// import Footervue from './../commonvue/footer.vue'
-// import MainTitle from './../commonvue/main-title.vue'
 import {mapState} from 'vuex'
 export default {
   name: 'main',

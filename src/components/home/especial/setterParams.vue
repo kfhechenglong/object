@@ -205,7 +205,7 @@ export default {
 				height: 100px;
 				right: 12px;
 				top:2px;
-				background:url('../../../../static/images/coin.jpg') no-repeat center;
+				background:url('../../../common/images/coin.jpg') no-repeat center;
 			}
 			.imgLeft{
 				right: 14px;

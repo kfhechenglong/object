@@ -18,6 +18,8 @@ function UrlSearch() {
       } 
     } 
 };
+let initDbValue = 60;//初始的轻度值
+let dbAddValue = 10;//频率跳转的强度增加值
 let Request = new UrlSearch(); //实例化
 let apihost = Request.apihost || 'localhost';
 let apiport = Request.apiport || '80';

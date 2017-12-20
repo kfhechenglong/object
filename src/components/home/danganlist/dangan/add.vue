@@ -229,7 +229,7 @@ export default {
             top:-90px;
             width:300px;
             height:90px;
-            background: url(../../../../../static/images/new-title.png) no-repeat 0 -3px ;
+            background: url(../../../../common/images/new-title.png) no-repeat 0 -3px ;
         }
         .eq-sb{
     		.el-input{width: 235px;}

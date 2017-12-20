@@ -26,19 +26,15 @@
   </div>  
 </template>
 <script>
-const rank_1 = require('../../../../../static/images/rank_1.gif');
-const rank_2 = require('../../../../../static/images/rank_2.gif');
-const rank_3 = require('../../../../../static/images/rank_3.gif');
-const rank_4 = require('../../../../../static/images/rank_4.gif');
 import util from './../../../../common/util.js'
 export default{
 	data(){
 		return{
       // val:[3,2,3,4],
-      rank_1:rank_1,
-      rank_2:rank_2,
-      rank_3:rank_3,
-      rank_4:rank_4,
+      rank_1:Options.rank_1,
+      rank_2:Options.rank_2,
+      rank_3:Options.rank_3,
+      rank_4:Options.rank_4,
 		}
 	},
   props:{
@@ -61,25 +57,7 @@ export default{
       }else{
         div.className = " fl pin-div h-g"
       }
-      // console.log(id,index);
-      for (var i = 0; i < index; i++) {
-        var str = imgs[i].src;//先把每一个img元素的src取出来
-        if(i % 2 === 0){
-          str = rank_1;
-        }else{
-          str = rank_2;
-        }
-        imgs[i].src = str;//把替换后的字符赋值给src
-      }
-      for (var j = index; j < imgs.length; j++) {
-        var str = imgs[j].src;//先把每一个img元素的src取出来
-        if(j % 2 === 0){
-          str = rank_3;
-        }else{
-          str = rank_4;
-        }
-        imgs[j].src = str;//把替换后的字符赋值给src
-      }
+      Common.printStar(index,imgs);
     },
 
 	}

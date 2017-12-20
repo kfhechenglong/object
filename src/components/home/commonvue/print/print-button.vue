@@ -1,7 +1,7 @@
 <template>
   <div>
     <div class="affirm"  @click="print">
-      在线打印
+      本地打印
     </div>
     <div v-if="show" v-show="IP" @click.stop="upload" class="upload">
       扫码下载

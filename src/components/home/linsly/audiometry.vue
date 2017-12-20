@@ -58,7 +58,8 @@
 				<el-button type="success" :disabled="!start || !isOnline" @click="toStart"><i class="iconfont icon-kaishi"></i>开始</el-button>
 				<el-button type="warning" :disabled="start || pauseFalse" v-show="pause"  @click="isPause('pause')"><i class="iconfont icon-zanting"></i>暂停</el-button>
 				<el-button type="success" :disabled="start || pauseFalse" v-show="!pause"  @click="isPause('continue')"><i class="iconfont icon-jixu"></i>继续</el-button>
-				<el-button type="danger" :disabled="!isSave" @click="toSave"><i class="iconfont icon-baocun"></i>存档</el-button>
+				<el-button type="info" @click="_storage" :disabled="start"><i class="iconfont icon-bendizancun"></i>暂存</el-button>
+				<el-button type="danger" :disabled="start" @click="toSave"><i class="iconfont icon-baocun"></i>存档</el-button>
 				<el-button type="info" :disabled="!isPrinter"  @click="_print"><i class="iconfont icon-iconfontdayinji"></i>打印</el-button>
 			</ul>
 		</div>
@@ -73,7 +74,6 @@
 let res = "";
 let hasTrueData = false;
 import util from'../../../common/util'
-import {assess} from '../../../api/api'
 import Goback from '../commonvue/backup'
 import StartTips from '../commonvue/startprepare'
 import Print from '../commonvue/printliu.vue'
@@ -145,26 +145,34 @@ export default {
  	mounted(){
  		// 默认显示连接对话框
  		this.dialogVisibleTips = true;
- 		this.currentear = this.$route.query['isEar']; 
- 		let groupString = this.$route.query['data'];
- 		console.log(groupString)
- 		if (Object.prototype.toString.call(groupString) !== "[object Array]"){
+ 		this.currentear = this.$route.query['isEar'];
+		let group = [];
+ 		if(this.$route.query['flag']){
+			let data =JSON.parse(this.$route.query['data']);
+			this.group = data.group;
+			this.resultData = data.result;
+			this.sendGroup = data.sendGroup;//当前词组
+			this.groupurl = data.groupurl;
+			this.distance = data.distance;
+			this.currentHzNum = data.currentHzNum,//当前的词组
+			this.distanceNum = data.distanceNum > 0 ? data.distanceNum -1 :data.distanceNum;//当前的距离
+			this.currentDistance = data.currentDistance;
+		 }else{
+			 let groupString = this.$route.query['data'];
+			 if (Object.prototype.toString.call(groupString) !== "[object Array]"){
  				groupString.split('');
  				groupString = [groupString]
  			}
- 		let group = [];
  			groupString.forEach((item) =>{
  				group.push(JSON.parse(item))
  			});
- 		this.group = group;
+			this.group = group;
+			// 接收测试距离
+			this.distance = this.$route.query['distance'];
+			this.currentDistance = this.distance[0];
+		 }
  		this.currentgame = this.$route.query['crtgame'];
- 		// 接收测试距离
- 		this.distance = this.$route.query['distance'];
- 		this.currentDistance = this.distance[0]
- 		// 接收测试环境
- 		this.environment = this.$route.query['environment'];
- 		console.log(this.distance,this.environment)
- 	
+ 		this.environment = this.$route.query['environment'];// 接收测试环境
 		var that = this;
 		// 接收被控端消息websocket连接
 		Vm.$on('wsmsg',(msg)=>{
@@ -202,25 +210,11 @@ export default {
  	watch:{
  		// 测试websocket连接
  		wsData:function(){
- 			let testparams = this.wsData.params;
-			if(this.wsData.params && testparams.prepare){// 被控端页面准备好后，可进行操作
-				this.dialogVisibleTips = false;
-			};
-			if(testparams['testType'] == 'yinsu'){
-				this.groupNum++;
-				// 统计测试结果
-				if(testparams['group']){
-					this.storagedata(testparams['group']);
-				}
-				// 更换词组
-				// console.log(this.groupNum);
-			}
+			 Common.gamesWatch(this,this.wsData,this.storagedata);
  		}
  	},
  	created(){
- 		// util._getVolumNum(this);//获取音量差值
- 		// this.volumeNum = this.$store.state.zhutingData['1000'];
- 		// console.log(this.volumeNum)
+ 		this.$store.commit('gamesGoBackTips',false);
  	},
  	computed:{
  		timeToSave:() =>{
@@ -248,6 +242,26 @@ export default {
  		next();
  	},
  	methods:{
+		 //  暂存
+		_storage(){
+			let obj = {
+				'sendGroup':this.sendGroup,
+				'groupurl':this.groupurl,
+				'group':this.group,
+				'currentDistance':this.currentDistance,
+				'distance':this.distance,
+				'result':this.resultData,
+				'distanceNum':this.distanceNum,
+				'currentHzNum':this.currentHzNum,
+			};
+			const data = {
+				'level': this.$route.query['level'],
+				'crtgame':this.currentgame,
+				'isEar':this.currentear,
+				'data':JSON.stringify(obj),
+			};
+			Common.storageTips(this,data);
+		},
  		toggleVol(e){
  			this.currentVolume = e;
  			const num = e - Math.ceil(+this.currentDistance - 0.5)*6;
@@ -265,6 +279,7 @@ export default {
  		},
  		// 接收被控端的数据进行分析
  		storagedata(str){
+			this.canToSave = true;
  			let result = this.resultData;
  			let id = this.newTitle[this.currentIndex][1];
  			let distance = this.distance[this.distanceNum - 1];
@@ -297,7 +312,7 @@ export default {
  			// this.resultData = Object.assign(result);
  		},
  		// 发送数据
- 		toSendParams(){
+ 		toSendParams(istrue){
  			// debugger;
  			if(this.distanceNum >= this.distance.length){
  			//判断当前词组下的距离是否测听完成
@@ -322,63 +337,40 @@ export default {
 		        // 清除高亮提示色
 		        _this.clearClass(true);
 		        // 统计数据
-		        _this._computedEstimate();
+		        // _this._computedEstimate();
 		      return ;  
 	    	};
-	    	// 获取发送的词组组合
-	    	this.sendGroup = this.groupTeat[this.currentHzNum - 1];
-	    	let sendPath = this.groupPath[this.currentHzNum - 1];
-	    	this.currentDistance = this.distance[this.distanceNum];//当前的测听距离
-	    	// 获取当前的音量
-	    	// let currentVolume = this.volumeNum - this.getVolumNum - Math.ceil(+currentDistance - 0.5)*6;
-	    	let currentVolume = this.currentVolume - Math.ceil(+this.currentDistance - 0.5)*6;
-	    	console.log(currentVolume)
-	    	// let currentVolume = this.volumeNum - Math.ceil(+currentDistance - 0.5)*6;
-	    	console.log(this.distance,currentVolume);
-	    	// 音频路径组合
-	    	let groupurl = [this.sendvpath+sendPath[0],'null'];
+			if(!istrue){
+				// 获取发送的词组组合
+	    		this.sendGroup = this.groupTeat[this.currentHzNum - 1];
+				let sendPath = this.groupPath[this.currentHzNum - 1];
+				// 音频路径组合
+	    		this.groupurl = [this.sendvpath+sendPath[0],'null'];
+			}
+			this.currentDistance = this.distance[this.distanceNum];//当前的测听距离
+			let currentVolume = this.currentVolume - Math.ceil(+this.currentDistance - 0.5)*6;
 	    	let params = {
 					'ear':this.currentear,//左右耳信息
 			    	'testType':'liu',//测听类型
 			    	'game':this.currentgame,//游戏类别
 			    	'volume':currentVolume,//测听音量
 			    	'group':this.sendGroup,//当前词组
-			    	'groupurl':groupurl,
+			    	'groupurl':this.groupurl,
 			    	'level':this.$route.query['level']
 			    }
 			console.log(params);
-			this.clearClass(false);//调用样式函数
+			// this.clearClass(false);//调用样式函数
 			let argument = this.wskt.wstoctld('games_audio_start',params);
 	    	websocket.send(JSON.stringify(argument));
- 			this.distanceNum++;
+			 this.distanceNum++;
+			 this.clearClass(false);//调用样式函数
  			// this.currentHzNum++;
  			this.groupNum = 0;
  		},
  		// 控制表头的class类
  		clearClass(str){
- 			// let td = this.$refs.td;
- 			let td = jq('.headerbg');
-	    	for (let i = 0; i <td.length; i++) {
-	    		let span = td[i].getElementsByTagName('span')[0];
-	    		// 获取元素的类
-	    		let classVal = td[i].getAttribute("class");
-	    		// 移除里面的类
-	    		classVal = classVal.replace(" highlight",'');
-	    		classVal = classVal.replace(" pasehighlight",'');
-	    		td[i].setAttribute("class",classVal);
-	    		setTimeout(() =>{
-		    		if(span.innerHTML == this.sendGroup[0] || span.innerHTML == this.distance[this.distanceNum-1]){
-			    		if(!str){
-				    		classVal = classVal.concat(" highlight");
-				    		td[i].setAttribute("class",classVal)
-				    	};
-			    		if(!this.pause && !this.pauseFalse){
-			    			classVal = classVal.concat(" pasehighlight");
-							td[i].setAttribute("class",classVal)
-			    		}
-		    		};
-		    	},50);
-	    	}
+			 let td = jq('.headerbg');
+	    	Common.clearClass(this,str,td,this.sendGroup[0],this.distance[this.distanceNum -1]);
  		},
  		// 计算综合评价的结果
  		_computedEstimate(){
@@ -535,20 +527,8 @@ export default {
  			}
  			console.log(result)
  		},
- 		isPause(str){
- 			// this.toSendParams();
- 			this.pause = !this.pause;
- 			if(str === "continue"){
- 				this.isSave = false;
- 				this.clearClass(false);
- 				// 发送暂停指令
-		    	websocket.send(JSON.stringify(this.wskt.wstoctld('games_audio_continue','')));
- 			}else{
- 				this.isSave = true;
- 				this.clearClass(true);
- 				// 发送继续指令
- 				websocket.send(JSON.stringify(this.wskt.wstoctld('games_audio_pause','')));
- 			}
+ 		isPause(str,flag){
+ 			Common.isPause(this,str,flag);
  		},
  		textareaChange(e){
  			this.textarea = e.textarea;
@@ -556,63 +536,23 @@ export default {
  		},
  		// 存档按钮
  		toSave(){
- 			if(!this.pauseFalse){
- 				// 清除高亮提示色
-				this.clearClass(true);
-	 			// 启用打印按钮			
-	 			this.isPrinter = true;
-	 			// 禁用暂停，继续按钮
-	 			this.pauseFalse = true;
-	 			// 开启切换列表
-	 			this.toggle = true;
- 			};
- 			this._computedEstimate()//统计综合评价结果
- 			// 控制点击频率
- 			// util._click(this,save);
- 			save(this);
- 			function save (str){
- 				// 如果数据保存成功则不在保存
- 				// 保存数据
- 				// if(!hasTrueData){
- 				// 	msgTipsSuccess(str,'提交的数据不能为空!');
- 				// 	return
- 				// }
- 				if(str.isSaveSuccess){
- 					msgTipsSuccess(str,'您已提交过数据!');
- 					return
- 				};
- 				let info = JSON.parse(sessionStorage.getItem('user_text'));
- 				const user_id = JSON.parse(sessionStorage.getItem('user_id'));
- 				const type_id = sessionStorage.getItem('test_id');
-	 			const resultSave = {
-	 				user_id :user_id,
-	 				type_id :type_id,
-	 				data:JSON.stringify(str.resultData),
-	 				'time':str.timeToSave,
-	 				'teacher':JSON.parse(sessionStorage.getItem('user')),
-	 				'accuracy':JSON.stringify(str.valueStar),
-	 				'textarea':str.textarea,
-	 				'ear':str.currentear,
-	 				'testType':str.currentgame,
-	 				'environment':str.environment,
-	 				...info
-	 			};
-	 			assess(resultSave).then((response) =>{
-	 				console.log(response);
-	 				if(response.code =="200"){
-	 					str.isSaveSuccess = true;
-	 					// 查询未测名单
-	 					util.getLocalStorage(user_id,type_id);
-	 					msgTipsSuccess(str,'提交成功!');
-	 				}else{
-	 					msgTipsErr(str,'提交失败!');
-	 				}
-	 			}).catch((error) =>{
-	 				console.log(error);
-	 				alert(error +'提交失败！');
-	 			})
- 			};
- 			
+			const obj = {
+				data:JSON.stringify(this.resultData),
+				'time':this.timeToSave,
+				'teacher':JSON.parse(sessionStorage.getItem('user')),
+				'accuracy':JSON.stringify(this.valueStar),
+				'textarea':this.textarea,
+				'ear':this.currentear,
+				'testType':this.currentgame,
+				'environment':this.environment,
+			};
+			if(!this.canToSave){
+				msgTipsErr(this,'没有测试数据可以保存！');
+				return false;
+			}
+			this.isPause('pause',true)//先暂停游戏
+			Common.toSave(this,obj);
+			return 
  		},
  		// 当前要显示的表格
  		showTable(str,id){
@@ -645,36 +585,16 @@ export default {
 	 					Result[aaa][bb]['false'] = 0;
 	 				}
 	 			}
-	 			// 统计正确的词组
-	 			// Result['success'] = [];
-	 			// Result['error'] = [];
-	 			// 统计正确率
-	 			// Result['itemAccuracy'] = 0;
 	 			// 响应监听数据变化
 	 			this.$set(this.resultData,id,Result);
-	 			console.log(this.resultData)
-	 			// console.log(this.resultData[1]['m'][1])
  			}
  			// console.log(this.resultData)
  			// 如果当前的词组元素小于6个，则添加空元素
  			let tableshow  = this.tableList.concat();
- 			// if(this.tableList.length <6){
- 			// 	tableshow = ;
- 			// 	for (let i = 0; i < 6 - this.tableList.length; i++) {
- 			// 		tableshow.push('')
- 			// 	}
- 			// }else{
- 			// 	tableshow = this.tableList.concat();
- 			// }
  			this.tableTr = tableshow;
  			// 数组深拷贝实现表头
  			this.tableHeader = tableshow.concat();
  			this.tableHeader.unshift('距离（米）');
- 			// 绘制表格
-			// this.$nextTick(function(){
-				// 初始化表格
-				// util.initTable('#aa','td',tableshow.length,tableshow.length);
-			// });
  		},
 		lookResult(){
 			this.disabled =true;
@@ -745,7 +665,7 @@ export default {
 				}
 			}
 			.button{
-				margin:45px 88px;
+				margin:30px 0px 0 88px;
 				ul,li{
 					list-style: none;
 					margin:0px;

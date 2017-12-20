@@ -41,7 +41,8 @@ export default{
       return 'http://'+this.IP+':'+apiport+'/'+this.$store.state.codeApi+'/';
     },
     codeData:function(){
-      let data = 'time='+this.info['time']+'&user_id='+this.info['user_id']+'&file='+this.info['file']+'&type='+this.info['type']+'&id='+this.info['id'];
+      let imgs_id = this.info.imgs_id > 0 ?this.info.imgs_id :null;//听力图片上传下载
+      let data = 'time='+this.info['time']+'&user_id='+this.info['user_id']+'&file='+this.info['file']+'&type='+this.info['type']+'&id='+this.info['id']+'&imgs_id='+imgs_id;
       console.log(data)
       let base64 = util.toBase64(data)
       return base64;

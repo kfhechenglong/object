@@ -24,6 +24,9 @@
 						<span class="d-block height-30">平均反应时间：{{gamesTimesObj.time}}s</span>
 					</div>
 				</div>
+				<div style="margin-left:338px;margin-top:30px;">
+					<voiceNum v-on:volume="toggleVol"></voiceNum>
+				</div>
 			</div>
 			<div class="train-main-middle">
 				<el-steps :space="100" direction="vertical" :active="step">
@@ -97,7 +100,6 @@ export default {
  	mounted(){
  		// 默认显示连接对话框
  		this.loadOver = true;
- 		// 
  		this.db= this.$route.query.crtdb;
  		this.hz = this.$route.query.data;
  		this.current = this.$route.query.isEar;
@@ -108,6 +110,10 @@ export default {
  		Vm.$on('wsmsg',(msg)=>{
  			that.wsData = msg;
  		})
+ 		Utils._getVolumNum(this).then((res)=>{
+			this.value = +res.time;
+			this.gamesvalue = +res.time;
+		})
  		Vm.$on('servermsg',(msg,res,str)=>{
  			// console.log(msg.mescon,res,str)
  			if(!that.closeLay){
@@ -121,7 +127,6 @@ export default {
 			if(this.isOnline){
 				this.loadOver = false;
 			};
-			console.log(this.wsData.params)
 			// 判断当前训练的关数
 			this.stops();
 			// 判断当前训练是否连续正确三次
@@ -151,13 +156,16 @@ export default {
  		change(evt){
  			// 页面初始化后不主动发送数据
  			const params = {
-	    		'tonetype':this.xcurrent,//信号类别
+	    		'tonetype':this.currentsign,//信号类别
 		    	'testType':'zhuting',//测听类型
 		    	'game':this.currentgame,//游戏类别
 		    	'time':evt,//给声时长
 		    };
 		    this.gamesvalue = evt;
 		    Utils.chang_params(this,params);
+ 		},
+ 		toggleVol(e){
+ 			this.currentVolume = e;
  		},
  		// 开始开关
  		toStart(){
@@ -167,13 +175,13 @@ export default {
 	    		'tonetype':this.currentsign,//信号类别
 		    	'testType':'zhuting',//测听类型
 		    	'game':this.currentgame,//游戏类别
-		    	'time':this.value,//默认播放时长
-		    	'hz': '500',//当前赫兹
+		    	'time':this.value,//默认给声时长
+		    	'hz': '1000',//当前赫兹
 		    	'level':this.$route.query['level'],
 		    	'validTime':'3',//有效时长
-		    	'db':'50'//当前强度this.currentDb
+		    	'volume':this.currentVolume//当前强度this.currentDb
 			};
-			// console.log(params)
+			console.log(params)
 	    	var argument = this.wskt.wstoctld('games_train_start',params);
 	    	websocket.send(JSON.stringify(argument));
  			this.start = !this.start;
@@ -213,4 +221,7 @@ export default {
 </script>
 <style lang ="less" scoped>
 .train{position: relative;}
+.train .train-main .train-main-middle{
+	margin-top:20px;
+}
 </style>

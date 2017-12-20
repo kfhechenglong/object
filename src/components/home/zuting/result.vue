@@ -33,7 +33,6 @@
 													<span v-if=" indexTd%2==1" :class="[ (val.dataDetail[hz[Math.floor(indexTd/2)]].data[tit]['true']) == '3'? 'bgcspan' :'']">
 														{{val.dataDetail[hz[Math.floor(indexTd/2)]].data[tit]["false"]}}
 													</span>
-													
 												</span>
 											</td>
 										</tr>
@@ -142,13 +141,15 @@ export default {
  	mounted(){
  		this.$nextTick(() =>{
 	 		const obj = {
-	 			'testmodel':'游戏训练',
+	 			'testmodel':'PA',
 	    		'getmodel':'自由给声',
 	    		'radioEar':this.earChinese,
 	 		}
 	 		this.$store.commit('hasCanvasData',{});
 	 		this.$store.commit('hasTestCanvasData',obj);
- 		})
+		})
+		this.queryFlag = this.$route.query.flag;
+		console.log(this.queryFlag);
  	},
  	computed:{
 	    codeInfo:function(){//生成二维码的信息
@@ -162,7 +163,7 @@ export default {
 	 			test_Data.forEach(ele =>{
 	 				const detail = ele.dataDetail;
 	 				for(let i in detail){
-	 					if(detail[i].isfinish == 1){
+	 					if(JSON.stringify(detail[i].data) !== "{}"){
 	 						isTrue = true;
 	 						break;
 	 					}
@@ -256,7 +257,7 @@ export default {
  		},
  		plivateData(str){
  			this.plivate = str.addData;
- 			console.log(str)
+ 			// console.log(str)
  		},
  		// 保存跳转功能
  		save(){
@@ -267,7 +268,7 @@ export default {
  				return;
  			}
 			 	// 获取id
- 			this.userid = sessionStorage.getItem('user_id');
+ 			this.userid = JSON.parse(sessionStorage.getItem('user_id'));
  			const info = JSON.parse(sessionStorage.getItem('user_text'));
 			const type_id = sessionStorage.getItem('test_id');
 			const svgMarks = this.canvasMarks;
@@ -275,32 +276,14 @@ export default {
  			const originalData = {
  				"audio":{
  					"tonetype":this.tonetype === "zhuan" ?"啭音" :"纯音",
- 					"user_id":JSON.parse(this.userid),
+ 					"user_id":this.userid,
  					...info,
  					...svgMarks,
  				},
  				"hear":JSON.stringify(this.stringData)
  			};
  			console.log(originalData)
- 			let that = this;
- 			this.$ajax.post(`/audiogram/add`,originalData).then(function(response){
-                // console.log(response)
-                if(response.code == "200"){
-                	// 关闭退出提醒
-                	that.flag = false;
-					msgTipsSuccess(that,'提交成功!');
-					// 查询未测名单,将被测试的学生从未测名单中移除
-					util.getLocalStorage(JSON.parse(that.userid),type_id);
-                }else{
-                	msgTipsErr(that,'提交失败!');
-                }
-            }).catch(function(error){
- 				alert(error +'提交失败！');
-            })
-            // 返回游戏主页
-            window.isToggle = false;
-            const argument = this.wskt.gohome();
-            websocket.send(JSON.stringify(argument));	
+			Common.resultSavePost(this,'/audiogram/add',originalData, this.userid, type_id);
  		},
  		tabShow(res){
  			if(res == 'test'){
@@ -312,7 +295,6 @@ export default {
  			}else{
  				this.test = true;
  			}
- 			
  		},
  		// 计算表格的宽和高
  		getStyle(params,str){

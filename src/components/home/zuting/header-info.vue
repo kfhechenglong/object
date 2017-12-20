@@ -43,8 +43,6 @@
 </template>
 <script>
 const port= window.location.port;
-const body = require('../../../../static/images/body.png');
-const girl = require('../../../../static/images/girl.png');
 import Backbtn from '../commonvue/go-backBtn.vue'
 import util from './../../../common/util.js'
 export default {
@@ -70,8 +68,8 @@ export default {
 				},
  			},
  			study_info_length:null,
- 			errorImgBody:'this.src="' + body + '"',
-		    errorImgGirl:'this.src="' + girl + '"'
+ 			errorImgBody:'this.src="' + Options.boy + '"',
+		    errorImgGirl:'this.src="' + Options.girl + '"'
  		}
  	},
  	created(){
@@ -87,15 +85,7 @@ export default {
  			return this.$store.state.test_spl;
  		},
  		imgSrc:function(){
-    		if(!this.study_info.picture){
-    			if(this.study_info.gender === "男"){
-    				return body;
-    			}else{
-    				return girl;
-    			}
-        	}else{
-        		return web_url+ this.study_info.picture;
-        	}
+			return Common.isBodyOrGirl(this.study_info);
         }
  	},
  	destroyed(){

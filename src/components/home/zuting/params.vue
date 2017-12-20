@@ -126,9 +126,9 @@ export default {
 	    	this.leixing = res;
 	    },
 	    get(res,req){
-	    	console.log(res,req)
+	    	console.log(res)
 	    	this.checkList = res;
-	    	this.db = req
+	    	// this.db = req
 	    }
  	}
 }

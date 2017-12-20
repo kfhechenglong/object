@@ -208,7 +208,7 @@ export default {
 					'ear':this.currentear,//左右耳信息
 			    	'testType':'liu',//测听类型
 			    	'game':this.currentgame,//游戏类别
-			    	'volume':this.currentVolume,//测听音量
+			    	'volume':this.currentVolume,//测默认强度
 			    	'group':group,//当前词组
 			    	'groupurl':groupurl,
 			    	'level':this.$route.query['level']

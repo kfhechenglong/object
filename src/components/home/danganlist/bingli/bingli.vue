@@ -1,6 +1,6 @@
 <template>
   <div class="caseFiles clearfix">
-  	<div v-show="serverImgUrl.length > 0" style="height:100%;">
+  	<div v-show="!noImgs" style="height:100%;" v-loading.body="loading" element-loading-text="拼命加载中">
   		<div class="content-title clearfix">
   			<h3 class="fl"  style="line-height:50px; font-size:18px; text-indent:1em;">详情</h3>
   			<ul class="fr"> 
@@ -15,8 +15,8 @@
 	    	<imgpreview ref="imgs" v-on:imgs="_Allimgs"></imgpreview>
 	    </div>
    	</div>
-	<div v-show="serverImgUrl.length == 0"  class="noData">
-			<img src="../../../../../static/images/nodata.png" alt="" width="300px">
+	<div v-show="noImgs"  class="noData">
+			<img :src="nodata" alt="" width="300px">
 		<ul>
 			<li @click="upload"><i class="fa fa-cloud-upload"></i>&nbsp;&nbsp;上传图片</li>
 		</ul>
@@ -29,8 +29,6 @@
 
 <script>
 let deg = 0;
-let testImgUrl = ['1.jpg','1024.jpg','timg.jpg','d3.jpg','163.jpg'];
-
 import {mapState,mapMutations} from 'vuex'
 import util from'../../../../common/util'
 import Imgpreview from'../../commonvue/imgpreview.vue'
@@ -42,13 +40,15 @@ export default {
 	},
 	data (){
 		return{
-			bigImg:'1.jpg',
+			// bigImg:'1.jpg',
 			currentImg:0,
-			testImgUrl:testImgUrl,
+			nodata:Options.nodata,
 			serverImgUrl:[],
 			showPreview:false,
 			type:'up',
 			time:'',
+			noImgs:false,
+			loading:true,
 			showQQVisible:false
 		}
 	},
@@ -108,10 +108,12 @@ export default {
 			this.$ajax.post('/file/bingli',{'user_id':this.studyID}).then((response) =>{
 				if(response.code === 200){
 					this.serverImgUrl = response.data;
+					this.serverImgUrl.length > 0 ? this.noImgs = false : this.noImgs = true;
 				}else{
 					this.serverImgUrl = []
+					this.noImgs = true;
 				}
-				console.log(this.serverImgUrl);
+				this.loading = false;
 			});
 			return 
 		},

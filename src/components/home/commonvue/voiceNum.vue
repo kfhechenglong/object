@@ -42,9 +42,10 @@ export default{
 	},
 	mounted(){
 		util._getVolumNum(this).then((res)=>{
-			const num = this.initialVolumeNum - res;
+			const num = this.initialVolumeNum - res.decibel;
+			// if(res.decibel == 0){return}
+            this.value =  6 - (+res.decibel/10);
 			if(isNaN(num)){
-				alert('websocket未连接，声场强度数据未正常获取！')
 				throw new Error('websocket is ununited,Volume expect a number ,get NaN! ')
 			}
 			this.$emit('volume',num);
@@ -62,6 +63,7 @@ export default{
  			util._setVolumNum(this,{'decibel':(6-evt)*10,'test_id':sessionStorage.getItem('test_id')});
  			if(this.isLiu) return false;
 			var argument = this.wskt.wstoctld('games_audio_toggle',{'volume':num});
+			console.log(argument)
 			websocket.send(JSON.stringify(argument));
  		},
 	}

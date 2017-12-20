@@ -28,7 +28,7 @@
 							{{statisticsAccuracy[item]['statistics']}}
 						</span>
 						<span v-if=" (index1 === 1) && statisticsAccuracy[item]">
-							<i v-for="ele in statisticsAccuracy[item]['hasFalse']"><em v-if="ele != '—'">{{item}}/</em>{{ele}}&nbsp;</i>
+							<i v-for="ele in statisticsAccuracy[item]['hasFalse']" style="display:block;font-size:12px;"><em v-if="ele != '—'">{{item}}/</em>{{ele}}</i>
 						</span>
 					</td>
 				</tr>
@@ -60,7 +60,8 @@
 				<el-button type="success" :disabled="!start || !isOnline" @click="toStart"><i class="iconfont icon-kaishi"></i>开始</el-button>
 				<el-button type="warning" :disabled="start || pauseFalse" v-show="pause"  @click="isPause('pause')"><i class="iconfont icon-zanting"></i>暂停</el-button>
 				<el-button type="success" :disabled="start || pauseFalse" v-show="!pause"  @click="isPause('continue')"><i class="iconfont icon-jixu"></i>继续</el-button>
-				<el-button type="danger" :disabled="!isSave" @click="toSave"><i class="iconfont icon-baocun"></i>存档</el-button>
+				<el-button type="info" @click="_storage" :disabled="start"><i class="iconfont icon-bendizancun"></i>暂存</el-button>
+				<el-button type="danger" :disabled="start" @click="toSave"><i class="iconfont icon-baocun"></i>存档</el-button>
 				<el-button type="info" :disabled="!isPrinter" @click="_print"><i class="iconfont icon-iconfontdayinji"></i>打印</el-button>
 			</ul>
 		</div>
@@ -76,7 +77,7 @@ let res = ""
 let numFalg = 0;
 let hasTrueData = false;//判断是否有测试数据
 import util from'../../../common/util'
-import {assess} from '../../../api/api'
+
 import Goback from '../commonvue/backup'
 import StartTips from '../commonvue/startprepare'
 import Print from '../commonvue/printTone.vue'
@@ -126,7 +127,7 @@ export default {
  			// 记录当前发送参数的位置
  			currentHzNum:0,
  			// 记录当前测试的组
- 			groupNum:0,
+ 			// groupNum:0,
  			currentVolume:null,//当前测试的音量
  			// 禁止列表切换
  			toggle:true,
@@ -146,18 +147,34 @@ export default {
  	mounted(){
  		// 默认显示连接对话框
  		this.dialogVisibleTips = true;
- 		this.currentear = this.$route.query['isEar'];
- 		let groupString = this.$route.query['data'];
- 		if (Object.prototype.toString.call(groupString) !== "[object Array]"){
- 				groupString.split('');
- 				groupString = [groupString]
- 			}
- 		let group = [];
- 			groupString.forEach((item) =>{
- 				group.push(JSON.parse(item))
- 			});
+		let currentTable = 0;
+		let group = [];
+		 if(this.$route.query['flag']){
+			let data =JSON.parse(this.$route.query['data']);
+			this.currentear = this.$route.query.isEar;
+			 this.currentgame = this.$route.query.crtgame;
+			 group = data.group;
+			 currentTable = data.table;
+			this.error = data.error;
+			this.currentHzNum = data.currentHzNum;
+			this.success = data.success;
+			this.resultData = data.result;
+			this.sendGroup = data.sendGroup;//当前词组
+			this.groupurl = data.groupurl;
+			this.statisticsAccuracy = data.statisticsAccuracy ? data.statisticsAccuracy : {};//比较分析
+		 }else{
+			let groupString = this.$route.query['data'];
+			if (Object.prototype.toString.call(groupString) !== "[object Array]"){
+				groupString.split('');
+				groupString = [groupString]
+			}
+			groupString.forEach((item) =>{
+				group.push(JSON.parse(item))
+			});
+			this.currentear = this.$route.query['isEar'];
+ 			this.currentgame = this.$route.query['crtgame'];
+		}
  		this.group = group;
- 		this.currentgame = this.$route.query['crtgame'];
  		// console.log(this.group)
 		let that = this;
 		// 接收被控端消息websocket连接
@@ -180,36 +197,25 @@ export default {
 	 		}
  		});
  		// 获取处理后的数组数据
- 		const toArray = util.toArray(this.group);
+		const toArray = util.toArray(this.group);
  		this.groupList = toArray['newArr'];
 		this.newTitle =  toArray['newTitle'];
 		this.newpath =  toArray['newpath'];
 		this.vpath =  toArray['vpath'];
-		// 将词组进行组合
-		// this.groupTeat = util.groupArray(this.groupList[0]);
  		// 初始化默认第一个表格
  		this.$nextTick(function(){
  			this.changeToggle = true;
- 			this.showTable(0);
+ 			this.showTable(currentTable);
  		});
  	},
  	watch:{
  		// 测试websocket连接
  		wsData:function(){
- 			let testparams = this.wsData.params;
-			if(testparams['testType'] === 'yinsu'){
-				this.groupNum++;
-				// 统计测试结果
-				if(testparams['group']){
-					this.storagedata(testparams['group']);
-				};
-			};
-			if(this.wsData.params && testparams.prepare){// 被控端页面准备好后，可进行操作
-				this.dialogVisibleTips = false;
-			};
+ 			Common.gamesWatch(this,this.wsData,this.storagedata)
  		},
  	},
  	created(){
+ 		this.$store.commit('gamesGoBackTips',false);
  	},
  	computed:{
  		timeToSave:() =>{
@@ -240,9 +246,40 @@ export default {
  		next();
  	},
  	methods:{
+		//  暂存
+		_storage(){
+			let obj = {
+				'error':this.error,
+				'success':this.success,
+				'sendGroup':this.sendGroup,
+				'groupurl':this.groupurl,
+				'table':this.currentIndex,
+				'currentHzNum':this.currentHzNum,
+				'group':this.group,
+				'result':this.resultData,
+				'statisticsAccuracy':this.statisticsAccuracy
+			};
+			const data = {
+				'level': this.$route.query['level'],
+				'crtgame':this.currentgame,
+				'isEar':this.currentear,
+				'data':JSON.stringify(obj),
+			};
+			Common.storageTips(this,data);
+		},
  		// 打印
  		_print(){
- 			this.$refs.print._isToPrint();
+			const do1 = async ()=>{
+				// this._statisticsAccuracy(true);//统计综合评价结果
+			}
+			const do2 = async()=>{
+				this.$refs.print._isToPrint();
+			}
+			const dowork = async()=>{
+				await do1();
+				await do2();
+			}
+			dowork();
  		},
  		// 点击开始按钮
  		toStart(){
@@ -254,39 +291,45 @@ export default {
  		},
  		// 接收被控端的数据进行分析
  		storagedata(str){
+			 this.canToSave = true;
+			 // 生成当前词组的数据格式,如果有该id的数据就不添加
+ 			if(!this.resultData[this.groupId]){
+ 				let Result = {}
+	 			for (let i = 0; i < this.tableList.length; i++) {
+	 				let aaa = this.tableList[i]
+	 				Result[aaa] = {};
+	 				Result[aaa]['success'] = [];
+	 				Result[aaa]['false'] = [];
+	 			}
+	 			// 响应监听数据变化
+	 			this.$set(this.resultData,this.groupId,Result);
+ 			}
  			let result = this.resultData;
- 			let id = this.newTitle[this.currentIndex][1];
+			let id = this.newTitle[this.currentIndex][1];
+			const dowork = (str,ele) =>{
+				this.currentHzNum++;
+				hasTrueData = true;
+				this.success = 0;
+				this.error = 0;
+				result[id][str[0]][ele].push(str[1]);
+				result[id][str[1]][ele].push(str[0]);
+				this.toSendParams();
+			};
  			if(this.wsData.params['success'] == "false"){
  				this.error++;
  				if( this.error >= 2){
- 					hasTrueData = true;
- 					this.success = 0;
- 					this.error = 0;
- 					result[id][str[0]]['false'].push(str[1]);
- 					result[id][str[1]]['false'].push(str[0]);
- 					this.toSendParams();
+					dowork(str,'false');
  				}
  			}else{
  				this.success++;
  				if( this.success >= 2){
- 					hasTrueData = true;
- 					this.success = 0;
- 					this.error = 0;
- 					result[id][str[0]]['success'].push(str[1]);
- 					result[id][str[1]]['success'].push(str[0]);
- 					this.toSendParams();
+					dowork(str,'success');
  				}
  			};
- 			// 更换词组
-			// console.log(result)
-			if(this.groupNum == 3){
-				hasTrueData = true;
-				// 换组
-				this.toSendParams();
-			}
+			this._statisticsAccuracy();
  		},
  		// 统计识别率
- 		_statisticsAccuracy(){
+ 		_statisticsAccuracy(istrue){
  			let statistics = this.resultData;
  			let currentItem = {};//正确率
 			//保存综合评价的结果
@@ -307,98 +350,93 @@ export default {
 					if(error > 0){//如果测试的结果为FALSE，则记录错误的元素
 						currentItem[val]['hasFalse'] = keyVal[val]['false'];
 					}
- 				}
-        		//	获取综合评价
- 				let a = 0,
-            		b = 0;
-		 		for(let i in keyVal){
-					//计算当前词组的综合评价
-			        a++;
-			        const percentage = currentItem[i]['statistics'];
-			        if(percentage !== '—'){
-			            console.log(+percentage.replace("%",""));
-			            b += +percentage.replace("%","");
-			        }
-		        }
-		        const currentGroupResult = (b/a);
-		        // console.log(currentGroupResult)
-				//        分别计算词组的听力建议
-		        let advise = "",
-		            star = 0,
-		            star_value = "";
-		        if(currentGroupResult >= 80 ){
-		          star = 5;
-		          star_value = "优秀";
-		          advise ="";
-		        }else if(currentGroupResult < 80 && currentGroupResult >= 60){
-		          advise ="";
-		          star = 3;
-		          star_value = "合格";
-		        }else if(currentGroupResult < 60){
-		          advise ="助听设备有待改善或需要进一步加强区分能力训练";
-		          star = 1;
-		          star_value = "不合格";
-		          let value = "";
-		          if(sessionStorage.getItem('test_id') === '2' && key !== '7'){
-		              switch ( key ){
-		                case '2':
-		                  value = "6000Hz-9000Hz";
-		                      break;
-		                case '3':
-		                  value = "3000Hz-6000Hz";
-		                  break;
-		                case '4':
-		                  value = "2000Hz-4000Hz";
-		                  break;
-		                case '5':
-		                  value = "1000Hz-2000Hz";
-		                  break;
-		                case '6':
-		                  value = "250Hz-500Hz";
-		                  break;
-		                case '8':
-		                  value = "3000Hz-6000Hz";
-		                  break;
-		                case '14':
-		                  value = "5000Hz-9000Hz";
-		                  break;
-		              }
-		              advise += "，你还可以进行"+ value +"精细化位点测试";
-		          }
-		        }
-		        result[key] = {};
-		        result[key]['advise'] = advise;
-		        result[key]['star'] = star;
-		        result[key]['star_value'] = star_value;
-		        
+				}
+				this.getadvise(istrue,key,keyVal,currentItem,result);//获取综合评价的结果
  			}
- 			// console.log(result)
- 			// 综合评价和听力干预建议
- 			this.starValue = result;
  			// 识别率
  			this.statisticsAccuracy = currentItem;
- 			// console.log(JSON.stringify(this.statisticsAccuracy));
- 		},
+ 			// console.log(JSON.stringify(this.statisticsAccuracy))
+		 },
+		 /**
+		  * 评价的函数
+		 */
+		getadvise(istrue,key,obj,res,result){
+			if(istrue){
+				//	获取综合评价
+				let a = 0,
+					b = 0;
+				for(let i in obj){
+					//计算当前词组的综合评价
+					// a++;
+					const percentage = res[i]['statistics'];
+					if(percentage !== '—'){//获取单个词的正取率;
+						a++;
+						b += +percentage.replace("%","");
+					}
+				}
+				const currentGroupResult = (b/a);
+				//        分别计算词组的听力建议
+				let advise = "",
+					star = 0,
+					star_value = "";
+				if(currentGroupResult >= 80 ){
+					star = 5;
+					star_value = "优秀";
+					advise ="";
+				}else if(currentGroupResult < 80 && currentGroupResult >= 60){
+					advise ="";
+					star = 3;
+					star_value = "合格";
+				}else if(currentGroupResult < 60){
+					advise ="助听设备有待改善或需要进一步加强区分能力训练";
+					star = 1;
+					star_value = "不合格";
+					let value = "";
+					if(sessionStorage.getItem('test_id') === '2' && key !== '7'){
+						switch ( key ){
+							case '2':
+							value = "6000Hz-9000Hz";
+								break;
+							case '3':
+							value = "3000Hz-6000Hz";
+							break;
+							case '4':
+							value = "2000Hz-4000Hz";
+							break;
+							case '5':
+							value = "1000Hz-2000Hz";
+							break;
+							case '6':
+							value = "250Hz-500Hz";
+							break;
+							case '8':
+							value = "3000Hz-6000Hz";
+							break;
+							case '14':
+							value = "5000Hz-9000Hz";
+							break;
+						}
+						advise += "，你还可以进行"+ value +"精细化位点测试";
+					}
+				}
+				result[key] = {};
+				result[key]['advise'] = advise;
+				result[key]['star'] = star;
+				result[key]['star_value'] = star_value;
+			}
+			// 综合评价和听力干预建议
+ 			this.starValue = result;
+		},
  		// 发送数据
- 		toSendParams(){
- 			// if(this.groupList.length - 1 + numFalg === this.currentHzNum){
- 			// 	// 判断显示当前字母是否已测试完成，若是，则显示数据当前字母的识别率
- 			// 	this._statisticsAccuracy();
- 			// 	numFalg ++;
-	   		//  }
- 			// debugger;
+ 		toSendParams(istrue){
 	    	if(this.currentHzNum == this.groupTeat.length){
 	    		this.toggle = true;
-	    		// websocket.send(JSON.stringify(this.wskt.wstoctld('games_audio_pause','')));
 				let _this = this;
 				if(this.groupList.length-1 >this.currentIndex){
 				    this.currentIndex++;
-		        	// console.log(this.currentIndex)
 		        	// 切换渲染的表格
 		        	this.showTable(this.currentIndex);
 		 			this.toggle = false;
-			        // 启用完成按钮
-			        // this.isSave = true;
 				}else{
  					window.isToggle = false;
 					this.$confirm('测听完成!', '提示', {
@@ -406,29 +444,26 @@ export default {
 						closeOnPressEscape:false,
 		              	showCancelButton:false,
 			        });
-			        // .then(() => {
-			        	// 启用完成按钮
-			        	_this.isSave = true;
-			        	// 启用打印按钮
-	 					// _this.isPrinter = true;
-			        	// 禁用开始暂停按钮
-			        	_this.pauseFalse = true;
-			        	// 启用打印按钮
-	 					_this.isPrinter = true;
-			        // }).catch(() => {
-			        // });
-			        	_this._statisticsAccuracy();
-				        websocket.send(JSON.stringify(_this.wskt.wstoctld('games_audio_over','')));
-				        // 清除高亮提示色
-				        _this.clearClass(true);
+					// 启用完成按钮
+					_this.isSave = true;
+					// 禁用开始暂停按钮
+					_this.pauseFalse = true;
+					// 启用打印按钮
+					_this.isPrinter = true;
+					_this._statisticsAccuracy(true);
+					websocket.send(JSON.stringify(_this.wskt.wstoctld('games_audio_over','')));
+					// 清除高亮提示色
+					_this.clearClass(true);
 			      return ;
 			    }
 			    this.currentHzNum = 0;
-	    	};
-	    	this.sendGroup = this.groupTeat[this.currentHzNum];
-	    	let sendPath = this.groupPath[this.currentHzNum];
-	    	// 音频路径组合
-	    	let groupurl = [this.sendvpath+sendPath[0],this.sendvpath+sendPath[1]];
+			};
+			if(!istrue){
+				this.sendGroup = this.groupTeat[this.currentHzNum];
+	    		let sendPath = this.groupPath[this.currentHzNum];
+	    		// 音频路径组合
+	    		this.groupurl = [this.sendvpath+sendPath[0],this.sendvpath+sendPath[1]];
+			}
 	    	let currentVolume = this.currentVolume;
 	    	let params = {
 					'ear':this.currentear,//左右耳信息
@@ -436,56 +471,27 @@ export default {
 			    	'game':this.currentgame,//游戏类别
 			    	'volume':currentVolume,//测听音量
 			    	'group':this.sendGroup,//当前词组
-			    	'groupurl':groupurl,
+			    	'groupurl':this.groupurl,
 			    	'level': this.$route.query['level']
 			    };
 			console.log(params);
 			this.clearClass(false);//调用样式函数
 			let argument = this.wskt.wstoctld('games_audio_start',params);
 	    	websocket.send(JSON.stringify(argument));
- 			this.currentHzNum++;
- 			this.groupNum = 0;
+ 			// this.groupNum = 0;
  		},
  		// 控制表头的class类
  		clearClass(str){
  			let td = this.$refs.td;
-	    	for (let i = 0; i <td.length; i++) {
-	    		// 获取元素的类
-	    		let classVal = td[i].getAttribute("class");
-	    		// 移除里面的类
-	    		classVal = classVal.replace(" highlight",'');
-	    		classVal = classVal.replace(" pasehighlight",'');
-	    		td[i].setAttribute("class",classVal);
-	    		setTimeout(() =>{
-		    		if(td[i].innerHTML == this.sendGroup[0] || td[i].innerHTML ==this.sendGroup[1]){
-			    		if(!str){
-				    		classVal = classVal.concat(" highlight");
-				    		td[i].setAttribute("class",classVal)
-				    	};
-			    		if(!this.pause && !this.pauseFalse){
-			    			classVal = classVal.concat(" pasehighlight");
-							td[i].setAttribute("class",classVal)
-			    		}
-		    		};
-		    	},50);
-	    	}
+	    	Common.clearClass(this,str,td,this.sendGroup[0],this.sendGroup[1]);
  		},
- 		isPause(str){
- 			// this.toSendParams();
- 			this.pause = !this.pause;
- 			if(str === "continue"){
- 				this.isSave = false;
- 				// this.isPrinter = false;
- 				this.clearClass(false);
- 				// 发送暂停指令
-		    	websocket.send(JSON.stringify(this.wskt.wstoctld('games_audio_continue','')));
- 			}else{
- 				this.isSave = true;
- 				// this.isPrinter = true;
- 				this.clearClass(true);
- 				// 发送继续指令
- 				websocket.send(JSON.stringify(this.wskt.wstoctld('games_audio_pause','')));
- 			}
+ 		isPause(str,flag){
+			 Common.isPause(this,str,flag)
+			 .then((res)=>{
+				// if(res === 'continue'){
+				// 	this.firstGetAdvise = false;
+				// }
+			 });
  		},
  		textareaChange(e){
  			this.textarea = e.textarea;
@@ -493,66 +499,25 @@ export default {
  		},
  		// 存档按钮
  		toSave(){
- 			this._statisticsAccuracy();
- 			if(!this.pauseFalse){
- 				// 清除高亮提示色
-				this.clearClass(true);
-	 			// 禁用暂停，继续按钮
-	 			this.pauseFalse = true;
-	 			this.isPrinter = true;
-	 			// 开启切换列表
-	 			this.toggle = true;
- 			}
- 			// 控制点击频率
- 			// util._click(this,save);
- 			save(this);
- 			function save (str){
- 				// 如果数据保存成功则不在保存
- 				// 保存数据
- 				// if(!hasTrueData){
- 				// 	msgTipsSuccess(str,'提交的数据不能为空!');
- 				// 	return
- 				// }
- 				if(str.isSaveSuccess){
- 					msgTipsSuccess(str,'您已提交过数据!');
- 					return
- 				};
- 				let info = JSON.parse(sessionStorage.getItem('user_text'));
- 				const user_id = JSON.parse(sessionStorage.getItem('user_id'));
- 				const type_id = sessionStorage.getItem('test_id');
-	 			// console.log(info)
-	 			const resultSave = {
-	 				'user_id' :user_id,
-	 				'type_id':type_id,
-	 				// 'data':str.resultData,
-	 				'data':JSON.stringify(str.resultData),
-	 				'time':str.timeToSave,
-	 				'teacher':JSON.parse(sessionStorage.getItem('user')),
-	 				'accuracy':JSON.stringify(str.statisticsAccuracy),
-	 				'advise':str.starValue,
-	 				'textarea':str.textarea,
-	 				'ear':str.currentear,
-	 				'testType':str.currentgame,
-	 				'environment':'安静',
-	 				...info
-	 			};
-	 			// console.log(JSON.stringify(resultSave));
-	 			// console.log(resultSave);
-	 			assess(resultSave).then((response) =>{
-	 				// console.log(response);
-	 				if(response.code == "200"){
-	 					str.isSaveSuccess = true;
-	 					// 查询未测名单
-	 					util.getLocalStorage(user_id,type_id);
-	 					msgTipsSuccess(str,'提交成功!');
-	 				}else{
-	 					msgTipsErr(str,'提交失败!');
-	 				}
-	 			}).catch((error) =>{
-	 				// console.log(error);
-	 				alert(error +'提交失败！');
-	 			})
- 			};
+			this._statisticsAccuracy(true);//统计综合评价结果
+			const obj = {
+				'data':JSON.stringify(this.resultData),
+				'time':this.timeToSave,
+				'teacher':JSON.parse(sessionStorage.getItem('user')),
+				'accuracy':JSON.stringify(this.statisticsAccuracy),
+				'advise':this.starValue,
+				'textarea':this.textarea,
+				'ear':this.currentear,
+				'testType':this.currentgame,
+				'environment':'安静',
+			};
+			if(!this.canToSave){
+				msgTipsErr(this,'没有测试数据可以保存！');
+				return false;
+			}
+			this.isPause('pause',true)//先暂停游戏
+			Common.toSave(this,obj);
+			return false;
  		},
  		// 当前要显示的表格
  		showTable(str,id){
@@ -569,35 +534,9 @@ export default {
  			this.groupPath = util.groupArray(this.newpath[str]);
  			// 获取音频的url
  			this.sendvpath = this.vpath[str];
- 			// console.log(this.groupTeat);
  			// 当前渲染的表格
  			this.currentIndex = str;
  			this.tableList = this.groupList[str];
- 			// 生成当前词组的数据格式,如果有该id的数据就不添加
- 			if(!this.resultData[id]){
- 				let Result = {}
-	 			for (let i = 0; i < this.tableList.length; i++) {
-	 				let aaa = this.tableList[i]
-	 				Result[aaa] = {};
-	 				// for (let j = 0; j < this.tableList.length; j++) {
-	 				// 	let bb = this.tableList[j];
-	 				// 	if( bb != aaa){
-	 				// 		Result[aaa][bb] = 0;
-	 				// 	}
-	 				// }
-	 				Result[aaa]['success'] = [];
-	 				Result[aaa]['false'] = [];
-	 			}
-	 			// 统计正确的词组
-	 			// Result['success'] = [];
-	 			// Result['error'] = [];
-	 			// 统计正确率
-	 			// Result['itemAccuracy'] = 0;
-	 			// 响应监听数据变化
-	 			this.$set(this.resultData,id,Result);
-	 			// console.log(this.resultData)
- 			}
- 			// console.log(this.resultData)
  			// 如果当前的词组元素小于6个，则添加空元素
  			let tableshow  = [];
  			if(this.tableList.length <6){
@@ -663,7 +602,7 @@ export default {
 				margin-top:30px;
 			}
 			.button{
-				margin:130px 88px;
+				margin:75px 0 0 88px;
 				ul,li{
 					list-style: none;
 					margin:0px;
@@ -742,7 +681,7 @@ export default {
 				td span{
 					display: inline-block;
 				    word-wrap: break-word;
-				    width: 88px;
+				    /* width: 88px; */
 				}
 				tr{
 					height: 45px;

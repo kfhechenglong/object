@@ -1,6 +1,7 @@
 <template>
 	<div class="base" v-bind:class="[!showNew? 'infoBase': '']">
-		<div  v-loading.body="loading">
+		<div  v-loading.body="loading"
+    		element-loading-text="拼命加载中">
 			<form action="">
 				<el-row>
 					<div class="base-top">
@@ -362,8 +363,6 @@
 	</div>
 </template>
 <script>
-const body = require('../../../../../static/images/body.png');
-const girl = require('../../../../../static/images/girl.png');
 import {mapState,mapMutations} from'vuex'
 import print from '../../morehigh/print-all.vue'
 import codeQQ from '../../commonvue/codeQQ/codeQQ.vue'
@@ -458,8 +457,8 @@ import age from '../../../../common/age.js'
 		        showQQVisible:false,
 		        loading:true,
 		        initProductData: {},
-		        errorImgBody:'this.src="' + body + '"',
-		        errorImgGirl:'this.src="' + girl + '"' ,
+		        errorImgBody:'this.src="' + Options.boy + '"',
+		        errorImgGirl:'this.src="' + Options.girl + '"' ,
 		        svgData:{},
 		        // 打印的数据
 		        printUsersData:[],
@@ -506,15 +505,7 @@ import age from '../../../../common/age.js'
         	},
         	...mapState(['wepAppTime','product']),
         	imgSrc:function(){
-        		if(!this.study.picture){
-        			if(this.study.gender == "男"){
-        				return body;
-        			}else{
-        				return girl;
-        			}
-	        	}else{
-	        		return web_url+ this.study.picture +'?=' + Math.random();
-	        	}
+				return Common.isBodyOrGirl(this.study)
 	        },
 	        leftProduct:function(){
 	        	return this.study.eq_left['string'];

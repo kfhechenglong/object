@@ -54,7 +54,7 @@
                     </li>
                 </ul>
             </div>
-            <div v-show="!hasData" class="noData"> <img src="../../../../static/images/nodata.png" alt="" width="300px"></div>
+            <div v-show="!hasData" class="noData"> <img :src="nodata" alt="" width="300px"></div>
         </section>
         <TwoPie ref="twopie" :TwoPieTitle="TwoPieTitle" :levelTwoPieList="TwoPieList" :levelTwoData = "levelTwoData"></TwoPie>
         <NoTestName ref="noTestName" :typeObject="typeObject" :time="currentTimeClass" :name="noTestNameListsData" :currType="contentType"></NoTestName>
@@ -83,6 +83,7 @@ export default {
     data (){
         return {
             list:list,
+            nodata:Options.nodata,
             typeObject:Options.typeObject,
             class_name_list:[],
             current:[],

@@ -1,28 +1,25 @@
 
 <template>
 	<div class="drawsvg clearfix">
-		<ele-svg></ele-svg>
 		<div v-if="onlyDraw" class="ibox-title clearfix">
             <!-- 多选按钮组 -->
-            <div class="fl ibox-title-row">
+            <!-- <div class="fl ibox-title-row">
               <i :class="[{arrowsActive:showNew},'el-icon-caret-bottom','arrows']"></i>
               <div  v-if="!showNew" @click="addImg"> 无背景图</div>
               <div  v-if="showNew" @click="removeImg"> 言语香蕉图</div> 
-            </div>
+            </div> -->
             <el-checkbox-group class="fl" v-model="active" fill="#60b45d" text-color="#fff">
               <el-checkbox-button  id="qidao" label="0"  @change = "toggle_btn(0)">
-                <i id="qidao-L" class="testicon testicon-AC-L font-color-blue" ></i>气导<i  id="qidao-R" class="testicon testicon-AC-R font-color-red" ></i>
-              </el-checkbox-button>
-              <el-checkbox-button id="gudao" label="1"  @change = "toggle_btn(1)">
-                <i id="gudao-L" class="testicon testicon-BC-L font-color-blue"></i>骨导<i id="gudao-R" class="testicon testicon-BC-R font-color-red"></i>
-              </el-checkbox-button>
-              <el-checkbox-button  id="shushiyu" label="2"  @change = "toggle_btn(2)">
-                <i id="shushiyu-L" class="testicon testicon-MCL font-color-blue"></i>舒适阈<i id="shushiyu-R" class="testicon testicon-MCL font-color-red"></i>
-              </el-checkbox-button>
-              <el-checkbox-button  id="bushiyu" label="3"  @change = "toggle_btn(3)">
+                <i id="qidao-L" class="testicon testicon-AC-L font-color-blue" ></i>气&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;导<i  id="qidao-R" class="testicon testicon-AC-R font-color-red" ></i>
+              </el-checkbox-button><el-checkbox-button id="gudao" label="1"  @change = "toggle_btn(1)">
+                <i id="gudao-L" class="testicon testicon-BC-L font-color-blue"></i>骨&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;导<i id="gudao-R" class="testicon testicon-BC-R font-color-red"></i>
+              </el-checkbox-button><el-checkbox-button  id="shushiyu" label="2"  @change = "toggle_btn(2)">
+                <i id="shushiyu-L" class="testicon testicon-MCL font-color-blue"></i>舒&nbsp;&nbsp;适&nbsp;&nbsp;阈<i id="shushiyu-R" class="testicon testicon-MCL font-color-red"></i>
+              </el-checkbox-button><el-checkbox-button  id="bushiyu" label="3"  @change = "toggle_btn(3)">
                 <i id="bushiyu-L" class="testicon testicon-UCL font-color-blue"></i>不舒适阈<i id="bushiyu-R" class="testicon testicon-UCL font-color-red"></i>
-              </el-checkbox-button>
-              <el-checkbox-button  id="tingyu" label="5"  @change = "toggle_btn(5)">
+              </el-checkbox-button><el-checkbox-button v-if = "ear == 'A'"  id="tingyu" label="5"  @change = "toggle_btn(5)">
+                <i id="tingyu-L" class="testicon testicon-FF-S font-color-blue"></i>助听听阈<i id="tingyu-R" class="testicon testicon-FF-S font-color-red"></i>
+              </el-checkbox-button><el-checkbox-button v-else id="tingyu" label="5"  @change = "toggle_btn(5)">
                 <i id="tingyu-L" class="testicon testicon-FF-L font-color-blue"></i>助听听阈<i id="tingyu-R" class="testicon testicon-FF-R font-color-red"></i>
               </el-checkbox-button>
             </el-checkbox-group>
@@ -43,11 +40,12 @@
                 <div class="r-ear fr" :style="{width:svgWidth+'%'}">
                  	<p style="text-align:center;color:#0000ff;height:25px;font-size:18px;">左耳</p>
                   	<div style="height:calc(100% - 25px);">
-                    	<div :id="'leftEar' + this.svgId" v-on:click="_bigCanv('zuo','L')"></div>
+                    	<div :id="'leftEar' + this.svgId" v-on:click="_bigCanv('zuo','L')">
+											</div>
                   	</div>
                 </div>
                 <!--听力图数据表-->
-                <div class="row clearfix" v-if="isShowInput">
+                <div class="row clearfix d-none" v-if="isShowInput">
 	                <div class="fl clearfix">
 	                    <table class="table tl-data-table tl-r fl">
 		                    <thead>
@@ -90,7 +88,7 @@
 </template>
 <script>
 // 听力图 图标对照
-var fontarray = {'SFRN': 'a','SFLN': 'a', 'SFR': 'b', 'SFL': 'b', 'SFLM': 'c', 'SFRM': 'd', 'UCLLN': 'e', 'UCLRN': 'e', 'UCLL': 'f', 'UCLR': 'f', 'FFL': 'g', 'FFR': 'h', 'FFS': '8', 'FFLN': ',', 'FFRN': '9', 'FFSN': '.', 'MCLLN': 'i','MCLRN': 'i', 'MCLL': 'j', 'MCLR': 'j', 'BCLMC': 'k', 'BCLMN': 'l', 'BCLM': 'm', 'BCLC': 'n', 'BCLN': 'o', 'BCL': 'p', 'BCRMC': 'q', 'BCRMN': 'r', 'BCRM': 's', 'BCRC': 't', 'BCRN': 'u', 'BCR': 'v', 'ACLMC': 'w', 'ACLMN': 'x', 'ACLM': 'y', 'ACLC': 'z', 'ACLN': '4', 'ACL': '5', 'ACRMC': '6', 'ACRMN': '7', 'ACRM': '0', 'ACRC': '1', 'ACRN': '2', 'ACR': '3','FFLM': 'g', 'FFRM': 'h'}
+var fontarray = {'SFRN': 'a','SFLN': 'a', 'SFR': 'b', 'SFL': 'b', 'SFLM': 'c', 'SFRM': 'd', 'UCLLN': 'e', 'UCLRN': 'e', 'UCLL': 'f', 'UCLR': 'f','UCLLM': 'f', 'UCLRM': 'f', 'FFL': 'g', 'FFR': 'h', 'FFSL': 'eight', 'FFSR': 'eight', 'FFSLM': 'eight', 'FFSRM': 'eight','FFLN': 'comma', 'FFRN': 'nine', 'FFSRN': 'period', 'FFSLN': 'period','MCLLN': 'i','MCLRN': 'i', 'MCLL': 'j', 'MCLR': 'j','MCLLM': 'j', 'MCLRM': 'j', 'BCLMC': 'k', 'BCLMN': 'l', 'BCLM': 'm', 'BCLC': 'n', 'BCLN': 'o', 'BCL': 'p', 'BCRMC': 'q', 'BCRMN': 'r', 'BCRM': 's', 'BCRC': 't', 'BCRN': 'u', 'BCR': 'v', 'ACLMC': 'w', 'ACLMN': 'x', 'ACLM': 'y', 'ACLC': 'z', 'ACLN': 'four', 'ACL': 'five', 'ACRMC': 'six', 'ACRMN': 'seven', 'ACRM': 'zero', 'ACRC': 'one', 'ACRN': 'two', 'ACR': 'three','FFLM': 'g', 'FFRM': 'h'};
 var arrayY = ['-10', ' 0', '10', '20', '30', '40', '50', '60', '70', '80', '90', '100', '110', '120']
 // var arrayXxia = ['750', '1500', '3000', '6000']
 var arrayX = ['125', '250', '500', '1k', '2k', '4k', '8k', '16k']
@@ -116,17 +114,16 @@ var ATTR_MAP = {
 var NS_MAP = {
   'svgHref': XLINK_NS
 }
+import html2canvas from '../../../api/html2canvas.js'
 import util from'../../../common/util.js'
-import svgData from'./svg-data.vue'
 import {mapState} from'vuex'
 export default{
 	components:{
-		"ele-svg":svgData
 	},
   data () {
     return {
     	// 使用的内部数据
-    	control_arr:[{"key":"1","markLeft":'ACL',"markRight":'ACR',"value":false},{"key":"2","markLeft":'BCL',"markRight":'BCR',"value":false},{"key":"3","markLeft":'MCLL',"markRight":'MCLR',"value":false},{"key":"4","markLeft":'UCLL',"markRight":'UCLR',"value":false},{"key":"5","markLeft":'SFL',"markRight":'SFR',"value":false},{"key":"6","markLeft":'FFL',"markRight":'FFR',"value":true}],
+    	control_arr:[{"key":"1","markLeft":'ACL',"markRight":'ACR',"value":false},{"key":"2","markLeft":'BCL',"markRight":'BCR',"value":false},{"key":"3","markLeft":'MCLL',"markRight":'MCLR',"value":false},{"key":"4","markLeft":'UCLL',"markRight":'UCLR',"value":false},{"key":"5","markLeft":'SFL',"markRight":'SFR',"value":false},{"key":"6","markLeft":'FFL',"markRight":'FFR',"markR":'FFSR',"markL":'FFSL',"value":true}],
     	addData:[],
     	// x轴上显示坐标x值
 		arrayXcoordinate : [],
@@ -253,7 +250,7 @@ export default{
 		bigleft:false,
 		showBigSvg:false,
 		add:true,
-		markFontSize:{size:14,top:5},
+		markFontSize:{size:16,top:6},
 		// 听力图底线坐标起点，终点坐标位置
 		coord:{
 			leftTopX:25,
@@ -397,7 +394,9 @@ export default{
       	this.arrayyuan = [];
       	this.arrayyuanzuo = [];
       	this.arrayyuanshi = [],//右耳的原始数据
-		this.arrayyuanshizuo = [],//左耳的原始数据
+				this.arrayyuanshizuo = [],//左耳的原始数据
+				this.set_r.clear();
+				this.set_l.clear();
       	this.bigleft = true;
       	this._clearBigCanv();
       	this.bigleft = false;
@@ -405,123 +404,122 @@ export default{
       	this.clearText('l');
       	this.clearText('r');
     },
-	toClickSvg(e,svgZuo,argument) {//点击听力图的函数
-	  // console.log(argument)
-	  if(e.type == "touchstart"){
-	    var currentE = e.touches[0]
-	  }else{
-	    var currentE = e
-	  }
-	  this.fontMask = this.fontSign + argument.average
-	  this.mycanvasx = this.getCanvasPos(svgZuo, currentE).x
-	  this.mycanvasy = this.getCanvasPos(svgZuo, currentE).y
-	  // x轴是否对准
-	  var xmi = false
-	  // y轴是否对准
-	  var ymi = false
-	  // 左右差值
-	  var cha = this.ycha / argument.accuracy
-	  // 在x轴的数值数组中对应的键
-	  var indexx
-	  // 在y轴的数值数组中对应的键
-	  var indexy
-	  for (var i = 0; i < this.arrayXcoordinate.length; i++) {
-	    if (Math.abs(this.mycanvasx - this.arrayXcoordinate[i]) <= cha) {
-	      this.mycanvasx = this.arrayXcoordinate[i]
-	      xmi = true
-	      indexx = i
-	      break
-	    }
-	  };
-	  for (var k = 0; k < this.arrayXxiaCoordinate.length; k++) {
-	    if (Math.abs(this.mycanvasx - this.arrayXxiaCoordinate[k]) <= cha) {
-	      this.mycanvasx = this.arrayXxiaCoordinate[k]
-	      xmi = true
-	      indexx = k + 20
-	      break
-	    }
-	  };
-	  for (var j = 0; j < this.arrayYline2.length; j++) {
-	    if (Math.abs(this.mycanvasy - this.arrayYline2[j]) <= cha) {
-	      this.mycanvasy = this.arrayYline2[j]
-	      ymi = true
-	      indexy = j
-	      break
-	    }
-	  };
-	  if (xmi === true && ymi === true) {
-	    this.dataType2 = 1
-	    if (this.yanbi) {
-	        this.dataType2 = 0
-	      	this.yanbi = false
-	    };
-	    if (this.wufanying) {
-	        this.dataType2 = 'wu'
-	      	this.wufanying = false
-	    };
-	    if (this.buke) {
-	        this.dataType2 = 'bu'
-	      	this.buke = false
-	    };
-	    // let data = argument.average === "R" ? this.arrayyuan : this.arrayyuanzuo;
-	    // 检查X轴点是否存在和此点坐标是否已经存在
-	    const fn1 = async ()=>{
-	    	this.chcekX(indexx, indexy,argument.data, this.dataType2 ,argument.average)
-	    }
-	    const fn2 = async ()=>{
-	    	await fn1();
-	    	await this._saveShowData(true);
-	    	if(!(argument.zhu)){this.tableText(argument.data, argument.tableText)}
-	    	await argument.average === "R" ? this.publicFn("right",null,this.fontMask) : this.publicFn("left",null,this.fontMask);
-	    }
-	    fn2()
-	  }
-	},
-	toMove(e,svgZuo,argument,coord) {//鼠标移动时的函数
-	  svgZuo.appendChild(this.gMove)
-	  if(e.type == "touchmove" || e.type == "touchstart"){
-	    var currentE = e.touches[0]
-	  }else{
-	    var currentE = e
-	  }
-	  this.mycanvasx = this.getCanvasPos(svgZuo, currentE).x
-	  this.mycanvasy = this.getCanvasPos(svgZuo, currentE).y
-	  var xmi = false
-	  var ymi = false
-	  // debugger
-	  var cha = this.ycha / argument.accuracy
-	  for (var i = 0; i < this.arrayXcoordinate.length; i++) {
-	    if (Math.abs(this.mycanvasx - this.arrayXcoordinate[i]) <= cha) {
-	      this.mycanvasx = this.arrayXcoordinate[i]
-	      xmi = true
-	      break
-	    }
-	  };
-	  for (var k = 0; k < this.arrayXxiaCoordinate.length; k++) {
-	    if (Math.abs(this.mycanvasx - this.arrayXxiaCoordinate[k]) <= cha) {
-	      this.mycanvasx = this.arrayXxiaCoordinate[k]
-	      xmi = true
-	      break
-	    }
-	  };
-	  for (var j = 0; j < this.arrayYline2.length; j++) {
-	    if (Math.abs(this.mycanvasy - this.arrayYline2[j]) <= cha) {
-	      this.mycanvasy = this.arrayYline2[j]
-	      ymi = true
-	      break
-	    }
-	  };
-	  if (xmi === true && ymi === true) {
-	    this.liang(svgZuo,this.mycanvasx, this.mycanvasy, argument.color,coord,svgZuo)
-	  } else {
-	    this.clearG(svgZuo, this.gMove)
-	  }
-	},
+		toClickSvg(e,svgZuo,argument) {//点击听力图的函数
+			// console.log(argument)
+			if(e.type == "touchstart"){
+				var currentE = e.touches[0]
+			}else{
+				var currentE = e
+			}
+			this.fontMask = this.fontSign + argument.average
+			this.mycanvasx = this.getCanvasPos(svgZuo, currentE).x
+			this.mycanvasy = this.getCanvasPos(svgZuo, currentE).y
+			// x轴是否对准
+			var xmi = false
+			// y轴是否对准
+			var ymi = false
+			// 左右差值
+			var cha = this.ycha / argument.accuracy
+			// 在x轴的数值数组中对应的键
+			var indexx
+			// 在y轴的数值数组中对应的键
+			var indexy
+			for (var i = 0; i < this.arrayXcoordinate.length; i++) {
+				if (Math.abs(this.mycanvasx - this.arrayXcoordinate[i]) <= cha) {
+					this.mycanvasx = this.arrayXcoordinate[i]
+					xmi = true
+					indexx = i
+					break
+				}
+			};
+			for (var k = 0; k < this.arrayXxiaCoordinate.length; k++) {
+				if (Math.abs(this.mycanvasx - this.arrayXxiaCoordinate[k]) <= cha) {
+					this.mycanvasx = this.arrayXxiaCoordinate[k]
+					xmi = true
+					indexx = k + 20
+					break
+				}
+			};
+			for (var j = 0; j < this.arrayYline2.length; j++) {
+				if (Math.abs(this.mycanvasy - this.arrayYline2[j]) <= cha) {
+					this.mycanvasy = this.arrayYline2[j]
+					ymi = true
+					indexy = j
+					break
+				}
+			};
+			if (xmi === true && ymi === true) {
+				this.dataType2 = 1
+				if (this.yanbi) {
+						this.dataType2 = 0
+						this.yanbi = false
+				};
+				if (this.wufanying) {
+						this.dataType2 = 'wu'
+						this.wufanying = false
+				};
+				if (this.buke) {
+						this.dataType2 = 'bu'
+						this.buke = false
+				};
+				// let data = argument.average === "R" ? this.arrayyuan : this.arrayyuanzuo;
+				// 检查X轴点是否存在和此点坐标是否已经存在
+				const fn1 = async ()=>{
+					return this.chcekX(indexx, indexy,argument.data, this.dataType2 ,argument.average)
+				}
+				const fn2 = async ()=>{
+					const arr = await fn1();
+					await this._saveShowData(true,arr);
+					if(!(argument.zhu)){this.tableText(argument.data, argument.tableText)}
+					await argument.average === "R" ? this.publicFn("right",null,this.fontMask) : this.publicFn("left",null,this.fontMask);
+				}
+				fn2()
+			}
+		},
+		toMove(e,svgZuo,argument,coord) {//鼠标移动时的函数
+			svgZuo.appendChild(this.gMove)
+			if(e.type == "touchmove" || e.type == "touchstart"){
+				var currentE = e.touches[0]
+			}else{
+				var currentE = e
+			}
+			this.mycanvasx = this.getCanvasPos(svgZuo, currentE).x
+			this.mycanvasy = this.getCanvasPos(svgZuo, currentE).y
+			var xmi = false
+			var ymi = false
+			// debugger
+			var cha = this.ycha / argument.accuracy
+			for (var i = 0; i < this.arrayXcoordinate.length; i++) {
+				if (Math.abs(this.mycanvasx - this.arrayXcoordinate[i]) <= cha) {
+					this.mycanvasx = this.arrayXcoordinate[i]
+					xmi = true
+					break
+				}
+			};
+			for (var k = 0; k < this.arrayXxiaCoordinate.length; k++) {
+				if (Math.abs(this.mycanvasx - this.arrayXxiaCoordinate[k]) <= cha) {
+					this.mycanvasx = this.arrayXxiaCoordinate[k]
+					xmi = true
+					break
+				}
+			};
+			for (var j = 0; j < this.arrayYline2.length; j++) {
+				if (Math.abs(this.mycanvasy - this.arrayYline2[j]) <= cha) {
+					this.mycanvasy = this.arrayYline2[j]
+					ymi = true
+					break
+				}
+			};
+			if (xmi === true && ymi === true) {
+				this.liang(svgZuo,this.mycanvasx, this.mycanvasy, argument.color,coord,svgZuo)
+			} else {
+				this.clearG(svgZuo, this.gMove)
+			}
+		},
     _creatElement(){
-      this.markFontSize = {size:14,top:5};
+      this.markFontSize = {size:16,top:6};
       // 设置听力线线宽
       this.tinglixianWidth = 1;
-      var ming = 'http://www.w3.org/2000/svg'
       this.svgZuo = this.createTag('svg',{'xmlns': ming});
       jq('#leftEar' +this.svgId).appendChild(this.svgZuo);
       jq('#leftEar' +this.svgId).style = 'height:100%;background-size:100% 100%;'
@@ -534,10 +532,9 @@ export default{
       this.xian(this.svgZuo, rect.width, rect.height,this.coord)
     },
     _creatElementyuo(){
-      this.markFontSize = {size:14,top:5};
+      this.markFontSize = {size:16,top:6};
       // 设置听力线线宽
       this.tinglixianWidth = 1;
-      var ming = 'http://www.w3.org/2000/svg'
       this.svgYou = this.createTag('svg',{'xmlns': ming});
       jq('#rightEar' +this.svgId).appendChild(this.svgYou)
       jq('#rightEar' +this.svgId).style = 'height:100%;background-size:100% 100%;'
@@ -584,12 +581,12 @@ export default{
       	}
       	// 绘制数据
   		this._saveShowData().then(()=>{
-			this._bigdrawyuan()//读取数据
-	      	if(this.isCreatedPng){
-	      		this.createdPng(this.svgZuo);
-	      		this.createdPng(this.svgYou);
-	  		}	
-		});
+				this._bigdrawyuan()//读取数据
+						if(this.isCreatedPng){
+							this.createdPng(this.svgZuo);
+							this.createdPng(this.svgYou);
+					}	
+			});
     },
     _bigCanv(zy,aaa){//放大canvas
     	if(this.onlyDraw)return false;
@@ -598,7 +595,7 @@ export default{
     		return false
     	}
       	//标记字体的大小
-      	this.markFontSize = {size:24,top:10};
+      	this.markFontSize = {size:26,top:11};
       	// 设置听力线线宽
       	this.tinglixianWidth = 2;
       	let parent = jq(this.svgParentId);
@@ -606,34 +603,34 @@ export default{
       	if(!parent || !reId.test(this.svgParentId)){
 			throw new Error('父元素id有误');
       	}
-		this.showBigSvg = true;
-		this.$emit('showBigSvg',true,zy);
-		// let leftEar = jq('#leftEar')
-		var ming = 'http://www.w3.org/2000/svg'
-		let div = document.createElement('div');
-		let svgNew = this.createTag('svg',{'xmlns': ming});
-		div.className = "bigCanvas";
-		div.id = "bigCanvas" +zy;
-		svgNew.style='cursor: crosshair;';
-		svgNew.id='big'+zy;
-		svgNew.style.width= this.bigSvgWidth + "px";
-		svgNew.style.height= this.bigSvgHight + "px";
-		parent.appendChild(div);
-		div.appendChild(svgNew)
+			this.showBigSvg = true;
+			this.$emit('showBigSvg',true,zy);
+			// let leftEar = jq('#leftEar')
+			var ming = 'http://www.w3.org/2000/svg'
+			let div = document.createElement('div');
+			let svgNew = this.createTag('svg',{'xmlns': ming});
+			div.className = "bigCanvas";
+			div.id = "bigCanvas" +zy;
+			svgNew.style='cursor: crosshair;';
+			svgNew.id='big'+zy;
+			svgNew.style.width= this.bigSvgWidth + "px";
+			svgNew.style.height= this.bigSvgHight + "px";
+			parent.appendChild(div);
+			div.appendChild(svgNew)
       	let coord = {
-			leftTopX:50,
-			rightTopX:15,
-			leftBottomX:50,
-			rightBottomX:15,
-			leftTopY:30,
-			rightTopY:30,
-			leftBottomY:5,
-			rightBottomY:5,
-			dashLineCoord:22,
-			textCoord:50,
-			xDis:60,
-			yDis:70,
-			xDisCha:65,
+				leftTopX:50,
+				rightTopX:15,
+				leftBottomX:50,
+				rightBottomX:15,
+				leftTopY:30,
+				rightTopY:30,
+				leftBottomY:5,
+				rightBottomY:5,
+				dashLineCoord:22,
+				textCoord:50,
+				xDis:60,
+				yDis:70,
+				xDisCha:65,
       	};
       	if(zy === "zuo"){
       		this.tu(svgNew, this.bigSvgWidth, this.bigSvgHight, '#0000FF',coord,16);
@@ -657,10 +654,11 @@ export default{
       	if(this.showNew === true){
         	this.addImg(beijing);
       	}
-		this._saveShowData().then(()=>{
-			this._bigdrawyuan();//读取数据
-			this.gMove = this.createTag('g', {})	
-		});
+			this._saveShowData().then(()=>{
+				this._bigdrawyuan();//读取数据
+				this.gMove = this.createTag('g', {})	
+			});
+			this.toggle_btn(5);
     },
     // 创建svg标签以及子标签
     createTag: function (tag, attributes) {
@@ -740,7 +738,12 @@ export default{
       	this.saveArray()
       	this.allFalse()
       	this.control_arr[evt].value = true;
-      	const str = this.control_arr[evt].markRight;
+				let str = "";
+				if(evt == 5 && this.addData[0] && this.addData[0].order == "A"){
+					str = this.control_arr[5].markR;
+				}else{
+					str = this.control_arr[evt].markRight;
+				}
       	this.fontSign = str.substring(0,str.length-1);
       	this.drawyuan()
     },
@@ -754,7 +757,7 @@ export default{
     },
     // 添加掩蔽
     yan: function () {
-     	this.yanbi = true
+     		this.yanbi = true
       	this.wufanying = false
       	this.buke = false
       	return;
@@ -806,40 +809,16 @@ export default{
 	          if (arrayL[i][1] === y) {
 	            arrayL.splice(i, 1)
 	            arrayL.push([x, -1, dataType])
-	            return Promise.resolve()
+	            return Promise.resolve({arr:[x, y, dataType],isneed:false})
 	          } else {
 	            arrayL.splice(i, 1)
 	            arrayL.push([x, y, dataType])
-	            return  Promise.resolve()
+	            return  Promise.resolve({arr:[x, y, dataType],isneed:true})
 	          }
 	        }
 	    }
 	    arrayL.push([x, y, dataType])
-		return  Promise.resolve();
-    },
-    // 绘制系统修改的原始值
-    sys_yuan_fn(hand,set){
-    	var obj = {}
-    	if(hand === "R"){
-    		obj = {
-				'ele' :this.svgYou,
-				'arr' : Array.from(set),
-				'color':'#ccc',
-				'mask': this.fontSign + 'R',
-				'type':6,
-				'str':"R"
-			};
-    	}else{
-    		obj = {
-				'ele' :this.svgZuo,
-				'arr' : Array.from(set),
-				'color':'#ccc',
-				'mask': this.fontSign + 'L',
-				'type':6,
-				'str':"L"
-			};
-    	}
-		this.yuan(obj);
+		return  Promise.resolve({arr:[x, y, dataType],isneed:true});
     },
     // 保存现有的绘制的听力图数组
     saveArray: function () {
@@ -848,71 +827,80 @@ export default{
       this.arrayyuanzuo = [];
       this.arrayyuan = [];
     },
-    _saveShowData(isclick){
+    _saveShowData(isclick,par){
       	let addData = this.addData,
       		arrayyuanzuo = this.arrayyuanzuo,
-      		arrayyuan =this.arrayyuan;
+      		arrayyuan =this.arrayyuan,
+      		isAllEar = false;
       	if(this.ear === "A"){
+      		isAllEar = true;
       		if(this.drawEar == "R"){
+						this.average("L",arrayyuanzuo)
       			arrayyuanzuo = arrayyuan;
       		}else if(this.drawEar == "L"){
-      			arrayyuan = arrayyuanzuo;
+						arrayyuan = arrayyuanzuo;
+						this.average("R",arrayyuan)
       		}
       	}
       	const fnasync = async ()=>{
-      		let a = this.svgData.length > 0 ? this.svgData : addData;
-	    	this.control_arr.forEach((item) =>{
-		      	if (item.value) {
-			        if (arrayyuanzuo.length > 0) {
-			          	Utils.checkIsChange(a,{'type': item.key, 'ears': 'L', 'data': this.changeFormat(arrayyuanzuo)},this.ear)
-			        }
-			        if (arrayyuan.length > 0) {
-			          	Utils.checkIsChange(a,{'type': item.key, 'ears': 'R', 'data': this.changeFormat(arrayyuan)},this.ear)
-			        }
-			    };
-		    })
+      		if(par){
+	      		let a = this.svgData.length > 0 ? this.svgData : addData;
+	      		this.control_arr.forEach((item) =>{
+			      	if (item.value) {
+				        if (isAllEar || this.drawEar == "L") {
+				          	Utils.checkIsChange2(a,{'type': item.key, 'ears': 'L', 'data': this.changeFormat([par.arr])},this.ear,par.isneed)
+				        }
+				        if (isAllEar || this.drawEar == "R") {
+				          	Utils.checkIsChange2(a,{'type': item.key, 'ears': 'R', 'data': this.changeFormat([par.arr])},this.ear,par.isneed)
+				        }
+				    };
+			    })
+	      	}
       	};
       	const sys_async = async ()=>{
-      		if(!isclick){ return false}
+					if(!isclick){ return false}
+					if(!this.control_arr[5].value){return false}
       		let arr = this.svgData.length > 0 ? this.svgData : this.addData;
 	        // 生成右耳图
-	        	arr.forEach(inele =>{
-		        	if (inele.type === '6') {
-			        	const data = inele.earData;
-			        	if(!Array.isArray(data)){return false;}
-			        	// 生成渲染的数据格式
-			        	data.forEach(item =>{
-			        		const getObj = Utils.getReaderSvgData(item),
-			        			dist = getObj.dist;
-			        		if(item.ear === "R"){
-								this.set_data(this.set_r,dist)
-			        		}
-			        		if(item.ear === "L"){
-								this.set_data(this.set_l,dist)
-			        		}
-			        	})
-			        }
-		        })
-	        console.log(2)
+        	arr.forEach(inele =>{
+	        	if (inele.type === '6') {
+		        	const data = inele.earData;
+		        	if(!Array.isArray(data)){return false;}
+		        	// 生成渲染的数据格式
+		        	data.forEach(item =>{
+		        		const getObj = Utils.getReaderSvgData(item),
+		        			dist = getObj.dist;
+		        		if(item.ear === "R"){
+									this.set_data(this.set_r,dist)
+		        		}
+		        		if(item.ear === "L"){
+									this.set_data(this.set_l,dist)
+		        		}
+		        	})
+		        }
+	        })
+	        // console.log(2)
       	};
       	const dowork = async ()=>{
-			await fnasync();
-		    await sys_async();
-		    if(this.ear === "A"){
-	      		if(this.drawEar == "R"){
-	      			this.sys_yuan_fn("R",this.set_r)
-		    		this.sys_yuan_fn("L",this.set_r)
-	      		}else if(this.drawEar == "L"){
-	      			this.sys_yuan_fn("R",this.set_l)
-	      			this.sys_yuan_fn("L",this.set_l)
-	      		}
-	      	}else{
-	      		this.sys_yuan_fn("R",this.set_r)
-		    	this.sys_yuan_fn("L",this.set_l)
-	      	}
-		    this.$emit('newSvgDataToSave',addData);
-		    console.log(3)
-		    return Promise.resolve();
+					await fnasync();
+					await sys_async();
+					if(this.control_arr[5].value){
+						if(this.ear === "A"){
+							if(this.drawEar == "R"){
+								this.sys_yuan_fn("R",this.set_r)
+								this.sys_yuan_fn("L",this.set_r)
+							}else if(this.drawEar == "L"){
+								this.sys_yuan_fn("R",this.set_l)
+								this.sys_yuan_fn("L",this.set_l)
+							}
+						}else{
+							this.sys_yuan_fn("R",this.set_r)
+							this.sys_yuan_fn("L",this.set_l)
+						}
+					}
+					this.$emit('newSvgDataToSave',addData);
+					// console.log(3)
+					return Promise.resolve();
       	};
       	return dowork()
     },
@@ -1074,16 +1062,20 @@ export default{
           this.hzAaverage['AC' +sing ] = null;
         } else if(bool_g){
           this.hzAaverage['BC' +sing ] = null;
-        };
-        for (var i = 0; i < arrayL.length; i++) {
-          if(arrayL[i][0] === 2 || arrayL[i][0] === 3 || arrayL[i][0] === 4){
-            otherCount += 1;
-          }
-          if (arrayL[i][0] === 2 || arrayL[i][0] === 3 || arrayL[i][0] === 4 || arrayL[i][0] === 5) {
-            // 获得 db 值
-            num += this.arrayYline1[(arrayL[i][1])];
-            count += 1;
-          }
+		};
+		let dataType = false;
+		let data = 0;
+        for (let i = 0; i < arrayL.length; i++) {
+			dataType = arrayL[i][2] != "wu";
+			data = arrayL[i][0];
+			if(( data=== 2 && dataType) || (data === 3 && dataType) || (data === 4 && dataType)){
+				otherCount += 1;
+			}
+			if ((data === 2 && dataType) ||( data === 3 && dataType) || (data === 4 && dataType) || (data === 5 && dataType)) {
+				// 获得 db 值
+				num += this.arrayYline1[(arrayL[i][1])];
+				count += 1;
+			}
         };
         //计算500、1000、2000、4000，的平均值
         //缺少4000 仍然可以求平值，其余3个频率再缺少任意一个值，都不能计算结果
@@ -1102,7 +1094,7 @@ export default{
             this.hzAaverage['BC' +sing ] = parseInt(num / total);
           };
         }
-        // console.log(JSON.stringify(this.hzAaverage))
+        console.log(JSON.stringify(this.hzAaverage))
       };
     },
     // 绘制底图
@@ -1259,8 +1251,6 @@ export default{
     // 放大图画圆
     _bigdrawyuan:function(flag){
       	let objZong = this.addData;
-      	// console.log(objZong)
-      	console.log(5)
       	objZong.forEach(ele =>{
           	this.control_arr.forEach((item) =>{
         		if(ele.type === item.key){
@@ -1271,10 +1261,18 @@ export default{
 	        			getReaderSvgData = getObj.alldata;
         				if(arrele.ear === "R"){
         					this.arrayyuan = this.ReadData(getReaderSvgData);
-	          				this.publicFn("right",null,item.markRight,true);
+									if(item.key == 6 && ele.order == "A"){//双耳同时测听时的标记
+										this.publicFn("right",null,item.markR,true);
+									}else{
+										this.publicFn("right",null,item.markRight,true);
+									}
         				}else if(arrele.ear === "L"){
         					this.arrayyuanzuo = this.ReadData(getReaderSvgData);
-	        				this.publicFn("left",null,item.markLeft,true);
+									if(item.key == 6 && ele.order == "A"){//双耳同时测听时的标记
+										this.publicFn("left",null,item.markL,true);
+									}else{
+	        					this.publicFn("left",null,item.markLeft,true);
+									}
         				}
         			})
         		}
@@ -1282,6 +1280,41 @@ export default{
         })
       // 获取当前类型的坐标点
       this.drawyuan(true)
+		},
+    drawyuan: function (falg) {
+    	if(falg){
+    		this.arrayyuanzuo = [];
+      	this.arrayyuan = [];
+    	}
+      let objZong = this.addData;
+	    // 根据数据生成表中数据
+	    objZong.forEach(ele =>{
+	    	var arr = ele.earData;
+	    	if(!Array.isArray(arr)){return false;}
+    		arr.forEach(arrele =>{
+    			const getObj = Utils.getReaderSvgData(arrele),
+        			getReaderSvgData = getObj.alldata;
+    			this.control_arr.forEach((item) =>{
+    				if(arrele.ear === "R"){
+    					if(item.value && ele.type === item.key){
+								this.arrayyuan = this.ReadData(getReaderSvgData);
+							}
+        			this.tableText(this.arrayyuan, 'r');
+							if(!falg){
+								this.publicFn("right");
+							}
+    				}else if(arrele.ear === "L"){
+    					if(item.value && ele.type === item.key){
+    						this.arrayyuanzuo = this.ReadData(getReaderSvgData);
+							}
+							this.tableText(this.arrayyuanzuo, 'l');
+							if(!falg){
+								this.publicFn("left");
+							}
+    				}
+    			})
+				})
+			})
     },
     // 读取数据,用于编辑数据
     _editor_drawyuan: function () {
@@ -1299,8 +1332,8 @@ export default{
       	let objZong1 = this.svgData;
       	if(flag){
 	      	this.control_arr.forEach((item) =>{
-		  		item.value = true;
-		  	})
+						item.value = true;
+					})
       	}
       	this.clearTu1('you' + this.svgId,'1');
       	this.clearTu1('zuo' + this.svgId,'1');
@@ -1311,127 +1344,99 @@ export default{
         	let objZong = objZong1[i];
         
         	if(i === 0 && objZong1.length > 1){
-          	this.handleData(objZong,'#ccc','#ccc','1')
+          	this.handleData(objZong,'#262626','#262626','1')
         	}else{
           	this.handleData(objZong,'#FF0000','#0000FF','2')
         	}
       	}
       	this.createdPng(this.svgZuo,flag)
       	this.createdPng(this.svgYou,flag)
-    },
+		},
      // 将svg转换成png图片
     createdPng: function (svg,flag) {
     	var doc =document;
-      if(doc.getElementById('moveline')){
-        this.clearG(svg, this.gMove)
-      }
-      var ghtml;
-      var htmlData = svg.outerHTML;
-      if(doc.getElementById(svg.id + 'yuanshi')){
-         ghtml = doc.getElementById(svg.id + 'yuanshi').outerHTML;
-         htmlData = htmlData.replace(ghtml,'')
-      } 
-      var svgData = 'data:image/svg+xml;base64,' + window.btoa(unescape(encodeURIComponent(htmlData)));
-      var img = new Image()
-      img.width = svg.clientWidth
-      img.height = svg.clientHeight
-      img.src = svgData
-      var c = doc.createElement('canvas')
-      c.width = img.width
-      c.height = img.height
-      var ctx = c.getContext('2d');
-      var that = this;
-      img.onload = function () {
-        ctx.drawImage(img, 0, 0)
-        // 图片导出为 png 格式
-        var type = 'png'
-        var imgData = c.toDataURL(type);
-        var item = svg.id.substr(0,3) + 'imgData'
-        sessionStorage.setItem(item,imgData);
-        // console.log(imgData)
-        if(flag){
-           that.$store.commit('setAllPrintImgs',imgData);
-        }
-      }
+			if(doc.getElementById('moveline')){
+				this.clearG(svg, this.gMove)
+			}
+			var ghtml;
+			var htmlData = svg.outerHTML;
+			if(doc.getElementById(svg.id + 'yuanshi')){
+				ghtml = doc.getElementById(svg.id + 'yuanshi').outerHTML;
+				htmlData = htmlData.replace(ghtml,'')
+			} 
+			var svgData = 'data:image/svg+xml;base64,' + window.btoa(unescape(encodeURIComponent(htmlData)));
+			var img = new Image();
+			img.width = svg.clientWidth
+			img.height = svg.clientHeight
+			img.src = svgData;
+			var c = doc.createElement('canvas');
+			c.width = img.width;
+			c.height = img.height;
+			var ctx = c.getContext('2d');
+			var that = this;
+			img.onload = function () {
+				ctx.drawImage(img, 0, 0)
+				// 图片导出为 png 格式
+				var type = 'png'
+				var imgData = c.toDataURL(type);
+				var item = svg.id.substr(0,3) + 'imgData'
+				sessionStorage.setItem(item,imgData);
+				// console.log(imgData)
+				if(flag){
+						that.$store.commit('setAllPrintImgs',imgData);
+				}
+			}
     },
     // 听力图档案查询画图
     handleData(objZong,color1,color2,str){
+			console.log(objZong)
       // 根据数据生成表中数据
-      	let arrayyuan = this.arrayyuan;
-      	let arrayyuanzuo = this.arrayyuanzuo;
-      	// console.log(objZong)
-      	objZong.forEach(ele =>{
-          	this.control_arr.forEach((item) =>{
-        		if(item.value && ele.type === item.key){
-        			var arr = ele.earData;
-        			if(!Array.isArray(arr)){return false;}
-        			arr.forEach(arrele =>{
-        				const getObj = Utils.getReaderSvgData(arrele),
-	        			getReaderSvgData = getObj.alldata;
-	        			if(arrele.ear === 'R'){
-	        				this.arrayyuan = this.ReadData(getReaderSvgData);
-		              		let obj = {
-					    		'ele' :this.svgYou,
-					    		'arr' : this.arrayyuan,
-					    		'color':color1,
-					    		'mask': item.markRight,
-					    		'type':ele.type,
-					    		'str':str
-					    	};
-				    		this.yuan(obj);
-				          	this.average('R', obj.arr)
-				        } else if(arrele.ear === 'L'){
-		        			this.arrayyuanzuo = this.ReadData(getReaderSvgData);
-		              		let obj = {
-					    		'ele' :this.svgZuo,
-					    		'arr' : this.arrayyuanzuo,
-					    		'color':color2,
-					    		'mask': item.markLeft,
-					    		'type':ele.type,
-					    		'str':str
-					    	};
-				    		this.yuan(obj);
-				          	this.average('L', obj.arr)
-			        	}
-        			})
-        		}
-        	})
-      	})
-    },
-    drawyuan: function (falg) {
-    	if(falg){
-    		this.arrayyuanzuo = [];
-      		this.arrayyuan = [];
-    	}
-      	let objZong = this.addData;
-	    // 根据数据生成表中数据
-	    objZong.forEach(ele =>{
-	    	var arr = ele.earData;
-	    	if(!Array.isArray(arr)){return false;}
-    		arr.forEach(arrele =>{
-    			const getObj = Utils.getReaderSvgData(arrele),
-        			getReaderSvgData = getObj.alldata;
-    			this.control_arr.forEach((item) =>{
-    				if(arrele.ear === "R"){
-    					if(item.value && ele.type === item.key){
-        					this.arrayyuan = this.ReadData(getReaderSvgData);
-        				}
-        				this.tableText(this.arrayyuan, 'r');
-			          	if(!falg){
-			          		this.publicFn("right");
-			          	}
-    				}else if(arrele.ear === "L"){
-    					if(item.value && ele.type === item.key){
-    						this.arrayyuanzuo = this.ReadData(getReaderSvgData);
-        				}
-        				this.tableText(this.arrayyuanzuo, 'l');
-			          	if(!falg){
-			          		this.publicFn("left");
-			          	}
-    				}
-    			})
-        	})
-        })
+			let arrayyuan = this.arrayyuan;
+			let arrayyuanzuo = this.arrayyuanzuo;
+			// console.log(objZong)
+			objZong.forEach(ele =>{
+				this.control_arr.forEach((item) =>{
+					if(item.value && ele.type === item.key){
+						var arr = ele.earData;
+						if(!Array.isArray(arr)){return false;}
+						arr.forEach(arrele =>{
+							const getObj = Utils.getReaderSvgData(arrele),
+							getReaderSvgData = getObj.alldata;
+							if(arrele.ear === 'R'){
+								this.arrayyuan = this.ReadData(getReaderSvgData);
+								let obj = {
+									'ele' :this.svgYou,
+									'arr' : this.arrayyuan,
+									'color':color1,
+									'mask': item.markRight,
+									'type':ele.type,
+									'str':str
+								};
+								if(item.key == 6 && ele.order == "A"){//双耳同时测听时的标记
+									obj.mask = item.markR;
+								}
+								this.yuan(obj);
+								this.average('R', obj.arr)
+							} else if(arrele.ear === 'L'){
+								this.arrayyuanzuo = this.ReadData(getReaderSvgData);
+								let obj = {
+									'ele' :this.svgZuo,
+									'arr' : this.arrayyuanzuo,
+									'color':color2,
+									'mask': item.markLeft,
+									'type':ele.type,
+									'str':str
+								};
+								if(item.key == 6 && ele.order == "A"){//双耳同时测听时的标记
+									obj.mask = item.markL;
+								}
+								this.yuan(obj);
+								this.average('L', obj.arr)
+							}
+						})
+					}
+				})
+			})
     },
     // 调用画圆和计算平均值的函数
     publicFn(hand,data_arr,mark,flag){
@@ -1459,49 +1464,73 @@ export default{
     drawyuanzhu: function () {
     	let objZong = [];
     	this.addData = this.svgData;
-		objZong = this.svgData[0];
-		console.log(objZong)
-        // 生成右耳图
-        if (objZong.type === '6') {
-        	const data = objZong.earData;
-        	if(!Array.isArray(data)){return false;}
-        	// 生成渲染的数据格式
-        	data.forEach(item =>{
-        		const getObj = Utils.getReaderSvgData(item),
-        			getReaderSvgData = getObj.alldata,
-        			sysSvgData = getObj.sysdata,
-        			dist = getObj.dist;
-        		if(item.ear === "R"){
-        			this.arrayyuan = this.ReadData(getReaderSvgData);
-            		this.sys_arr_r = this.ReadData(sysSvgData);
-            		this.show_sys_yuan(this.set_r,item.ear,dist);
-        		}
-        		if(item.ear === "L"){
-        			this.arrayyuanzuo = this.ReadData(getReaderSvgData);
-            		this.sys_arr_l = this.ReadData(sysSvgData);
-            		this.show_sys_yuan(this.set_l,item.ear,dist);
-        		}
-        	})
-          	this.publicFn("right");
-          	this.publicFn("left");
-        }
-      	this.createdPng(this.svgZuo);
-      	this.createdPng(this.svgYou);
+			objZong = this.svgData[0];
+			console.log(objZong)
+			if(this.ear == "A"){this.fontSign = "FFS"};
+			// 生成右耳图
+			if (objZong.type === '6') {
+				const data = objZong.earData;
+				if(!Array.isArray(data)){return false;}
+				// 生成渲染的数据格式
+				data.forEach(item =>{
+					const getObj = Utils.getReaderSvgData(item),
+						getReaderSvgData = getObj.alldata,
+						sysSvgData = getObj.sysdata,
+						dist = getObj.dist;
+					if(item.ear === "R"){
+						this.arrayyuan = this.ReadData(getReaderSvgData);
+						this.sys_arr_r = this.ReadData(sysSvgData);
+						this.show_sys_yuan(this.set_r,item.ear,dist);
+					}
+					if(item.ear === "L"){
+						this.arrayyuanzuo = this.ReadData(getReaderSvgData);
+						this.sys_arr_l = this.ReadData(sysSvgData);
+						this.show_sys_yuan(this.set_l,item.ear,dist);
+					}
+				})
+				this.publicFn("right");
+				this.publicFn("left");
+			}
+			this.createdPng(this.svgZuo);
+			this.createdPng(this.svgYou);
     },
     show_sys_yuan(set,ear,dist){
-		this.sys_yuan_fn(ear,this.set_data(set,dist))
+			this.sys_yuan_fn(ear,this.set_data(set,dist))
     },
     set_data(set,dist){
     	set.clear();
-		let b = this.ReadData(dist);
-		b.forEach(e =>{
-			set.add(e)
-		})
-		return set;
+			let b = this.ReadData(dist);
+			b.forEach(e =>{
+				set.add(e)
+			})
+			return set;
+		},
+		// 绘制系统修改的原始值
+    sys_yuan_fn(hand,set){
+    	var obj = {}
+    	if(hand === "R"){
+    		obj = {
+				'ele' :this.svgYou,
+				'arr' : Array.from(set),
+				'color':'#ccc',
+				'mask': this.fontSign + 'R',
+				'type':6,
+				'str':"R"
+			};
+    	}else{
+    		obj = {
+				'ele' :this.svgZuo,
+				'arr' : Array.from(set),
+				'color':'#ccc',
+				'mask': this.fontSign + 'L',
+				'type':6,
+				'str':"L"
+			};
+    	}
+			this.yuan(obj);
     },
     // 画图
     yuan: function (arg) {
-    	console.log('yuan')
       	this.gTu = this.createTag('g', {})
       	const type = arg.type ? arg.type : "",
       		str = arg.str ? arg.str : "",
@@ -1514,24 +1543,28 @@ export default{
       	this.gTu.style.fill = color;
       	let fontOp;
       	const that = this;
-      	// use 的html标签语言
+				// use 的html标签语言
       	for (var i = 0; i < arr.length; i++) {
         	fontOp = mask
         	if (arr[i][0] >= 20) {
         		var a = that.arrayXxiaCoordinate[(arr[i][0] - 20)] ;
         	}else{
         		var a = that.arrayXcoordinate[(arr[i][0])] ;
-        	}
+					}
 	      	if (typeof (arr[i][2]) === 'number') {
 	        	arr[i][2] === 1 ? fontOp = mask : fontOp = fontOp + 'M';
 	      	} else {
 	        	arr[i][2] === 'wu' ? fontOp = fontOp + 'N' :"";
 	        	arr[i][2] === 'bu' ? fontOp = fontOp + 'C' :"";
-	      	}
-	      	this.svgText = this.createTag('text', {
-	        'x': a - that.markFontSize.top, 'y': that.arrayYline2[(arr[i][1])] + that.markFontSize.top, 'font-family': 'fonteditor','font-size':that.markFontSize.size,'font-weight':'bold'})
-	      	this.svgText.textContent = fontarray[fontOp]
-	      	this.svgText.style.fill = color
+					}
+					// let weight = fontOp == "FFSL" || fontOp == "FFSR" || fontOp == "FFSLM" || fontOp == "FFSRM" ? "500" : "bold"; 
+					// let weight = "bold"; 
+	      	// this.svgText = this.createTag('text', {
+					// 'x': a - that.markFontSize.top, 'y': that.arrayYline2[(arr[i][1])] + that.markFontSize.top, 'font-family': 'fonteditor', 'font-size':that.markFontSize.size,'font-weight':weight})
+					this.svgText = this.createTag('svg',{'xmlns': ming,'x': a - that.markFontSize.top, 'y': that.arrayYline2[(arr[i][1])] - that.markFontSize.top - 4,'viewBox':"0 -212 1024 1024","width":that.markFontSize.size +"px","height":that.markFontSize.size +"px"});
+					let path = fontarray[fontOp];
+					let use = this.createTag('path',{'d':SvgPath[path],"style":"stroke-width:1000"});
+					this.svgText.appendChild(use);
 	      	this.gTu.appendChild(this.svgText);
       	}
       	this.tinglixian(svg, this.gTu, arr, color)
@@ -1673,8 +1706,8 @@ export default{
 		}
 		.el-checkbox-button__inner{
 		    padding:10px 5px;
-		    width:105px;
-		    border:1px solid #ccc;
+		    width:130px;
+		    /*border:1px solid #ccc;*/
 		 }
 	}
 }

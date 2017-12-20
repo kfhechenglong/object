@@ -2,75 +2,80 @@
   <div class="tingli clearfix">
     <!--左侧列表-->
     <ul class="tingliTopTab fl">
-        <li :class="{active:!isActive}" @click="tagAttogle('canvas')">听力图</li>
-        <li :class="{active:isActive}" @click="tagAttogle('img')">其它检查</li>
+        <li :class="{active:checkId === 0}" @click="tagAttogle(0)">听力图</li>
+        <li :class="{active:checkId === 1}" @click="tagAttogle(1)">电耳镜</li>
+        <li :class="{active:checkId === 2}" @click="tagAttogle(2)">声导抗</li>
+        <li :class="{active:checkId === 3}" @click="tagAttogle(3)">耳声发射</li>
+        <li :class="{active:checkId === 4}" @click="tagAttogle(4)">多频稳态</li>
+        <li :class="{active:checkId === 5}" @click="tagAttogle(5)">脑干诱发</li>
+        <li :class="{active:checkId === 6}" @click="tagAttogle(6)">其他</li>
     </ul>
-    <div class="tinglileft fl">
-        <div class="tinglileftTree">
-            <ul>
-                <li v-if="!isActive" @click="_showAddtinglitu"><i class="fl fa fa-file-text-o" style="line-height:35px;margin-left:10px;"></i>录入听力图</li>
-                <li v-else @click="_newupload" ><i class="fl fa fa-file-text-o" style="line-height:35px;margin-left:10px;"></i>录入检查图</li>
-            </ul>
-            <div class="test-date">
-                <div v-if="!isActive">
-                    <el-tree :data="handleData" ref="tree" node-key="id" :props="defaultProps" @node-click="handleNodeClick" :highlight-current="true" :default-expanded-keys="[1]" :default-checked-keys="defaultChecked" @check-change="checkNode" :render-content="renderContent"></el-tree>
+    <div class="ting_warp fl clearfix" v-loading.body="loading" element-loading-text="拼命加载中">
+        <div class="tinglileft fl">
+            <div class="tinglileftTree">
+                <ul>
+                    <li v-if="!isActive" @click="_showAddtinglitu"><i class="fl fa fa-file-text-o" style="line-height:35px;margin-left:10px;"></i>录入听力图</li>
+                    <li v-else @click="_newupload" ><i class="fl fa fa-file-text-o" style="line-height:35px;margin-left:10px;"></i>上传检查图</li>
+                </ul>
+                <div class="test-date">
+                    <div v-if="!isActive">
+                        <el-tree :data="handleData" ref="tree" node-key="id" :props="defaultProps" @node-click="handleNodeClick" :highlight-current="true" :default-expanded-keys="[1]" :default-checked-keys="defaultChecked" :render-content="renderContent"></el-tree>
+                    </div>
+                <div v-else>
+                    <el-tree :data="handleData" ref="tree" node-key="id" :props="defaultProps" :highlight-current="false" :default-expanded-keys="[1]" :default-checked-keys="defaultChecked" @node-click="currentOtherClick" @check-change="currentOtherChecked"></el-tree>
                 </div>
-              <div v-else>
-                  <el-tree :data="handleData" ref="tree" show-checkbox node-key="id" :props="defaultProps" :highlight-current="false" :default-expanded-keys="[1]" :default-checked-keys="defaultChecked" @node-click="currentOtherClick" @check-change="currentOtherChecked"></el-tree>
-              </div>
+                </div>
             </div>
         </div>
-    </div>
-    <!--右侧功能 使用组件 -->
-    <div class="tingliright fl" >
-        <div v-show="!isActive" class="ear">
-            <div v-if=" canvasListData.length >0 " class="tingli-warp clearfix">
-                <div class="clearfix content-title">
-                    <div class="fl xq">
-                        详情
-                        <span style="font-size:16px;color:#333;">&nbsp;&nbsp;测试耳：{{getEar}}</span>
+        <!--右侧功能 使用组件 -->
+        <div class="tingliright fl">
+            <div v-show="!isActive" class="ear">
+                <div v-show="hasData" class="tingli-warp clearfix">
+                    <div class="clearfix content-title">
+                        <div class="fl xq">
+                            详情
+                            <span style="font-size:16px;color:#333;">&nbsp;&nbsp;测试耳：{{getEar}}</span>
+                        </div>
+                        <ul class="fr">
+                            <!-- <li><i class="el-icon-plus"></i>添加</li> -->
+                            <li @click="_deleData('audio_id')"><i class="el-icon-delete2"></i>删除</li>
+                            <li @click="_editor"><i class="el-icon-edit"></i>编辑</li>
+                            <li @click="_download"><i class="fa fa-cloud-download"></i>下载</li>
+                            <li @click="_showPrint"><i class="fa fa-print"></i>打印</li>
+                        </ul>
                     </div>
-                    <ul class="fr">
-                        <!-- <li><i class="el-icon-plus"></i>添加</li> -->
-                        <li @click="_deleData('audio_id')"><i class="el-icon-delete2"></i>删除</li>
-                        <li @click="_editor"><i class="el-icon-edit"></i>编辑</li>
-                        <li @click="_download"><i class="fa fa-cloud-download"></i>下载</li>
-                        <li @click="_showPrint"><i class="fa fa-print"></i>打印</li>
-                    </ul>
-                </div>
-                <div class="svg-show" style="height:calc(100% - 55px);width:100%;">
-                    <ele-tinglitu ref="tinglitu" :objZong="canvasData">
-                    </ele-tinglitu>
-                </div>
-                <!-- <Tinglitu ref="tinglitu" :objZong="canvasData"></Tinglitu> -->
-            </div>
-            <div v-else class="noData">
-                 <img src="../../../../../static/images/nodata.png" alt="" width="300px">
-                 <p>您可以选择录入听力图功能！</p>
-            </div> 
-        </div>
-        <div v-show="isActive" class="tinglirightImg">
-            <div v-show="imgsData.length >0 " style="height:100%; margin-left:20px;">
-                <div class="content-title clearfix">
-                    <div class="fl xq">
-                        详情
+                    <div class="svg-show" style="height:calc(100% - 55px);width:100%;">
+                        <ele-tinglitu ref="tinglitu" :objZong="canvasData"></ele-tinglitu>
                     </div>
-                    <ul class="fr">
-                        <li @click="_Rotate"><i class="fa fa-undo"></i>旋转图片</li>
-                        <li @click="_deldeImg"><i class="el-icon-delete2"></i>删除单张</li>
-                        <li @click="_deleData('id')"><i class="el-icon-delete2"></i>删除群组</li>
-                        <li @click="upload"><i class="el-icon-edit"></i>编辑追加</li>
-                        <li @click="download"><i class="fa fa-cloud-download"></i>下&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;载</li>
-                        <li @click="_print"><i class="fa fa-print"></i>打&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;印</li>
-                    </ul>
                 </div>
-                <div class="img-preview">
-                    <Imgpreview  ref="imgs" v-on:imgs="_Allimgs"></Imgpreview>
-                </div>
+                <div  v-show="!hasData" class="noData">
+                    <img :src="nodata" alt="" width="300px">
+                    <p>您可以选择录入听力图功能！</p>
+                </div> 
             </div>
-            <div v-show="imgsData.length == 0" class="noData">
-                <img src="../../../../../static/images/nodata.png" alt="" width="300px">
-                <p>您可以选择录入检查图功能！</p>
+            <div v-show="isActive" class="tinglirightImg">
+                <div v-show="hasData" style="height:100%; margin-left:20px;">
+                    <div class="content-title clearfix">
+                        <div class="fl xq">
+                            详情
+                        </div>
+                        <ul class="fr">
+                            <li @click="_Rotate"><i class="fa fa-undo"></i>旋转</li>
+                            <li @click="_deldeImg"><i class="el-icon-delete2"></i>删除</li>
+                            <!-- <li @click="_deleData('id')"><i class="el-icon-delete2"></i>删除群组</li> -->
+                            <li @click="upload"><i class="el-icon-edit"></i>上传</li>
+                            <li @click="download"><i class="fa fa-cloud-download"></i>下载</li>
+                            <li @click="_print"><i class="fa fa-print"></i>打印</li>
+                        </ul>
+                    </div>
+                    <div class="img-preview">
+                        <Imgpreview  ref="imgs" v-on:imgs="_Allimgs"></Imgpreview>
+                    </div>
+                </div>
+                <div v-show="!hasData" class="noData">
+                    <img :src="nodata" alt="" width="300px">
+                    <p>您可以选择上传检查图功能！</p>
+                </div>
             </div>
         </div>
     </div>
@@ -127,6 +132,7 @@ export default {
         addtinglitu:false,
         isActive:false,
         markData: [],
+        nodata:Options.nodata,
         handleData:[],
         defaultProps:{
           children: 'children',
@@ -149,8 +155,12 @@ export default {
         id:null,
         file:'',
         hidden:false,
+        checkId:0,
         showQQVisible:false,
-        showPrint:false//打印
+        showPrint:false,//打印
+        dataArr:[],
+        loading:true,
+        hasData:true
       }
     },
     // created(){
@@ -170,6 +180,7 @@ export default {
         this.canvasListData = [];
         this.handleData = [];
         this.time = null;
+        this.hasData = true;
         this.$store.commit('getter_code_time',this.time);
         this.$refs.imgs.serverImgUrl = [];
         this.$refs.imgs.bigImg = null;
@@ -179,6 +190,7 @@ export default {
         ...mapState(['studyID','wepAppTime']),
          // 默认选中的节点
         defaultChecked:function(){
+            console.log(this.handleData)
             if(this.handleData[0]){
                 var defaultCheckedId = +this.handleData[0]['children'][0]['id'];
                 // 显示默认选中的学生的测试数据
@@ -188,7 +200,7 @@ export default {
                     this._response1(defaultCheckedId,false);
                 }else{
                     if(this.imgsData.length > 0){
-                        var defaultCheckedId = +this.handleData[0]['children'][0]['children'][0]['id'];
+                        var defaultCheckedId = +this.handleData[0]['children'][0]['id'];
                         this.checkedList = [defaultCheckedId];
                         this.$refs.imgs.getStudyImg('/audiogram/otherimages',{'id':defaultCheckedId});
                     };
@@ -199,7 +211,7 @@ export default {
             return [0];
         } ,
         codeInfo:function(){//生成二维码的信息
-            return {'time':this.time,'type':this.type,'user_id':this.studyID,'file':this.file,'id':this.id}
+            return {'time':this.time,'type':this.type,'user_id':this.studyID,'file':this.file,'id':this.id,'imgs_id':this.checkId}
         },
     },
     watch:{
@@ -211,7 +223,7 @@ export default {
                 if(this.id){//刷新当前日期图片
                     this.$refs.imgs.getStudyImg('/audiogram/otherimages',{'id':this.checkedList[0]});
                 }else{//刷新图片列表
-                    this.tagAttogle('img');
+                    this.tagAttogle(this.checkId);
                 } 
             }
         },
@@ -337,20 +349,23 @@ export default {
             this.addtinglitu = true;
         },
         // 标签切换
-        tagAttogle(str){
+        tagAttogle(index){
+            this.loading = true;
             this.handleData = [];
-            let user_id = {user_id:this.studyID};
-            console.log(str);
-            if(str === "img"){
+            this.checkId = index;
+            if(index !== 0){
                 this.isActive = true;
+                let user_id = {user_id:this.studyID,imgs_id:index};
                 this.$ajax.post('/audiogram/otherlist',user_id).then((response)=>{
-                    console.log(response)
                     if(response.code === 200){
                         this.imgsData = response.data;
                         this._handleCanvasData(this.imgsData,'id');
+                        this.imgsData.length > 0 ? this.hasData = true : this.hasData = false;
                     }else{
                         this.imgsData = [];
+                        this.hasData = false;
                     }
+                    this.loading = false;
                 });
             }else{//听力图数据
                 this.isActive = false;
@@ -376,10 +391,14 @@ export default {
                     this.canvasListData = response.data;
                     // this._response1(response.data[0].audio_id,false)
                     this._handleCanvasData(this.canvasListData,'audio_id');
+                     this.canvasListData.length > 0 ? this.hasData = true : this.hasData = false;
                 }else{//没有数据的话，初始化原始值
                     this.canvasData = ['',''];
+                    this.dataArr = ['',''];
                     this.canvasListData = [];
+                    this.hasData = true;
                 }
+                this.loading = false;
             });
         },
         contrast(store, data) {
@@ -411,63 +430,21 @@ export default {
                 let year = "";
                 if(!item.project_name){
                     for (let i = 0; i < data.length; i++) {
-                      year += data[i]['label'] ;
+                        year += data[i]['label'] ;
                     };
                     if(year.indexOf(parentTime) > -1){
-                      for (let i = 0; i < data.length; i++) {
-                        // 若有则在子对象中添加
-                       if(data[i]['label']  === parentTime) {
-                        data[i]['children'].push({'label':labelTime,'id':item[id]});
-                       }
-                      }
-                    }else{//如果没有则push一个，
-                      let obj = {
-                        "label":parentTime,
-                        'children':[{'label':labelTime,'id':item[id]}]
-                      }
-                      data.push(obj)
-                    }
-                }else{
-                    let nodeSonde = ""
-                    for (let i = 0; i < data.length; i++) {
-                      year += data[i]['label'] ;
-                      // 获取二级节点
-                      let classifyS = data[i]['children']
-                      for (let j = 0; j < classifyS.length; j++) {//判断二级节点是否相同
-                          nodeSonde += classifyS[j].label;
-                          nodeSonde += "-"
-                      }
-                    };
-                    let classify = item.project_name;
-                    if(year.indexOf(parentTime) > -1){//判断年是否
                         for (let i = 0; i < data.length; i++) {
                             // 若有则在子对象中添加
-                           if(data[i]['label']  === parentTime) {//找到已存在的年份
-                                if(nodeSonde.indexOf(classify) > -1){//判断二级节点是否相同
-                                    let nodeSondeData = data[i]['children']
-                                    for (let j = 0; j < nodeSondeData.length; j++) {
-                                        if(nodeSondeData[j].label == classify){//找到相同的节点
-                                            nodeSondeData[j]['children'].push({'label':labelTime,'id':item[id]});
-                                        }
-                                    }
-                                }else{//如果不存在二级节点，则直接添加
-                                    data[i]['children'].push({'label':classify,'children':[{'label':labelTime,'id':item[id]}]});
-                                }
+                            if(data[i]['label']  === parentTime) {
+                                data[i]['children'].push({'label':labelTime,'id':item[id]});
                             }
                         }
                     }else{//如果没有则push一个，
-                      let obj = {
-                        "label":parentTime,
-                        'children':[]
-                      };
-                      let aaa = {'label':classify,'children':[]};
-                      let child = {
-                            'label':labelTime,'id':item[id]
-                        };
-                      aaa['children'].push(child)
-                      obj['children'].push(aaa)
-                      data.push(obj)
-                      // return;
+                        let obj = {
+                            "label":parentTime,
+                            'children':[{'label':labelTime,'id':item[id]}]
+                        }
+                        data.push(obj)
                     }
                 }
             });
@@ -475,24 +452,30 @@ export default {
         },
         // 获取听力图的列表数据
         _response1(id,flag){
-            // console.log(id)
             this.$ajax.post('/audiogram/showone',{'audio_id':id}).then((response) =>{
-                console.log(response)
+                // console.log(response)
                 if(response.code === 200){
                     const resdata = response.data,
                         svgData = JSON.parse(resdata.data);
-                    this.$store.commit('hasCanvasData',resdata);
-                    let user_text = JSON.stringify(resdata);
-                    sessionStorage.setItem('user_text',user_text)
+                    // this.$store.commit('hasCanvasData',resdata);
+                    // let user_text = JSON.stringify(resdata);
+                    // sessionStorage.setItem('user_text',user_text)
                     this.getEar = resdata.radioEar;
                     if(flag){
                         if(this.canvasData.length > 1){//最多保存两组数据，用于进行对比
                             this.canvasData.shift();
+                            this.dataArr.shift();
                         };
                         this.canvasData.unshift(svgData);
+                        this.dataArr.unshift(resdata);
                     }else{
+                        this.dataArr = [resdata];
                         this.canvasData = [svgData];
                     };
+                    let vuexdata  = this.dataArr[this.dataArr.length-1];
+                    this.$store.commit('hasCanvasData',vuexdata);
+                    let user_text = JSON.stringify(vuexdata);
+                    sessionStorage.setItem('user_text',user_text);
                     setTimeout(() =>{
                          this.$refs.tinglitu.drawyuan();//调用听力图中svg渲染
                      },50)
@@ -501,49 +484,12 @@ export default {
         },
         handleNodeClick(data,node,str) {
             if(data.id === undefined){return;}
-            // 如果被选中，再次单击取消选中
-            if(node['checked']){
-                // debugger
-                for (var i = 0; i < this.checkedList.length; i++) {
-                    if(this.checkedList[i] == data['id']){
-                        this.checkedList.splice(i,1);
-                        var canvasData = this.canvasData.splice(i,1);
-                    }
-                };
-                this.checkedList.push(data['id'])
-                this.canvasData.push(canvasData[0])
-                setTimeout(() =>{//调用听力图中svg渲染
-                    this.$refs.tinglitu.drawyuan();
-                },50)
-                return;
-            }
             this.checkedList = [data.id]
             this.checkedListPre = data.id;
             // 被勾选的列表
             this.$refs.tree.setCheckedKeys([data.id]);
             // 最后一个被选择的发送请求
             this._response1(data['id'],false)
-        },
-        checkNode(data,checked,node){
-            return;
-            if(data['id'] == this.checkedListPre){return;}
-            if(checked){//点击复选框时的操作
-                if(data.id === undefined){return;}
-                if(this.checkedList.length > 1){
-                    this.checkedList = [this.checkedList[1]];
-                }
-                this.checkedList.unshift(data['id']);
-                this.$refs.tree.setCheckedKeys(this.checkedList);
-                this._response1(data['id'],true)
-            }else{
-                // console.log(this.checkedList)
-                //点击取消复选框时的操作
-                this.canvasData.shift();
-                // this.canvasData.unshift('');
-                setTimeout(() =>{//调用听力图中svg渲染
-                    this.$refs.tinglitu.drawyuan();
-                },50)
-            }
         },
         // 其它检查的点击选择
         currentOtherClick(data){
@@ -761,7 +707,7 @@ export default {
             margin-bottom: 10px;
             font-size: 18px;
             border-radius: 5px 0 0 5px;
-            box-shadow: 3px 3px 2px #ccc;
+            box-shadow: 0px 2px 2px #ccc;
             &.active{
                 background-color: @bcl;
                 color:@fc;;
@@ -771,8 +717,9 @@ export default {
     /********听力图样式*********/ 
     .tingliright{
         padding-top:30px;
-        width:900px;
-        height: 90%;
+        // width:900px;
+        height:calc(~"100% - 30px");
+        box-sizing: border-box;
         .ear{
             width:100%;
             height: 100%;
@@ -783,7 +730,7 @@ export default {
         }
         .xq{line-height:47px; font-size:18px; text-indent:1em;}
         .content-title{
-            width:calc(~"100% - 20px");
+            width:100%;
         }
         /*****听力图片*****/ 
         .tinglirightImg{

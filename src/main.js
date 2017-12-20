@@ -10,8 +10,9 @@ import Element from 'element-ui'
 import Animate from 'animate.css'
 import JQ from './common/util.js'
 import Utils from './common/util.js'
-import Common from './common/util2.js'
+import Common from './common/common-util2.js'
 import Options from './common/options-data.js'
+import svgPath from './common/svgpath'
 import QRCode from 'qrcodejs2'
 // import VDistpicker from 'v-distpicker'
 //引入store对象
@@ -25,6 +26,8 @@ import 'common/style/css/tingli.css'
 import 'common/style/css/icon.css'
 import 'common/style/css/gameTest.css'
 import 'common/style/css/check.css'
+import 'common/style/css/font-awesome.min93e3.css'
+import 'common/style/css/testicon.css'
 import { Message} from 'element-ui'
 import Slider from 'element-ui/packages/slider'
 // import Table from 'element-ui/lib/table'
@@ -35,6 +38,7 @@ window.jq = JQ.jq;
 window.Utils = Utils;
 window.Common = Common;
 window.Options = Options;
+window.SvgPath = svgPath;
 window.msgTipsErr = Utils.msgTipsErr;//错误信息的提示
 window.msgTipsSuccess = Utils.msgTipsSuccess;//正确信息的提示
 // 全局注册websocket参数

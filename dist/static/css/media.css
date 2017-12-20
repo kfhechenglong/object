@@ -1,0 +1,326 @@
+
+/*********媒体查询适用于1600px屏宽*************/ 
+@media (min-width: 1491px){
+	body{min-height:900px;}
+	/********听力学检查档案*********/ 
+	/* .tingli .tingliright{width:80% ;} */
+	/* // .tinglituclass .ibox-title-row{
+	// width:105px;
+	// margin-right:5px;
+	// } */
+	.tingli .tinglileft .tinglileftTree{width:100%;}
+	/* .tingli .tinglileft{width:18%;} */
+	.tingli .tingliTopTab{width:10%;}
+	.tingli .tingliTopTab li{width:100%;}
+	.header-info .header-st-info .text{
+		min-width: 380px;
+	}
+	/**********精细化评估档案***********/ 
+	.assessment .assessment-title{width:10%;}
+	.assessment .assessment-title ul,.assessment .assessment-title ul li{width:100%;}
+	/* .assessment .assessment-content .assessment-test{max-width:16%;min-width:16%;} */
+	.assessment .assessment-content .assessment-test .test-date{width:100%;}
+	/* .assessment .assessment-content .assessment-details{width:70% ;margin-right:0;} */
+	/***********游戏训练***************/ 
+	.train,.especialTrain{
+		// width: 1150px;
+	    height: 670px;
+	    margin-top: 40px;
+	}
+	/********音素测听********/ 
+	.params,.liu-params,
+	.tone-params,
+	.especialParams,
+	.especial-params{height: 670px;margin-top:40px;}
+	.tone-params .params-main dl{margin:10px;}
+	/***********助听听阈************/ 
+	.params .params-main dl{margin-top:15px;}
+	#audiometry .audiometry-left .audiometry-left-top{height:170px;}
+	#audiometry .audiometry-left .audiometry-left-top div:nth-child(3){
+		height: 170px;
+		background-size: 145px 185px;
+	    bottom: 0px;
+	    left: 315px;
+	}
+	#audiometry .audiometry-left .audiometry-left-top div:nth-child(4),#audiometry .audiometry-left .audiometry-left-top div:nth-child(2){bottom:43px;}
+	// #audiometry .audiometry-right{margin-top:170px;}
+	/*******参数按钮*******/ 
+	.el-radio-button__inner,.el-checkbox-button--large .el-checkbox-button__inner,
+	.el-radio-button--large .el-radio-button__inner,.hz dd .active,.el-button{
+		font-size: 22px;
+		min-width: 100px;
+	} 
+	.m-h-btn i{
+		font-size: 22px;
+	}
+	.more-high section form .el-form-item .el-radio-button__inner{
+        font-size: 16px ;
+        min-width:50px ;
+        padding: 13.5px 15px;
+    }
+	.tone-params .params-main dt{font-size: 22px;}
+	/*******弹框*******/ 
+	.gobackup .fz,.el-message-box__content,.infotable .search span{
+		font-size: 20px;
+	}
+	.dialog_gobackup.el-dialog,.el-message-box{
+		width:500px;
+	}
+	/*******声场校准*********/ 
+	.v-x p{font-size: 16px;}
+	/*******档案管理********/ 
+	.dangan .dangan-main .el-button{font-size: 14px;}
+	.dangan .table .el-table{height:515px !important;}
+	/*******选择学员*******/
+	.infotable .search .input{width:260px;} 
+	/**********编辑听力图*********/ 
+	.addtu .btn-group-lg li button{    width: 130px;height: 45px;}
+	#page-wrapper .ibox-title .ibox-title-row{
+		width: 150px;
+	    height: 45px;
+	    line-height: 45px;
+	    font-size:20px;
+	}
+	#page-wrapper .ibox-title .ibox-title-row .arrows{font-size: 20px;top:13px;}
+	#add .test-add-model li .el-input__inner{height:35px !important;}
+	.tingli .editSvg .el-dialog{margin-bottom:0;}
+	#add .tl-data-table tr input{height:22px;}
+	.addtu .row-info #machine{height:22px !important;}
+	.addtu .row-info li .el-input__inner,.addtu .row tr .el-input .el-input__inner{height:30px;}
+}
+@media(max-width:1490px){
+	body{min-height:768px;min-width:1280px;}
+	.main{padding: 10px 10px; height: calc(100% - 160px);}
+	.home-r-m{margin: 180px auto!important;}
+	.header-info .header-st-info .t-e{margin-left: 50px;}
+	.header-info .header-st-info .text{margin-left: 20px!important;min-width:190px;}
+	.header-info .header-st-info .button-large{
+		height: 45px;
+    	padding: 0 10px;    font-size: 18px;
+    	line-height: 40px;
+	}
+	.header-info .header-st-info{
+		height: 80px;
+	    padding: 10px 20px 10px 20px;
+	    border-top: 5px solid #eeeeee;
+	    border-bottom: 5px solid #eeeeee;
+	    background-color: #fff;
+	}
+	.header-info .header-st-info .equipment{font-size: 14px;}
+	.header-info .header-st-info .img-name {font-size: 20px;}
+	.header-info .header-st-info .img-name div i{font-size: 16px;}
+	.header-info .header-st-info .back{width:110px;}
+
+	.main-title .main-t-l{height:40px;width:250px;}
+	.main-title .main-t-l div{width:150px;  border-bottom: 40px solid #5f9970;}
+	.main-title .main-t-l h2{font-size: 18px;letter-spacing:5px;}
+	.main-title .main-t-r .button-large{height:40px;font-size: 18px;}
+	.base, .caseFiles, .assessment, .tingli{height: calc(100% - 51px);}
+	.dangan .title h2{line-height: 45px;font-size: 20px;}
+	.right-main ul{height:45px !important;font-size: 20px !important;}
+	.right-main ul .dn{margin:10px 20px 10px 10px !important;font-size: 20px !important;}
+	.right-main ul li{font-size: 15px !important;margin:2px 10px 2px 10px !important;height:38px !important;line-height: 38px !important;}
+	.base .base-bottom .base-bottom-warp{margin:5px 15px;height:200px;}
+	.base dl{padding:0;}
+	.left-main{height:calc(100% - 3px) !important;}
+	// .tingli .tinglileft,.assessment .assessment-content .assessment-test{padding:10px;}
+	.tingli .tinglileft .tinglileftTree,.assessment .assessment-content .assessment-test{height:425px;}
+	.assessment .assessment-content .assessment-test .test-date{height:383px;}
+	.tingli .tinglileft .tinglileftTree .test-date{height:378px;}
+	// .tingli .tinglileft .tinglileftTree li{font-size: 15px;height: 30px;line-height: 30px;}
+	// .tingli .tingliright .tinglirighttTop,.assessment .assessment-content .assessment-details .content-title{height:35px;}
+	// .tingli .tingliright .tinglirighttTop .xq,.assessment .assessment-content .assessment-details .content-title h3{line-height:40px;font-size: 15px;}
+	// .tingli .tingliright .tinglirighttTop ul li,.assessment .assessment-content .assessment-details .content-title li{
+	// 	font-size: 15px;
+	//     padding: 0 7px;
+	//     height: 30px;
+	//     margin-left: 5px;
+	//     line-height: 30px;
+	// }
+	.tingli .tingliright .tinglirighttTop ul li{padding: 0 5px;margin-left: 4px;}
+	.tingli .editSvg .el-dialog{margin-bottom:0;width:1250px;padding-bottom:10px;}
+	.addtu .bigCanvas{width:1230px;}
+	#add .big-btn{right:35px;}
+	.addtu #save{margin:30px 20px;}
+	.tingli .tingliTopTab,.tingli .tingliright{padding-top:20px;}
+	.tingli .tinglileft,.assessment .assessment-content{margin-top:20px;}
+	.ibox-title{margin-top:5px;}
+	// .tinglituclass .el-checkbox-button__inner{width:88px;}
+	// .tinglituclass .el-checkbox-button__inner i{display:none;}
+	.tinglituclass .row .markData{font-size: 14px;margin-right: 10px;}
+	.assessment .assessment-content .assessment-test h3{font-size: 16px;height:42px;}
+	.assessment .assessment-content .assessment-details .content-info ul li,
+	.assessment .assessment-content .assessment-details .group span{font-size: 16px;}
+	
+	// .dangan .dangan-main .search{width:60%;}
+	.dangan .table{padding: 10px 20px;}
+	.dangan .table .el-table{height:400px !important;}
+	/*******档案查询宽度百分比********/ 
+	.main .main-left{max-width:250px !important;}
+	.main .main-right{width: calc(100% - 250px) !important;}
+	/********听力学检查档案*********/ 
+  .tingli .ting_warp{width: 93%;}
+  .tinglituclass .ibox-title-row{
+	width:105px;
+	margin-right:5px;
+  }
+  .tingli .tinglileft .tinglileftTree{
+  	width:100%;
+  }
+  .tingli .tingliTopTab,.assessment .assessment-title{width:7%;}
+  .tingli .tingliTopTab li,.assessment .assessment-title ul li{
+  	width:100%;
+  	height:35px;
+  	font-size: 14px;
+  }
+  /**********精细化评估档案***********/ 
+  .assessment .assessment-title ul,.assessment .assessment-title ul li{width:100%;}
+  .assessment .assessment-content .assessment-test{max-width:18%;min-width:18%;}
+  .assessment .assessment-content .assessment-test .test-date{width:100%;}
+  .assessment .assessment-content .assessment-details{width:80% ;margin-right:0;}
+  .assessment .assessment_warp{width: 93%;}
+	/*********游戏测听**********/ 
+	.liu-params,.tone-params,.params,.especialParams,.especial-params{
+	    height: 600px;
+	    margin: 0px auto;
+	    margin-top: 30px;
+	    background-color: #fff;
+	    border: 4px solid #5f9970;
+	}
+	.params .params-main,.tone-params .params-main{padding-left: 70px;}
+	.params .title h3,.tone-params .title span,.tone-params .title h3,
+	.especial-params .title h3,.especialParams .title h3,.especialParams .title span,
+	.liu-params .title h3,.liu-params .title span{font-size: 20px;line-height: 40px;}
+	.liu-params .params-main dl,.params .params-main dl,.especial-params .params-main dl,
+	#audiometry .audiometry-right .audiometry-main dl
+	{margin-top:10px;}
+	.tone-params .params-main ul li .check-main span{height:30px;line-height: 30px;}
+	.tone-params .params-main ul li .check-main p{font-size: 16px;}
+	.tone-params .params-main ul{width:850px;}
+	.especial-params .params-main ul{width:700px;}
+	.tone-params .params-main ul li{width: 400px;margin: 0 10px 5px 0px;height:30px;line-height: 30px;}
+	.especialParams .params_content{margin: 100px auto 0px;}
+	.especial-params .bg{    margin-top: 2px;}
+	.gameType dl.games .img,.gameType dd img,.gameType dl.games p{height:80px;width:80px;}
+	.gameType dd img{border: 3px solid #e6f0e5;}
+	.gameType dl.games p{margin:3px;}
+	.gameType dl.games span{font-size: 14px;}
+	.g-btn div button{width:220px;height:60px;font-size: 28px;line-height: 50px;}
+	#liu-audiometry,#tone-audiometry,#especial-audiometry{
+		margin:0;
+		margin-top: 35px;
+		margin-right: auto;
+		margin-left: auto;
+		width:1280px;
+		height:550px;
+	}
+	#audiometry{
+		width:1280px;
+		// height:550px;
+	}
+	#tone-audiometry .audiometry-left,#liu-audiometry .audiometry-left,#especial-audiometry .audiometry-left{height:550px;}
+	#audiometry .audiometry-left .audiometry-left-top{height:150px;}
+	#audiometry .audiometry-left .audiometry-left-top div:nth-child(3){
+		width: 130px;
+	    height: 150px;
+	    background-size: 130px 150px;
+	    left: 314px;
+	}
+	#audiometry .audiometry-left .audiometry-table #table #warp{height:380px;}
+	#audiometry .audiometry-left .audiometry-table .table-HZ{height:90px;}
+	#audiometry .audiometry-left .audiometry-table .table-HZ ul > li strong{font-size: 40px;}
+	#audiometry .audiometry-left .audiometry-table #table{height:380px;}
+	#audiometry .audiometry-left .audiometry-table{height: 490px;border: 4px solid #5e9b71;}
+	#audiometry .audiometry-left .audiometry-table #table li{line-height: 24px;font-size: 14px;}
+	#audiometry .audiometry-right{    
+		/* // margin-top: 150px; */
+    	height: 640px;
+    	border: 4px solid #5e9b71;
+    }
+    #tone-audiometry .audiometry-right .button,#especial-audiometry .audiometry-right .button{margin: 35px 0 0 88px;}
+    #audiometry .audiometry-left .audiometry-left-top div:nth-child(2){bottom: 45px;left: 135px;}
+    #audiometry .audiometry-left .audiometry-left-top div:nth-child(4){bottom: 45px;right: 115px;}
+    #audiometry .audiometry-left{width:750px;}
+	#audiometry .audiometry-right .button{margin: 35px 88px 0 88px;}
+	#audiometry .audiometry-right .audiometry-main dt,#audiometry .audiometry-right .audiometry-main .demonstration{font-size: 18px;}
+	/***********游戏训练***************/ 
+	.train,.especialTrain{
+		width: 1150px;
+	    height: 600px;
+	    margin-top: 30px;
+	    border: 4px solid #5f9970;
+	}
+	/*************高级查询************ **/
+	/*********按钮组**********/ 
+	/* // .more-high section .header ul,.more-high section .header ul > div{
+	// 	max-width:150px;
+	// 	min-width:150px;
+	// }  */
+	.more-high section .header .td{
+		min-width:210px;
+	}
+	.more-high section{
+		padding: 10px;
+	}
+	.base .address select{
+		width: 85px;
+	}
+	#liu-audiometry .audiometry-right .button button{
+		height: 50px;
+	}
+	/*****
+	.more-high section form .zhuang,
+	.more-high section form .name, 
+	.more-high section form .gender,
+	.more-high section form .el-date-editor.el-input{
+		width:115px !important;
+	}
+	.more-high section form .sh-year .el-date-editor.el-input{
+		width: 47px !important;
+	}
+	.age-warp .el-form-item__content{
+		width:108px !important;
+	}*****/ 
+	.more-high section .table .table-content .el-table{
+		height:300px !important;
+	}
+	.more-high section .table .table-content ul{
+		height:266px;
+	}
+	/**********助听听阈测评结果************/ 
+	#add-zhu .big-btn{right:30px;}
+	/***********打印预览定位**************/ 
+	.print-warp {
+	    margin:15px auto;
+	}
+	.result .el-dialog{top:4%!important;}
+}
+@media (min-width: 1920px){
+	body {
+	    min-height: 980px;
+	}
+	.dangan .table .el-table{height:560px !important;}
+	.home-r-m{margin:250px auto!important;}
+	.params,.liu-params,.tone-params,
+	.especialParams,.especial-params{height: 750px;margin-top:60px;}
+	/***********游戏训练***************/ 
+	.train,.especialTrain{
+	    height: 750px;
+	    margin-top: 60px;
+	}
+	.train .train-main .train-main-middle 
+	,.especialTrain .train-main .train-main-middle{
+	    margin: 80px 0 150px 165px;
+	}
+	.tone-params .params-main dl{margin:15px;}
+	.g-btn{margin-top:50px;}
+	.more-high section .table .table-content .el-table{
+		height:450px !important;
+	}
+	.more-high section .table .table-content ul{
+		height:420px;
+	}
+	.header-info .header-st-info .text{
+		min-width: 480px;
+	}
+}

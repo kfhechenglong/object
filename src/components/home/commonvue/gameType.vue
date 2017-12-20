@@ -41,7 +41,6 @@
   </div>
 </template>
 <script>
-const nodata = require('../../../../static/images/nodata.png');
 export default{
 	data(){
 		return{
@@ -50,7 +49,7 @@ export default{
       web_url:web_url,
       currentgame:[],
       value: {},
-      errorImg:'this.src="' + nodata + '"' ,
+      errorImg:'this.src="' + Options.nodata + '"' ,
       level:"",
       data_arr:[]
     }

@@ -115,16 +115,15 @@
                                     </tr>               
                                     <tr>
                                         <td><i id="tingyu-L" class="testicon testicon-FF-L font-color-blue"></i></td>
-                                        <td><i id="tingyu-S" class="testicon testicon-FF-S font-color-blue"></i></td>
+                                        <td><i id="tingyu-S" class="testicon testicon-FF-S"></i></td>
                                         <td><i id="tingyu-R" class="testicon testicon-FF-R font-color-red"></i></td>
                                         <td>助听听阈</td>
                                     </tr>
                                     <tr>
                                         <td></td>
-                                        <td>B</td>
+                                        <td><i class="testicon testicon-FF-S-M"></i></td>
                                         <td></td>
                                         <td>裸耳</td>
-                                        
                                     </tr>
                                     <tr>
                                         <td>&darr;</td>
@@ -254,7 +253,6 @@ export default {
 }
 </script>
 <style lang ="less">
-@import"../../../../static/css/testicon.css";
 .reportClass{
     color:#000;
     font-size: 14px;

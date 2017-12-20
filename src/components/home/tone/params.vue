@@ -136,6 +136,19 @@ export default {
 		}
  	},
  	computed:{
+		 setDataModel:function(){
+			 let arr = this.groupSort;
+			 let arrtemp = [];
+			arr.forEach(item =>{
+				arrtemp.push({
+					isneed:1,
+					isfinsih:0,
+					result:{},
+					data:item
+				})
+			})
+			return arrtemp;
+		},
  		checkdata:function(){
  			return{
 				'data':this.groupSort,
@@ -143,7 +156,8 @@ export default {
 				'crtgame':this.Active,
 				'level':this.level
 			}
- 		}
+		 },
+		
  	},
  	methods:{
  		// 操作数组
@@ -228,7 +242,6 @@ export default {
 	    	for (var i = 0; i < this.current.length; i++) {
 	    		groupSort.push(this.groupAll[this.current[i]])
 	    	}
-	    	// console.log(groupSort)
 	    	this.groupSort = groupSort;
 	    },
 	    // 全选按钮

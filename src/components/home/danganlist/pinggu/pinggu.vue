@@ -3,112 +3,112 @@
     <div class="assessment-content clearfix">
       <div class="assessment-title fl">
         <ul class="clearfix">
-          <li v-for="(val,key) in listType" @click="currentType(val['type'],key)" :class="[key === currentTypeIndex ?'typeclass':'']">{{val['name']}}</li>
+          <li v-if="key != 0" v-for="(val,key) in listType" @click="currentType(val['key'],key)" :class="[key === currentTypeIndex ?'typeclass':'']">{{val['name']}}</li>
         </ul>
       </div>
-    	<div class="assessment-test fl">
-    		<h3>测试记录</h3>
-    		<div class="test-date">
-          <el-tree :data="_handleData" ref="tree" node-key="id" :props="defaultProps" @node-click="handleNodeClick" :highlight-current="true" :default-expanded-keys="[1]" :default-checked-keys="defaultChecked" @check-change="checkNode"></el-tree>
-    		</div>
-    	</div>
-    	<div class="assessment-details fl">
-      <!-- 如果有数据则显示，否则提示暂无数据 -->
-        <div v-if="checkedListData['tableHeader'].length > 0">
-    		  <div class="content-title clearfix">
-      			<h3 class="fl">详情</h3>
-      			<ul class="fr">
-              <li title="删除选中的数据" @click="_deleData"><i class="el-icon-delete2"></i>删除</li>
-      				<li title="扫码下载" @click="_download" v-if="currentTypeId != 0"><i class="fa fa-cloud-download"></i>下载</li>
-      				<li title="在线打印" @click="print"  v-if="currentTypeId != 0"><i class="fa fa-print"></i>打印</li>
-      			</ul>
-    		  </div>
-      		<div class="content-info clearfix" >
-      			<ul class="clearfix">
-      				<li><span>测试时间：</span><em>{{testTime}}</em></li>
-      				<li><span>测试人：</span><em>{{checkedListData['teacher']}}</em></li>
-      				<li v-if="currentTypeId == 0"><span>平均识别率：</span><em style="color:red;">{{itemAccuracy}}</em></li>
-      			</ul>
-      		</div>
-      		<div class="content-talbe">
-              <div class="group clearfix">
-                <span class="fl">记录表：</span>
-                <ul  class="clearfix fl">
-                  <li v-for="index in tableHeader.length"  class="fl" @click= "showTable(index)" :class=" currentIndex == index-1 ? 'currentGroup' : '' " >第{{index}}组</li>
-                </ul>
-              </div>
-              <div class="table">
-                <div class="liu-table" id="tableinit">
-                  <table v-if= "currentTypeId === 1">
-                    <tr>
-                      <td v-for="item,index in groupTableHeader" :class="['headerbg', item == '' ?'gray' :'']" ref="td"><span>{{item}}</span></td>
-                    </tr>
-                    <tr v-for="val,index1 in distance">
-                    <!-- 对表行和列分别循环，其中行和列的值为空时背景颜色为gray -->
-                    <!-- 每行的第一个td显示词组的词，tableTr的第一个元素为空 -->
-                      <td v-for="item,index2 in groupTableHeader" :class="[(!item || !val) ?'gray':'',index2 == 0 ? 'headerbg' :'']">
-                        {{ index2 == 0 ? val :''}}
-                        <span v-if="currentRenderData[item] && currentRenderData[item][val]">
-                          <span v-if="currentRenderData[item][val]['success'] >= 2 ">{{'√'}}</span>
-                          <span v-else-if="currentRenderData[item][val]['false'] >= 2 ">{{'×'}}</span>
-                          <span v-else>{{"—"}}</span>
-                        </span>
-                      </td>
-                    </tr>
-                  </table>
-                  <table v-else-if= " currentTypeId === 0">
-                    <tr>
-                      <td v-for="item,index in groupTableHeader" :class="['headerbg', item == '' ?'gray' :'']" ref="td"><span v-if="index !=0">{{item}}</span></td>
-                    </tr>
-                    <tr v-for="val,index1 in tableTr">
-                    <!-- 对表行和列分别循环，其中行和列的值为空时背景颜色为gray -->
-                    <!-- 每行的第一个td显示词组的词，tableTr的第一个元素为空 -->
-                      <td v-for="item,index2 in groupTableHeader" :class="[(!item || !val) ?'gray':'',index2 == 0 ? 'headerbg' :'']">
-                        {{ index2 == 0 ? val :''}}
-                        <span v-if="currentRenderData[val] && currentRenderData[val][item] !=0 ">
-                          {{(item == val)&&(item) ? currentRenderData[val][item] :''}}
-                          {{(item != val) && (val && item) ? currentRenderData[val][item] :''}}
-                        </span>
-                      </td>
-                    </tr>
-                  </table>
-                  <table v-else>
-                    <tr>
-                      <td v-for="item,index in groupTableHeader" :class="['headerbg', item == '' ?'gray' :'']" ref="td"><span v-if="index !=0">{{item}}</span></td>
-                    </tr>
-                    <tr v-for="val,index1 in tableTr">
-                    <!-- 对表行和列分别循环，其中行和列的值为空时背景颜色为gray -->
-                    <!-- 每行的第一个td显示词组的词，tableTr的第一个元素为空 -->
-                      <td v-for="item,index2 in groupTableHeader" :class="[(!item || !val) ?'gray':'',index2 == 0 ? 'headerbg' :'']">
-                        {{ index2 == 0 ? val :''}}
-                        <span v-if=" (index1 === 0) && tonePIN[item]">
-                          {{tonePIN[item]['statistics']}}
-                        </span>
-                        <span v-if=" (index1 === 1) && tonePIN[item]">
-                          <i v-for="ele in tonePIN[item]['hasFalse']"><em v-if="ele != '—'">{{item}}/</em><em></em>{{ele}}<br></i>
-                        </span>
-                      </td>
-                    </tr>
-                  </table>
-                </div>
-              </div>
-              <!-- 音素测听的评价 -->
-              <div  v-if= "currentTypeId != 1 && currentTypeId != 0">
-                <toneStar :starValue="starValue" :groupId="groupId"></toneStar>
-              </div>
-              <!-- 林氏六音的评价 -->
-              <div v-if= "currentTypeId == 1">
-                <!-- <liuStar :distance="distance" :value="valueStar"></liuStar> -->
-              </div>
-              <div class="last-l-t clearfix">
-                <span class="fl">备&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;注：</span>
-                <em class="fl">{{checkedListData.textarea}}</em>
-              </div>
-      		</div>
-          <!-- <TableVue ref="table" :markData="markData" :listId="listId"></TableVue> -->
+      <div  class="assessment_warp fl clearfix" style="overflow:hidden;" v-loading.body="loading" element-loading-text="拼命加载中">
+        <div class="assessment-test fl">
+          <h3>测试记录</h3>
+          <div class="test-date">
+            <el-tree :data="_handleData" ref="tree" node-key="id" :props="defaultProps" @node-click="handleNodeClick" :highlight-current="true" :default-expanded-keys="[1]" :default-checked-keys="defaultChecked" @check-change="checkNode"></el-tree>
+          </div>
         </div>
-        <div v-else class="noData"> <img src="../../../../../static/images/nodata.png" alt="" width="300px"></div>
-    	</div>
+        <div class="assessment-details fl">
+        <!-- 如果有数据则显示，否则提示暂无数据 -->
+          <div v-if="hasData">
+            <div class="content-title clearfix">
+              <h3 class="fl">详情</h3>
+              <ul class="fr">
+                <li title="删除选中的数据" @click="_deleData"><i class="el-icon-delete2"></i>删除</li>
+                <li title="扫码下载" @click="_download" v-if="currentTypeId != 0"><i class="fa fa-cloud-download"></i>下载</li>
+                <li title="在线打印" @click="print"  v-if="currentTypeId != 0"><i class="fa fa-print"></i>打印</li>
+              </ul>
+            </div>
+            <div class="content-info clearfix" >
+              <ul class="clearfix">
+                <li><span>测试时间：</span><em>{{testTime}}</em></li>
+                <li><span>测试人：</span><em>{{checkedListData['teacher']}}</em></li>
+                <li v-if="currentTypeId == 0"><span>平均识别率：</span><em style="color:red;">{{itemAccuracy}}</em></li>
+              </ul>
+            </div>
+            <div class="content-talbe">
+                <div class="group clearfix">
+                  <span class="fl">记录表：</span>
+                  <ul  class="clearfix fl">
+                    <li v-for="index in tableHeader.length"  class="fl" @click= "showTable(index)" :class=" currentIndex == index-1 ? 'currentGroup' : '' " >第{{index}}组</li>
+                  </ul>
+                </div>
+                <div class="table">
+                  <div class="liu-table" id="tableinit">
+                    <table v-if= "currentTypeId === 1">
+                      <tr>
+                        <td v-for="item,index in groupTableHeader" :class="['headerbg', item == '' ?'gray' :'']" ref="td"><span>{{item}}</span></td>
+                      </tr>
+                      <tr v-for="val,index1 in distance">
+                      <!-- 对表行和列分别循环，其中行和列的值为空时背景颜色为gray -->
+                      <!-- 每行的第一个td显示词组的词，tableTr的第一个元素为空 -->
+                        <td v-for="item,index2 in groupTableHeader" :class="[(!item || !val) ?'gray':'',index2 == 0 ? 'headerbg' :'']">
+                          {{ index2 == 0 ? val :''}}
+                          <span v-if="currentRenderData[item] && currentRenderData[item][val]">
+                            <span v-if="currentRenderData[item][val]['success'] >= 2 ">{{'√'}}</span>
+                            <span v-else-if="currentRenderData[item][val]['false'] >= 2 ">{{'×'}}</span>
+                            <span v-else>{{"—"}}</span>
+                          </span>
+                        </td>
+                      </tr>
+                    </table>
+                    <table v-else-if= " currentTypeId === 7">
+                      <tr>
+                        <td v-for="item,index in groupTableHeader" :class="['headerbg', item == '' ?'gray' :'']" ref="td"><span v-if="index !=0">{{item}}</span></td>
+                      </tr>
+                      <tr v-for="val,index1 in tableTr">
+                      <!-- 对表行和列分别循环，其中行和列的值为空时背景颜色为gray -->
+                      <!-- 每行的第一个td显示词组的词，tableTr的第一个元素为空 -->
+                        <td v-for="item,index2 in groupTableHeader" :class="[(!item || !val) ?'gray':'',index2 == 0 ? 'headerbg' :'']">
+                          {{ index2 == 0 ? val :''}}
+                          <span v-if="currentRenderData[val] && currentRenderData[val][item] !=0 ">
+                            {{(item == val)&&(item) ? currentRenderData[val][item] :''}}
+                            {{(item != val) && (val && item) ? currentRenderData[val][item] :''}}
+                          </span>
+                        </td>
+                      </tr>
+                    </table>
+                    <table v-else>
+                      <tr>
+                        <td v-for="item,index in groupTableHeader" :class="['headerbg', item == '' ?'gray' :'']" ref="td"><span v-if="index !=0">{{item}}</span></td>
+                      </tr>
+                      <tr v-for="val,index1 in tableTr">
+                      <!-- 对表行和列分别循环，其中行和列的值为空时背景颜色为gray -->
+                      <!-- 每行的第一个td显示词组的词，tableTr的第一个元素为空 -->
+                        <td v-for="item,index2 in groupTableHeader" :class="[(!item || !val) ?'gray':'',index2 == 0 ? 'headerbg' :'']">
+                          {{ index2 == 0 ? val :''}}
+                          <span v-if=" (index1 === 0) && tonePIN[item]">
+                            {{tonePIN[item]['statistics']}}
+                          </span>
+                          <span v-if=" (index1 === 1) && tonePIN[item]">
+                            <i v-for="ele in tonePIN[item]['hasFalse']"><em v-if="ele != '—'">{{item}}/</em><em></em>{{ele}}<br></i>
+                          </span>
+                        </td>
+                      </tr>
+                    </table>
+                  </div>
+                </div>
+                <!-- 音素测听的评价 -->
+                <div  v-if= "currentTypeId != 1 && currentTypeId != 7">
+                  <toneStar :starValue="starValue" :groupId="groupId"></toneStar>
+                </div>
+                <!-- 林氏六音的评价 -->
+                <div v-if= "currentTypeId == 1">
+                </div>
+                <div class="last-l-t clearfix">
+                  <span class="fl">备&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;注：</span>
+                  <em class="fl">{{checkedListData.textarea}}</em>
+                </div>
+            </div>
+          </div>
+          <div v-else class="noData"> <img :src="nodata" alt="" width="300px"></div>
+        </div>
+      </div>
     </div>
     <Printliu ref="print" :showQQCode="false" :distance="distance" :tableHeader="groupTableHeader" :info="info" :resultData="resultData" :resultEstimateArry="resultEstimateArry"></Printliu>
     <Printtone  ref="printtone"  :starValue="starValue" :showQQCode="false" :info="info" :jieguo="tonePIN" :rederData="resultData"></Printtone>
@@ -117,7 +117,7 @@
 </template>
 
 <script>
-const listType = [{name:'林氏六音',type:1},{name:'音素识别',type:2},{name:'声调识别',type:3},{name:'声母识别',type:4},{name:'自定义测试',type:0}];
+// const listType = [{name:'林氏六音',type:1},{name:'音素识别',type:2},{name:'声调识别',type:3},{name:'声母识别',type:4},{name:'自定义测试',type:0}];
 import {mapState,mapMutations} from'vuex'
 import util from'../../../../common/util'
 import liuStar from'../../commonvue/star/liustar.vue'
@@ -133,13 +133,14 @@ export default {
   },
   data() {
     return {
-      listType:listType,
+      listType:Options.testType1,
       // 表格数据
       groupTableHeader:[],
       tableTr:{},
       // 当前渲染的列表
       currentIndex:0,
       markData: [],
+      nodata:Options.nodata,
       defaultProps: {
         children: 'children',
         label: 'label'
@@ -150,7 +151,7 @@ export default {
       itemAccuracy: "暂无数据",
       tableHeader:[],
       // 当前的音素类型
-      currentTypeIndex:0,
+      currentTypeIndex:1,
       currentTypeId:0,
       // 渲染的数据
       currentRenderData:'',
@@ -168,6 +169,8 @@ export default {
       groupId:Number,
       groupIdArray:[],
       starValue:{},//星级综合评价
+      loading:true,
+      hasData:true
     };
   },
   created(){
@@ -307,15 +310,17 @@ export default {
   },
   beforeRouteEnter (to, from, next) {
     next(function(vm){
-      vm.currentType(1,0);
+      vm.currentType(1,1);
     })
   },
   beforeRouteLeave (to, from, next) {
     this.groupTableHeader =[];
     this.tableHeader = [];
     this.currentRenderData = [];
-    this.currentTypeIndex = 0;
+    this.currentTypeIndex = 1;
     this.currentTypeId = 0;
+    this.loading = true;
+    this.hasData = true;
     next();
   },
   methods: {
@@ -344,6 +349,7 @@ export default {
       this.testTime = data.label;
       // 获取当前的列表ID
       this.listId = data.id;
+      this.checked = [data.id];
       // 选中状态
       this.$refs.tree.setCheckedKeys([data.id]);
       this.hasStar(data.id);
@@ -388,6 +394,7 @@ export default {
     },
     // 选择显示的音素类型
     currentType(str,index){
+      this.loading = true;
       sessionStorage.setItem('test_id',JSON.stringify(str));
       // 数据请求
       let agruments = {
@@ -396,7 +403,7 @@ export default {
       };
       this.currentTypeId = str;
       this.currentTypeIndex = index ;
-      if(str === 0){
+      if(str === 7){
         let agruments = {
          'user_id':this.studyID
         };
@@ -416,13 +423,12 @@ export default {
         this.currentRenderData = this.checkedListData['renderData'][index];
         // 当前的渲染表头
         this.groupTableHeader = this.checkedListData['tableHeader'][index];
-
         let groupTableHeader =  this.checkedListData['tableHeader'][index].concat();
         // 林氏六音
-        if(this.currentTypeId === 0){
+        if(this.currentTypeId === 7){
           // 获取正取率
           this.itemAccuracy = groupTableHeader.shift();
-          this.tableTr = groupTableHeader ;
+          this.tableTr = groupTableHeader.concat().slice(0,2) ;
         }else{
           this.tableTr = ['识别率','混淆']
         }
@@ -458,7 +464,7 @@ export default {
                   'type_id':that.currentTypeId
                 };
                 // 删除个性化听辨的数据
-                if(that.currentTypeId === 0){
+                if(that.currentTypeId === 7){
                   that._api(that,'/voices/delete',agruments,true);
                   return;
                 };
@@ -475,15 +481,19 @@ export default {
     },
     // api接口
     _api(str,api,agruments,dele){
+      console.log(agruments)
        str.$ajax.post(api,agruments).then((response) =>{
           console.log(response);
           // return;
           if (response.code ===200){
             // str.markData = response.data;
             str.markData = response.data;
+            str.markData.length > 0 ? this.hasData = true : this.hasData = false;
           }else{
             str.markData = [];
+            this.hasData = false;
           };
+          this.loading = false;
           // 删除时的提示信息
           if(dele){
             str.checked.length = 0;
@@ -523,7 +533,7 @@ export default {
         line-height: 40px;
         color: #337ab7;
         margin-bottom: 10px;
-        box-shadow: 2px 2px 2px #ccc;
+        box-shadow: 0px 2px 2px #ccc;
         // &:hover{
         //    background-color: #88d89f;
         //   color:#fff;
@@ -534,7 +544,7 @@ export default {
         color:#fff;
       }
 		}
-	}
+  }
   .assessment-content{
     margin-top:30px;
     .assessment-test{
@@ -543,8 +553,8 @@ export default {
       background:@bcl;
       border-radius: 0 13px 13px 13px;
       box-shadow:1px 1px 5px @bcl;
-      min-width: 200px;
-      max-width:300px;
+      // min-width: 200px;
+      // max-width:300px;
       height:500px;
       h3{
         font-size:20px;
@@ -567,13 +577,14 @@ export default {
       }
     }
     .assessment-details{
-      margin-right:20px;
-      width: 900px;
+      // margin-right:20px;
+      // width: 900px;
       /**暂无数据时的提示***/
       .content-title{
         margin-left: 20px;
         padding-left:20px;
         width:calc(~"100% - 20px");
+        box-sizing: border-box;
         h3{
           font-size:20px;
         }

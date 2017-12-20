@@ -226,7 +226,6 @@
               passwd: hex_md5(hex_md5(this.ruleForm2.checkPass) + parseInt((date.getTime()/1000))),
               datestr:parseInt((date.getTime()/1000))
             };
-            console.log(loginParams)
             // 登录验证
             requestLogin(loginParams).then(data => {
               // console.log(data)
@@ -257,7 +256,7 @@
                   this.$router.push({ path: '/home' ,query:{'d':Math.random()}});
                 // };
               }
-            });
+            })
           } else {
             // alert('用户名或密码不合法');
             return false;

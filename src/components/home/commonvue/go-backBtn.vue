@@ -6,24 +6,27 @@
 	</div>
 </template>
 <script>
+import {mapState} from'vuex'
 export default{
 	data(){
 		return{
 		}
 	},
 	props:{
-		flag:{
-			type:Boolean,
-			default:true
-		}
+		// flag:{
+		// 	type:Boolean,
+		// 	default:true
+		// }
 	},
-	created(){
+	computed:{
+		...mapState(['btn_tips'])
 	},
 	methods:{
 		goBack(){
  			// 判断是已经保存测试数据，若未保存，则提示保存，否则直接退出
- 			if(this.flag){
- 				this.$confirm('测试数据未保存，是否退回到主页?', '提示', {
+ 			if(this.btn_tips){
+ 				var str  = '测试数据未保存，是否退回到主页？';
+ 				this.$confirm(str, '提示', {
 		            //type: 'warning'
 		        }).then(() => {
 		            this.$router.push({ path: '/home' });

@@ -72,6 +72,10 @@ export default{
 		}
 	},
 	mounted (){
+    var that = this;
+    Vm.$on('closeVioce',(msg)=>{
+      that.cancel();
+    });
   },
   watch:{
     initial_value(){
@@ -113,6 +117,9 @@ export default{
         }
         this.myEchart();
       });
+    },
+    destroyEchart(){
+      echarts.dispose(myChart);
     },
     setRandomValue(){
       const fn = ()=>{
@@ -284,6 +291,7 @@ export default{
 
       this.timerInterval = null;
       this.hiddenEchart = false;
+      this.destroyEchart()
       console.log('cancel')
     },
     nextStepthree(){//校准不符合要求时的，开始校准

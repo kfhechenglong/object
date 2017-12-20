@@ -63,8 +63,8 @@
               <li @click="_checked($event,0)"><el-button type="info"><i class="iconfont icon-iconfontdayinji"></i>&nbsp;打印报告</el-button></li>
               <li @click="toggleClass"><el-button type="info"><i class="iconfont icon-class"></i>&nbsp;调换班级</el-button></li>
               <li @click="toggleTeacher"><el-button type="info"><i class="iconfont icon-banzhuren"></i>&nbsp;调换老师</el-button></li>
-              <li @click="toggleSchool"><el-button type="info"><i class="iconfont icon-zhuangtai"></i>&nbsp;在校状态</el-button></li>
-              <li @click="deleMore"><el-button type="danger"><i class="el-icon-delete2"></i>&nbsp;删除</el-button></li>
+              <li @click="toggleSchool"><el-button type="info"><i class="iconfont icon-hxzfont15"></i>&nbsp;在校状态</el-button></li>
+              <li @click="deleMore"><el-button type="danger"><i class="el-icon-delete2"></i>&nbsp;删除选择</el-button></li>
               <!-- <div v-for="item in imgurl">
                   <img :src="item" alt="" >
               </div> -->

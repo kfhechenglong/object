@@ -109,7 +109,7 @@ export default{
     top:-90px;
     width:300px;
     height:80px;
-    background: url(../../../../static/images/new-title.png) no-repeat 3px -98px ;
+    background: url(../../../common/images/new-title.png) no-repeat 3px -98px ;
 }
 .add-class{
 	.el-dialog--small{

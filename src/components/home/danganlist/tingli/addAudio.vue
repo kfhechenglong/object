@@ -101,7 +101,7 @@
     .c-btn{
       margin-left:10px;
       width:10%;
-      margin-top:100px;
+      margin-top:200px;
     }
     .btn-group-lg{
       li{
@@ -181,7 +181,7 @@
       left: 0px;
       top: 0px;
       width:1280px;
-      height:700px;
+      height:720px;
       border-top: 1px solid #ccc;
       background-color:#fff;
     } 
@@ -212,20 +212,20 @@
             </ul>
           </div>
           <!-- 听力图部分 -->
-          <div class="ibox-content" style=" height:calc(100% - 70px);width:100%;" id="ibox">
+          <div class="ibox-content" style=" height:calc(100% - 30px);width:100%;" id="ibox">
              <!--听力图-->
-             <div class="row clearfix" style="height:75%;" id="row">
+             <div class="row clearfix" style="height:80%;" id="row">
                  <!--右耳听力图-->
-                <ele-svg  ref="addSvg" @newSvgDataToSave = "getNewSvgData" :isShowInput="true" :svgId="1" :hzAaverage="hz_average" :svgMarks="canvasMarks" :ear="ear" :svgWidth="43" @showBigSvg ="isShowBigSvg" :svgParentId="'#add-svg'">
+                <ele-svg  ref="addSvg" @newSvgDataToSave = "getNewSvgData" :isShowInput="true" :svgId="1" :hzAaverage="hz_average" :svgMarks="canvasMarks" :svgHeight="'100%'" :ear="ear" :svgWidth="43" @showBigSvg ="isShowBigSvg" :svgParentId="'#add-svg'">
                   <!--功能按钮-->
                   <div class=" c-btn fl ">
                     <div style="text-align:center">
                       <ul class=" btn-group-vertical btn-group-lg " role="group">
-                        <li class="ibox-title-row">
+                        <!-- <li class="ibox-title-row">
                           <i :class="[{arrowsActive:showNew},'el-icon-caret-bottom','arrows']"></i>
                           <div  v-if="!showNew" @click="addImg"> 无背景图</div>
                           <div  v-if="showNew" @click="removeImg"> 言语香蕉图</div> 
-                        </li>
+                        </li> -->
                         <li>
                           <button type="button" class="" title="复制到另一侧耳朵" id="copy" v-on:click="copy"><i class="fa fa-exchange" style="font-size:20px;"></i></button>
                         </li>
@@ -320,18 +320,21 @@
         </ul>
         <el-radio-group v-model="active" fill="#60b45d" text-color="#fff" @change="toggle">
           <el-radio-button  id="qidao" label="0">
-            <i id="qidao-L" class="testicon testicon-AC-L font-color-blue" ></i>气导<i  id="qidao-R" class="testicon testicon-AC-R font-color-red" ></i>
+            <i id="qidao-L" class="testicon testicon-AC-L font-color-blue" ></i>气&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;导<i  id="qidao-R" class="testicon testicon-AC-R font-color-red" ></i>
           </el-radio-button>
           <el-radio-button id="gudao" label="1">
-            <i id="gudao-L" class="testicon testicon-BC-L font-color-blue"></i>骨导<i id="gudao-R" class="testicon testicon-BC-R font-color-red"></i>
+            <i id="gudao-L" class="testicon testicon-BC-L font-color-blue"></i>骨&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;导<i id="gudao-R" class="testicon testicon-BC-R font-color-red"></i>
           </el-radio-button>
           <el-radio-button  id="shushiyu" label="2">
-            <i id="shushiyu-L" class="testicon testicon-MCL font-color-blue"></i>舒适阈<i id="shushiyu-R" class="testicon testicon-MCL font-color-red"></i>
+            <i id="shushiyu-L" class="testicon testicon-MCL font-color-blue"></i>舒&nbsp;&nbsp;适&nbsp;&nbsp;阈<i id="shushiyu-R" class="testicon testicon-MCL font-color-red"></i>
           </el-radio-button>
           <el-radio-button  id="bushiyu" label="3">
             <i id="bushiyu-L" class="testicon testicon-UCL font-color-blue"></i>不舒适阈<i id="bushiyu-R" class="testicon testicon-UCL font-color-red"></i>
           </el-radio-button>
-          <el-radio-button  id="tingyu" label="5">
+          <el-radio-button v-if="ear == 'A'" id="tingyu" label="5">
+            <i id="tingyu-L" class="testicon testicon-FF-S font-color-blue"></i>助听听阈<i id="tingyu-R" class="testicon testicon-FF-S font-color-red"></i>
+          </el-radio-button>
+          <el-radio-button v-else id="tingyu" label="5">
             <i id="tingyu-L" class="testicon testicon-FF-L font-color-blue"></i>助听听阈<i id="tingyu-R" class="testicon testicon-FF-R font-color-red"></i>
           </el-radio-button>
         </el-radio-group>
@@ -494,6 +497,7 @@ export default{
     },
     _clearBigCanv(str){
       this.showBigSvg = false;
+      this.active = "5";
       this.$refs.addSvg._clearBigCanv();
     },
     toggle: function (evt) {
@@ -629,6 +633,7 @@ export default{
       this.eq_right = {'string':'','array':[]};
       this.updatetime = (new Date()).toLocaleDateString();
       this.$refs.addSvg._befroeClose();
+      this.showBigSvg = false;
     },
   }
 }

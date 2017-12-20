@@ -13,16 +13,13 @@ import util from './common/util.js'
 export default {
   name: 'app',
   // 注册组件
-  // components : {
-  //   'ele-header' : Header,
-  //   'ele-dang' : Dang
-  // },
   data() {
     return {
       
     }
   },
   created (){
+    console.log(1)
     // 连接websocket
     this.connect_websocket();
   },
@@ -33,12 +30,31 @@ export default {
     // 判断声音校准是否有值
     hasCal_data(str){
       try{
+        if(str.mesfrom === "sper"){
+          if(str.params.code){
+            Common.sperErr(str.params.code,this).then((e)=>{
+              Vm.$emit('closeVioce',true);
+            }).catch((err)=>{
+              Vm.$emit('closeVioce',true);
+            })
+          }
+        }
+        // if(str['mescon'] === 'err_sendmes'){
+        //   if(102){
+        //     Common.sperErr(102,this).then((e)=>{
+        //       Vm.$emit('closeVioce',true);
+        //     }).catch((err)=>{
+        //       Vm.$emit('closeVioce',true);
+        //     })
+        //   }
+        // }
         // 接收来自播放器的声音校准信息
         if(str.mesfrom === "sper" && str.mescon === "cal_end"){
           this.$store.commit('progress_fn',str.params);
         };
         if(str['mescon'] === 'ad_regist_suss' || str['mescon'] === 'cal_finish'){
           let obj = str['params']['cal_data'];
+          // this.$store.commit('calibrationData',maxDb);
           this.$store.commit('inint_calibrationData',obj);
         }
       }catch(err){
@@ -138,8 +154,8 @@ export default {
         websocket.onerror = function (evt) {
           //产生异常
           throw Error("websocket 连接出现异常！")
-          console.log(evt);
         };
+
       })();
     }
 
