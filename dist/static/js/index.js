@@ -28,7 +28,7 @@ let wsport = Request.wsport || '9002';
 let base = "",
     web_url="",
     port= window.location.port;
-if(port == 8080){
+if(port == 8080 || port == 8081){
     base = '/api';
     apihost = '172.16.1.65'
     apiport = '808'
@@ -36,7 +36,7 @@ if(port == 8080){
     base = 'http://'+apihost+':'+apiport+'/aamis/be/Public/index.php';
 };
 let  url = '';
-if(port == 8080){
+if(port == 8080 || port == 8081){
     url = '172.16.1.65'+':9002';
 }else if(wshost){
     url = wshost+':'+wsport;

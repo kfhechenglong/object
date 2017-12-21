@@ -9,7 +9,8 @@ function resolve (dir) {
 
 module.exports = {
   entry: {
-    app: './src/main.js'
+    app: './src/main.js',
+    app2: './src/main1.js'
   },
   output: {
     path: config.build.assetsRoot,
@@ -27,7 +28,6 @@ module.exports = {
       'components': resolve('src/components'),
       'base': resolve('src/base'),
       'api': resolve('src/api')
-      // 'jquery' : path.resolve(__dirname,'../node_modules/jquery/src/jquery.js')
     }
   },
   plugins :[
