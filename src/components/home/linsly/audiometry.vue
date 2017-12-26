@@ -55,18 +55,23 @@
 		</div>
 		<div class="button">
 			<ul class="z-c-t">
-				<el-button type="success" :disabled="!start || !isOnline" @click="toStart"><i class="iconfont icon-kaishi"></i>开始</el-button>
+				<el-button type="success" :disabled="!start || !prepare" @click="toStart"><i class="iconfont icon-kaishi"></i>开始</el-button>
 				<el-button type="warning" :disabled="start || pauseFalse" v-show="pause"  @click="isPause('pause')"><i class="iconfont icon-zanting"></i>暂停</el-button>
 				<el-button type="success" :disabled="start || pauseFalse" v-show="!pause"  @click="isPause('continue')"><i class="iconfont icon-jixu"></i>继续</el-button>
-				<el-button type="info" @click="_storage" :disabled="start"><i class="iconfont icon-bendizancun"></i>暂存</el-button>
-				<el-button type="danger" :disabled="start" @click="toSave"><i class="iconfont icon-baocun"></i>存档</el-button>
-				<el-button type="info" :disabled="!isPrinter"  @click="_print"><i class="iconfont icon-iconfontdayinji"></i>打印</el-button>
+				<el-button class="next-db" type="info" @click="_toggle_games"  :disabled=" start"><i class="iconfont icon-xiayige"></i>切换游戏</el-button>
+				<el-button type="info" @click="_storage" :disabled="start"><i class="iconfont icon-bendizancun"></i>暂存数据</el-button>
+				<el-button type="danger" :disabled="start" @click="toSave"><i class="iconfont icon-baocun"></i>保存结果</el-button>
+				<el-button type="info" :disabled="!isPrinter"  @click="_print"><i class="iconfont icon-iconfontdayinji"></i>打印结果</el-button>
 			</ul>
 		</div>
 		<div>
 			<StartTips :loadOver="dialogVisibleTips"></StartTips>
 		</div>
   	</div>
+	<!-- 切换游戏 -->
+	<div class="toggle-games">
+		<ToggleGame ref="togglegame" @parenttogglegame="parent_toggle_game" @toSave="gameToSave"></ToggleGame>
+	</div>
   	<Print ref="print" :distance="distance" :tableHeader="tableHeader" :info="printInfo" :resultData="resultData" :resultEstimateArry="resultEstimateArry"></Print>
   </div>
 </template>
@@ -80,6 +85,7 @@ import Print from '../commonvue/printliu.vue'
 import Star from '../commonvue/star/liustar.vue'
 import Top from '../commonvue/test-top.vue'
 import VoiceNum from '../commonvue/voiceNum.vue'
+import ToggleGame from '../commonvue/games-toggle.vue'
 export default {
 	components:{
 		Goback,
@@ -87,7 +93,8 @@ export default {
 		Print,
 		Star,
 		Top,
-		VoiceNum
+		VoiceNum,
+		ToggleGame
 	},
  	data(){
  		return {
@@ -129,7 +136,7 @@ export default {
  			// 统计错误和正确的次数
  			success:0,
  			error:0,
- 			isOnline:true,
+ 			prepare:false,
  			vpath:'',
  			distance:[],//测试的距离
  			distanceNum:0,//当前测试的距离
@@ -145,10 +152,10 @@ export default {
  	mounted(){
  		// 默认显示连接对话框
  		this.dialogVisibleTips = true;
- 		this.currentear = this.$route.query['isEar'];
+		let groupString = this.$route.query['data'];
 		let group = [];
  		if(this.$route.query['flag']){
-			let data =JSON.parse(this.$route.query['data']);
+			let data =JSON.parse(groupString);
 			this.group = data.group;
 			this.resultData = data.result;
 			this.sendGroup = data.sendGroup;//当前词组
@@ -158,7 +165,6 @@ export default {
 			this.distanceNum = data.distanceNum > 0 ? data.distanceNum -1 :data.distanceNum;//当前的距离
 			this.currentDistance = data.currentDistance;
 		 }else{
-			 let groupString = this.$route.query['data'];
 			 if (Object.prototype.toString.call(groupString) !== "[object Array]"){
  				groupString.split('');
  				groupString = [groupString]
@@ -171,6 +177,9 @@ export default {
 			this.distance = this.$route.query['distance'];
 			this.currentDistance = this.distance[0];
 		 }
+		this.level = this.$route.query['level'];
+		this.currentear = this.$route.query['isEar'];
+		this.gamesPath = this.$route.query.gamesPath;
  		this.currentgame = this.$route.query['crtgame'];
  		this.environment = this.$route.query['environment'];// 接收测试环境
 		var that = this;
@@ -242,8 +251,29 @@ export default {
  		next();
  	},
  	methods:{
-		 //  暂存
-		_storage(){
+		  // 切换游戏
+		_toggle_games(){
+			// 发送暂停指令
+			this.isPause('pause')//先暂停游戏
+			this.togglegame = true;
+			this.$refs.togglegame.isToggleGame = true;
+			// 显示切换游戏面板
+		},
+		// 接收切换游戏的参数
+		parent_toggle_game(e){
+			this.currentgame = e.crtgame;
+			this.level = e.level;
+			this.gamesPath = e.gamesPath;
+			// 修改url参数
+			this.$route.query.level = e.level;
+			this.$route.query.crtgame = e.crtgame;
+		},
+		// 切换游戏中的暂存
+		gameToSave(){
+			let data = this.set_storage_data();
+			Common.storage_content(this,data);
+		},
+		set_storage_data(){
 			let obj = {
 				'sendGroup':this.sendGroup,
 				'groupurl':this.groupurl,
@@ -255,11 +285,19 @@ export default {
 				'currentHzNum':this.currentHzNum,
 			};
 			const data = {
-				'level': this.$route.query['level'],
+				'level': this.level,
 				'crtgame':this.currentgame,
 				'isEar':this.currentear,
 				'data':JSON.stringify(obj),
+				'gamesPath':this.gamesPath
 			};
+			return data;
+		},
+		 //  暂存
+		_storage(){
+			this.isPause('pause')//先暂停游戏
+			
+			let data = this.set_storage_data();
 			Common.storageTips(this,data);
 		},
  		toggleVol(e){
@@ -267,7 +305,7 @@ export default {
  			const num = e - Math.ceil(+this.currentDistance - 0.5)*6;
  			const argument = this.wskt.wstoctld('games_audio_toggle',{'volume':num});
 			websocket.send(JSON.stringify(argument));
- 			console.log(e,num)
+ 			// console.log(e,num)
  		},
  		// 打印
  		_print(){
@@ -305,11 +343,10 @@ export default {
  			}
  			console.log(result)
  			// result[id]['itemAccuracy'] = '50%';
-			if(this.groupNum == 3){// 换组
-				hasTrueData = true;
-				this.toSendParams();
-			}
- 			// this.resultData = Object.assign(result);
+			// if(this.groupNum == 3){// 换组
+			// 	hasTrueData = true;
+			// 	this.toSendParams();
+			// }
  		},
  		// 发送数据
  		toSendParams(istrue){
@@ -336,8 +373,6 @@ export default {
 		        websocket.send(JSON.stringify(_this.wskt.wstoctld('games_audio_over','')));
 		        // 清除高亮提示色
 		        _this.clearClass(true);
-		        // 统计数据
-		        // _this._computedEstimate();
 		      return ;  
 	    	};
 			if(!istrue){
@@ -356,7 +391,7 @@ export default {
 			    	'volume':currentVolume,//测听音量
 			    	'group':this.sendGroup,//当前词组
 			    	'groupurl':this.groupurl,
-			    	'level':this.$route.query['level']
+			    	'level':this.level,
 			    }
 			console.log(params);
 			// this.clearClass(false);//调用样式函数
@@ -365,7 +400,7 @@ export default {
 			 this.distanceNum++;
 			 this.clearClass(false);//调用样式函数
  			// this.currentHzNum++;
- 			this.groupNum = 0;
+ 			// this.groupNum = 0;
  		},
  		// 控制表头的class类
  		clearClass(str){
@@ -528,7 +563,15 @@ export default {
  			console.log(result)
  		},
  		isPause(str,flag){
- 			Common.isPause(this,str,flag);
+			 Common.isPause(this,str,flag)
+			.then((res)=>{
+				if(this.togglegame && res === "continue"){
+					//切换游戏,点击继续按钮，从新发送参数
+					this.togglegame = false;
+					this.distanceNum = this.distanceNum > 0 ? this.distanceNum -1 :this.distanceNum;
+					this.toSendParams();
+				}
+			});
  		},
  		textareaChange(e){
  			this.textarea = e.textarea;
@@ -614,8 +657,8 @@ export default {
 @hover:#5c946c;
 	#liu-audiometry{
 		width: 1330px;
-		height: 600px;
-		margin:80px auto;
+		height: 670px;
+		margin:40px auto;
 		.audiometry-right{
 			width: 420px;
 			background-color: @bgc;
@@ -689,7 +732,7 @@ export default {
 		.audiometry-left{
 			width: 770px;
 			border:6px solid @bor;
-			height: 600px;
+			height: 100%;
 			background-color: #fff;
 			.liu-top{
 				font-size: 20px;	

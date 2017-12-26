@@ -292,7 +292,7 @@ export default {
             // 页面跳转接收传递的参数id
             let obj = {id:params};
             const fn = (params,url)=>{
-                Utils.gamesPath('audiometry','games_audio_plan','official',this.getMoment(params),url,this);
+                Utils.gamesPath('audiometry','games_url','official',this.getMoment(params),url,this,'stroage');
             };
             if(this.studylist === "moment"){//如果选择暂存人员，则添加暂存的测试信息
                 let queryobj = this.getMoment(params)

@@ -154,7 +154,8 @@ export default {
 				'data':this.groupSort,
 				'isEar':this.radioEar,
 				'crtgame':this.Active,
-				'level':this.level
+				'level':this.level,
+				'gamesPath' : this.gamesPath,
 			}
 		 },
 		
@@ -269,7 +270,8 @@ export default {
 	 	currentActive(str){
 	 		// console.log(str)
 	 		this.Active = str.active;
-	 		this.level = str.level;
+			 this.level = str.level;
+			 this.gamesPath = str.gamesPath;
 	 	}
  	}
 }
@@ -334,7 +336,7 @@ export default {
 					position: absolute;
 					left:0px;
 					top:0px;
-					/*width: 400px;*/
+					width: 100%;
 					span{
 						border-radius:5px 0 0 5px;
 						background-color: @bgc;

@@ -113,7 +113,8 @@ export default {
 	        stringData:'',
 	        testData:[],
 	        timer:null,
-	        plivate:'',
+			plivate:'',
+			hasData:false,
 	        showBtn:true,
 	        time:null,
 	        hidden:false,
@@ -150,30 +151,11 @@ export default {
 		})
 		this.queryFlag = this.$route.query.flag;
 		console.log(this.queryFlag);
- 	},
+	 },
  	computed:{
 	    codeInfo:function(){//生成二维码的信息
             return {'time':this.time,'type':null,'user_id':+JSON.parse(sessionStorage.getItem('user_id')),'file':'ceshi','id':null}
         },
- 		// 判断测试记录是否有数据
- 		hasData:function(){
- 			let test_Data = this.checkDataArray;
- 			let isTrue = false;
- 			try{
-	 			test_Data.forEach(ele =>{
-	 				const detail = ele.dataDetail;
-	 				for(let i in detail){
-	 					if(JSON.stringify(detail[i].data) !== "{}"){
-	 						isTrue = true;
-	 						break;
-	 					}
-	 				}
-	 			})
-	 		} catch(err){
-	 			throw err;
-	 		}
- 			return isTrue;
- 		},
  		...mapState(['canvasMarks','IP','hz'])
  	},
  	destroyed(){//组件销毁时，清空时间
@@ -253,7 +235,8 @@ export default {
  			},50)
  			// 生成时间戳
  			this.time = parseInt(new Date().getTime());
- 			this.$store.commit('getter_code_time',this.time);
+			this.$store.commit('getter_code_time',this.time);
+			this.hasTableData();
  		},
  		plivateData(str){
  			this.plivate = str.addData;
@@ -295,6 +278,25 @@ export default {
  			}else{
  				this.test = true;
  			}
+		 },
+		 // 判断测试记录是否有数据
+ 		hasTableData(){
+ 			let test_Data = this.checkDataArray;
+ 			let isTrue = false;
+ 			try{
+	 			test_Data.forEach(ele =>{
+	 				const detail = ele.dataDetail;
+	 				for(let i in detail){
+	 					if(JSON.stringify(detail[i].data) !== "{}"){
+	 						isTrue = true;
+	 						break;
+	 					}
+	 				}
+	 			})
+	 		} catch(err){
+	 			throw err;
+	 		}
+ 			this.hasData = isTrue;
  		},
  		// 计算表格的宽和高
  		getStyle(params,str){

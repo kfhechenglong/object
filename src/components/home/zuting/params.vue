@@ -46,7 +46,7 @@
 			</dl>
 
 			<ele-hz @checkedHz="get" ></ele-hz>
-		<gameType :ActiveContent = "currentGameType" v-on:active = "currentActive"></gameType>
+			<gameType :ActiveContent = "currentGameType" v-on:active = "currentActive"></gameType>
 		</div>
 		<div>
 			<buttongroup :paramData= "checkdata"></buttongroup>
@@ -75,7 +75,8 @@ export default {
  			leixing : 'zhuan',
  			radioEar:'A',
 			doubleEar:'',
-			level:0
+			level:0,
+			gamesPath:""
  		}
  	},
  	// props:{
@@ -111,7 +112,8 @@ export default {
 				'isEar':this.radioEar,
 				'crtgame':this.Active,
 				'crtsign':this.leixing,
-				'level':this.level
+				'level':this.level,
+				'gamesPath' : this.gamesPath,
 			}
  		},
  	},
@@ -120,13 +122,13 @@ export default {
 	 	currentActive(str){
 	 		// console.log(str)
 	 		this.Active = str.active;
-	 		this.level = str.level;
+			this.level = str.level;
+			this.gamesPath = str.gamesPath;
 	 	},
 	    lei(res){
 	    	this.leixing = res;
 	    },
 	    get(res,req){
-	    	console.log(res)
 	    	this.checkList = res;
 	    	// this.db = req
 	    }

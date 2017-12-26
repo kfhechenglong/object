@@ -75,6 +75,8 @@
 
 .icon-class:before { content: "\e642"; }
 
+.icon-laba:before { content: "\e6a0"; }
+
 .icon-weibiaoti-_fuzhi:before { content: "\e638"; }
 
 .icon-shezhi2:before { content: "\e618"; }
@@ -96,6 +98,8 @@
 .icon-xuanzhuan:before { content: "\e60a"; }
 
 .icon-xiayige:before { content: "\e61f"; }
+
+.icon-laba1:before { content: "\e60e"; }
 
 .icon-unselected:before { content: "\e617"; }
 

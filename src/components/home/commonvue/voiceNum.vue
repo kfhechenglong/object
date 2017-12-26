@@ -5,9 +5,9 @@
 		<div class="fl">
 			<el-input-number class="num" v-model="value" :step="1" @change="handleChangeVoiceNum" :min="1" :max="6"></el-input-number>
 		</div>
-		<div class="fz20 m-l-20" v-if="show && gamesTimesObj.step">
-			<span class="d-block height-30">有效次数：{{gamesTimesObj.times}}次</span>
-			<span class="d-block height-30">平均反应时间：{{gamesTimesObj.time}}s</span>
+		<div class="fz16 m-l-20" v-if="show && gamesTimesObj.step">
+			<span class="d-block height-30">有效次数：3{{gamesTimesObj.times}}次</span>
+			<span class="d-block height-30">平均反应时间：0.32{{gamesTimesObj.time}}s</span>
 		</div>
 	</div>
 </template>

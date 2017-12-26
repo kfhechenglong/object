@@ -232,8 +232,12 @@ export default {
                 // 记录反应时长
                 th.feedbackTime = +obj['feedbackTime'].toFixed(2);
                 th.successResponseTime += th.feedbackTime;
-                if(falg){
-                    th.gamesvalue = th.value > th.feedbackTime ? th.feedbackTime : th.value;
+                if(falg){//助听听阈下判断游戏是否为砸金蛋，若是，则播放时长就是系统值
+                    if (th.currentgame != "zteggFrenzy"){
+                        th.gamesvalue = th.value > th.feedbackTime ? th.feedbackTime : th.value;
+                    }else{
+                        th.gamesvalue = th.value;
+                    }
                 }
                 th.$refs.gamestime.isShowConfirm = true;
                 // if(th.successTimesNum === 3){//如果连续对三次则结束训练
@@ -312,37 +316,38 @@ export default {
      * @param  {[type]} game   [当前的游戏类型]
      * @return {[Promse]}        [description]
      */
-    gamesPath(url,mescon,str,data,game,that){
+    gamesPath(url,mescon,str,data,game,that,istoggle){
         // 判断是否选择词组
-        if(data.data.length == 0){
-            function tips(){
-                msgTipsErr(that,'请选择测试数据！');
-            };
-            // 避免频繁点击触发
-            util.throttle(tips,500,1000)();
+        if (!istoggle && data.data.length == 0){
+            msgTipsErr(that,'请选择测试数据！');
             return;
         }
+        let path = data.gamesPath;
+        path = str === "drill" ? path + "_train/" + "?wshost=" + wshost + "&wsport=" + wsport : path + "/" + "?wshost=" + wshost + "&wsport=" + wsport;
         // 页面跳转的时候向被控端发送指令，通知准备游戏训练
         if(game ==="zhuting"){
             var params = {
                 'testType':'zhuting',//测听类型
                 'gameType':str,
                 'time':5,
-                'url':data.crtgame//跳转页面
+                'url':path//跳转页面
             };
         }else{
             var params = {
                 'testType':'yinsu',//测听类型
                 'gameType':str,
-                'url':data.crtgame//跳转页面
+                'url':path//跳转页面
             }
         }
         console.log(params);
          // 路由跳转，并通过路由传参数
         window.isToggle = false;
-        var a = '/home/'+game+'/'+url;
-        that.$router.push({ path:a,query:data});
+        if (!istoggle || istoggle !="toggle"){
+            var a = '/home/'+game+'/'+url;
+            that.$router.push({ path:a,query:data});
+        }
         let argument = that.wskt.wstoctld(mescon,params);
+        console.log(argument);
         websocket.send(JSON.stringify(argument));
         return Promise.resolve()
     },
@@ -731,6 +736,7 @@ export default {
             let temp1 = arr[0],
                 temp2 = temp1[Object.keys(temp1)[0]];
             if(Math.abs(temp2.index - index) <= 2){
+                console.log(temp2.resultdb)
                 return temp2.resultdb
             }
         }

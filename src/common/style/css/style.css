@@ -117,6 +117,7 @@ var {
 .m-10{margin:10px}
 .m-20{margin:20px}
 .m-l-20{margin-left:20px;}
+.m-t-20{margin-top:20px;}
 .height-50{
   height:50px;
   line-height: 50px;
@@ -124,6 +125,21 @@ var {
 .height-30{
   height:30px;
   line-height: 30px;
+}
+.post-fixed{
+  position: fixed;
+  left:0;
+  top:0;
+  right:0;
+  bottom:0;
+  background: rgba(0,0,0,0.3);
+  z-index:3000;
+}
+.post-abs{
+  position: absolute;
+  left:50%;
+  top:50%;
+  transform: translate(-50%,-50%);
 }
 .height-90{height:90px !important;}
 .height-40{height:40px;line-height: 40px;}
@@ -136,6 +152,7 @@ var {
 .w100{width:100px;}
 .b-radius5{border-radius:5px;}
 .b-show10{box-shadow: 0px 0px 10px #000;}
+.b-show20{box-shadow: 0px 0px 20px #000;}
 /***********档案列表基本样式************/
 .base,
 .caseFiles,
@@ -224,8 +241,33 @@ var {
 }
 /*********游戏正式测听的按钮组************/
 .button .z-c-t button {
-  letter-spacing: 1em;
+  letter-spacing: 0.3em;
 }
 .button .z-c-t button i {
   font-size: 26px !important;
+}
+/* 选择游戏下面的按钮 */
+.button.button-warning {
+  background: #faa732;
+  color: #fafafa;
+}
+.button.button-warning:hover,
+.button.button-warning:focus {
+  background: #f9960a;
+  color: #fafafa;
+}
+.button.button-success {
+  background: #5bb75b;
+  color: #fafafa;
+}
+.button.button-success:hover,
+.button.button-success:focus {
+  background: #47a247;
+  color: #fafafa;
+}
+.button-large.button-success,
+.button.button-warning {
+  -webkit-box-shadow: inset 0 -4px 0 0 rgba(0, 0, 0, 0.2);
+  -moz-box-shadow: inset 0 -4px 0 0 rgba(0, 0, 0, 0.2);
+  box-shadow: inset 0 -4px 0 0 rgba(0, 0, 0, 0.2);
 }

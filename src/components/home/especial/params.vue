@@ -130,7 +130,8 @@ export default {
 				'data':{'radio1':this.radio1,'radio2':this.radio2},
 				'isEar':this.radioEar,
 				'crtgame':this.Active,
-				'level':this.level
+				'level':this.level,
+				'gamesPath':this.gamesPath
 			}
  		},
  		gobackFalg:function(){
@@ -158,7 +159,8 @@ export default {
 	 	currentActive(str){
 	 		console.log(str)
 	 		this.Active = str.active;
-	 		this.level = str.level;
+			 this.level = str.level;
+			 this.gamesPath = str.gamesPath;
 	 	},
 	 	// 返回上一页
 	 	gobcak(){

@@ -129,7 +129,8 @@ export default {
 				'crtgame':this.Active,
 				'distance':this.sort,
 				'environment':this.environment,
-				'level':this.level
+				'level':this.level,
+				'gamesPath' : this.gamesPath,
 			}
  		},
  		// 对距离进行排序,有近到远
@@ -161,7 +162,8 @@ export default {
 	 	currentActive(str){
 	 		console.log(str)
 	 		this.Active = str.active;
-	 		this.level = str.level;
+			 this.level = str.level;
+			 this.gamesPath = str.gamesPath;
 	 	}
  	}
 }

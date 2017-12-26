@@ -213,11 +213,13 @@ export default {
  			Utils._trainOverTips(this);
  		},
  		goNext(){
- 			window.isToggle = false;
-			let param = {'voideType':this.voideType,'isEar':this.currentear,'crtgame':this.currentgame,'data': this.group,'level':this.$route.query['level']};
-			console.log(param);
- 			websocket.send(JSON.stringify(this.wskt.goaudioplan('yinsu','official',this.currentgame)));
-	    	this.$router.push({ path: '/home/especial/audiometry',query:param}  )
+			 const path = window.location.hash.split('/')[2];
+			 Utils.gamesPath('audiometry','games_url','official',this.$route.query,path,this)
+ 			// window.isToggle = false;
+			// let param = {'voideType':this.voideType,'isEar':this.currentear,'crtgame':this.currentgame,'data': this.group,'level':this.$route.query['level']};
+			// console.log(param);
+ 			// websocket.send(JSON.stringify(this.wskt.goaudioplan('yinsu','official',this.currentgame)));
+	    	// this.$router.push({ path: '/home/especial/audiometry',query:param}  )
  		}
  	}
 }

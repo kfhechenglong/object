@@ -54,7 +54,7 @@
 		</div>
 		<div class="button">
 			<ul class="z-c-t">
-				<el-button type="success" :disabled="!start || !isOnline" @click="toStart"><i class="iconfont icon-kaishi"></i>开始</el-button>
+				<el-button type="success" :disabled="!start || !prepare" @click="toStart"><i class="iconfont icon-kaishi"></i>开始</el-button>
 				<el-button type="warning" :disabled="start || pauseFalse" v-show="pause"  @click="isPause('pause')"><i class="iconfont icon-zanting"></i>暂停</el-button>
 				<el-button type="success" :disabled="start || pauseFalse" v-show="!pause"  @click="isPause('continue')"><i class="iconfont icon-jixu"></i>继续</el-button>
 				<el-button type="danger" :disabled="!isSave" @click="toSave"><i class="iconfont icon-baocun"></i>存档</el-button>
@@ -122,7 +122,7 @@ export default {
  			// 统计错误和正确的次数
  			success:0,
  			error:0,
- 			isOnline:true,
+ 			prepare:false,
  			vpath:'',
  			voideType:'',
  			objChinese:'',

@@ -38,7 +38,6 @@ export default{
 	},
 
 	created(){
-		this.params = this.$route.query;
 	},
 	methods:{
 		goBack(){
@@ -58,7 +57,9 @@ export default{
  				this.$router.push({path:"/home"});
  			}else{
 				let url = sessionStorage.getItem('path_url');
- 				this.$router.push({path:url,query:this.params});
+				const params = this.$route.query;
+				console.log(params);
+ 				this.$router.push({path:url,query:params});
  			}
  			// 返回游戏主页
             var argument = this.wskt.gohome();

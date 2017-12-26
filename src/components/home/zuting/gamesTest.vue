@@ -19,12 +19,16 @@
 				<div class="fl voice-num">
 					<p class="fl">给声时长</p>
 					<el-input-number class="num" v-model="value" :step="1" @change="change" :min="1" :max="5"></el-input-number>
-					<div class="fz20 m-l-20" v-if="step && gamesTimesObj.step">
+					<div class="fz16 m-l-20" v-if="step && gamesTimesObj.step">
 						<span class="d-block height-30">有效次数：{{gamesTimesObj.times}}次</span>
 						<span class="d-block height-30">平均反应时间：{{gamesTimesObj.time}}s</span>
 					</div>
 				</div>
-				<div style="margin-left:338px;margin-top:30px;">
+				<!-- 改变默认有效时长 -->
+				<div class="temp-btn">
+					<DefaultTime @changedefault ="change_default"></DefaultTime>
+				</div>
+				<div style="margin-left:378px;margin-top:30px;">
 					<voiceNum v-on:volume="toggleVol"></voiceNum>
 				</div>
 			</div>
@@ -57,6 +61,7 @@
 import Goback from '../commonvue/backup'
 import StartTips from '../commonvue/startprepare'
 import GamesTime from '../commonvue/games-time.vue'
+import DefaultTime from '../commonvue/games-default-time.vue'
 import VoiceNum from '../commonvue/voiceNum.vue'
 import {mapState} from 'vuex'
 export default {
@@ -64,7 +69,8 @@ export default {
 		Goback,
 		VoiceNum,
 		StartTips,
-		GamesTime
+		GamesTime,
+		DefaultTime
 	},
  	data(){
  		return {
@@ -91,12 +97,12 @@ export default {
  			successResponseTime:0,
  			value: 5,
  			feedbackTime:5,
- 			gamesvalue:5
+			gamesvalue:5,
+			defaultvoice:0
  		}
  	},
- 	// props:{
- 	// 	socket:null,
- 	// },
+ 	created(){
+	},
  	mounted(){
  		// 默认显示连接对话框
  		this.loadOver = true;
@@ -119,7 +125,7 @@ export default {
  			if(!that.closeLay){
 	 			Utils.ctld_tran_isOnline(that,res,str);
 	 		}
- 		});
+		 });
  	},
  	watch:{
 		wsData:function(){
@@ -152,6 +158,10 @@ export default {
  		next();
  	},
  	methods:{
+		//  改变默认有效时长
+		change_default(e){
+			this.defaultvoice = e;
+		},
  		// 切换给声时长
  		change(evt){
  			// 页面初始化后不主动发送数据
@@ -178,7 +188,7 @@ export default {
 		    	'time':this.value,//默认给声时长
 		    	'hz': '1000',//当前赫兹
 		    	'level':this.$route.query['level'],
-		    	'validTime':'3',//有效时长
+		    	'validTime':this.defaultvoice,//有效时长
 		    	'volume':this.currentVolume//当前强度this.currentDb
 			};
 			console.log(params)
@@ -207,21 +217,41 @@ export default {
  			Utils._trainOverTips(this);
  		},
  		goNext(){
- 			window.isToggle = false;
- 			var param = this.hz;
- 			var ear = this.current;
- 			var games = this.currentgame;
- 			var sign = this.currentsign;
- 			websocket.send(JSON.stringify(this.wskt.goaudioplan('zhuting','official',games)));
- 			// Utils._setVolumNum(this,{'decibel':this.averageTime,'test_id':sessionStorage.getItem('test_id')});
-	    	this.$router.push({ path: '/home/zhuting/audiometry',query:{data:param,crtdb:this.db,isEar:ear,crtgame:games,crtsign:sign,'level':this.$route.query['level']}})
+			Utils.gamesPath('audiometry','games_url','official',this.$route.query,'zhuting',this)
+			return false
+ 			// window.isToggle = false;
+ 			// var param = this.hz;
+ 			// var ear = this.current;
+ 			// var games = this.currentgame;
+			//  var sign = this.currentsign;
+			//  console.log(this.$route.query)
+ 			// websocket.send(JSON.stringify(this.wskt.goaudioplan('zhuting','official',games)));
+	    	// this.$router.push({ path: '/home/zhuting/audiometry',query:{data:param,crtdb:this.db,isEar:ear,crtgame:games,crtsign:sign,'level':this.$route.query['level']}})
  		}
  	}
 }
 </script>
+<style lang ="less">
+.temp-btn{
+	.el-radio-button__inner{
+		padding: 20px 21px;
+    	font-size: 20px;
+	}
+}
+</style>
+
 <style lang ="less" scoped>
 .train{position: relative;}
 .train .train-main .train-main-middle{
 	margin-top:20px;
+}
+.train-main-top{
+	position: relative;
+}
+.temp-btn{
+	position: absolute;
+	left: -30px;
+	top:90px;
+	p{padding:0 5px;}
 }
 </style>

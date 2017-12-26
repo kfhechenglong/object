@@ -186,8 +186,16 @@ export default {
     },
     toSetFeedTime(th,msg,game,time = 0){
         if(msg === 'message_success'){
-            const gettime = th.wsData.params.feedbackTime;
-            let playTimer = gettime && gettime < time ? gettime : time;
+            const type_id = sessionStorage.getItem('test_id');
+            const gettime = +th.wsData.params.feedbackTime.toFixed(2);
+            let playTimer = time;
+            if (type_id == 6 && game != "zteggFrenzy"){
+                /*
+                *助听听阈下判断游戏是否为砸金蛋，
+                *若不是，则播放时长就是反应时长的较小值；
+                */
+                playTimer = gettime && gettime < time ? gettime : time;
+            }
             let data = {
                 'feedbackTime': gettime,
                 'playTimer': playTimer,
@@ -209,6 +217,7 @@ export default {
         };
         if(testparams && testparams.prepare){// 被控端页面准备好后，可进行操作
             th.dialogVisibleTips = false;
+            th.prepare = true;
         };
         this.toSetFeedTime(th, data.mescon,th.currentgame)
     },
@@ -252,31 +261,36 @@ export default {
         th.$confirm('是否暂存数据并退回到主页？', '提示', {
             //type: 'warning'
         }).then(() => {
-            //查询当前位置是否测试完成，若未完成则, 记住当前测试的位置
-            return new Promise((resolve, reject) => {
+            this.storage_content(th, obj, callback);
+        })
+    },
+    storage_content(th, obj, callback){
+        return new Promise((resolve, reject) => {
                 callback ? callback() : "";
                 resolve()
             })
-        }).then(() => {
-            // 保存数据
-            const typeObject = Options.testType,
-                sendObj = {
-                    ...obj,
-                    'user_id': JSON.parse(sessionStorage.getItem('user_id')),
-                    'time': parseInt(new Date().getTime())
-                };
-            console.log(sendObj);
-            return Utils.setLocalStorage("memoryStorageTestData", typeObject, { "key": JSON.parse(sessionStorage.getItem('test_id')) }, sendObj)
-        }).then(() => {
-            th.$router.push({ path: '/home' });
-            window.isToggle = false;
-            // 返回游戏主页
-            var argument = th.wskt.gohome();
-            websocket.send(JSON.stringify(argument));
-        }).catch((e) => {
-            if (e === 'err') {
-                msgTipsErr(th, '保存失败！')
-            }
-        });
+            .then(() => {
+                // 保存数据
+                const typeObject = Options.testType,
+                    sendObj = {
+                        ...obj,
+                        'user_id': JSON.parse(sessionStorage.getItem('user_id')),
+                        'time': parseInt(new Date().getTime())
+                    };
+                console.log(sendObj);
+                return Utils.setLocalStorage("memoryStorageTestData", typeObject, { "key": JSON.parse(sessionStorage.getItem('test_id')) }, sendObj)
+            })
+            .then(() => {
+                th.$router.push({ path: '/home' });
+                window.isToggle = false;
+                // 返回游戏主页
+                var argument = th.wskt.gohome();
+                websocket.send(JSON.stringify(argument));
+            })
+            .catch((e) => {
+                if (e === 'err') {
+                    msgTipsErr(th, '保存失败！')
+                }
+            });
     }
 };

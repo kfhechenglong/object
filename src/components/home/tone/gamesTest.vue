@@ -225,12 +225,12 @@ export default {
  			Utils._trainOverTips(this);
  		},
  		goNext(){
- 			// let nub = this.volumeNum - this.currentVolume;
- 			// Utils._setVolumNum(this,{'decibel':nub,'test_id':sessionStorage.getItem('test_id')});
- 			window.isToggle = false;
-			let param = {'isEar':this.currentear,'crtgame':this.currentgame,'data': this.groupString,'level':this.$route.query['level']};
- 			websocket.send(JSON.stringify(this.wskt.goaudioplan('yinsu','official',this.currentgame)));
-	    	this.$router.push({ path: '/home/tone/audiometry',query:param}  )
+			const path = window.location.hash.split('/')[2];
+ 			Utils.gamesPath('audiometry','games_url','official',this.$route.query,path,this)
+ 			// window.isToggle = false;
+			// let param = {'isEar':this.currentear,'crtgame':this.currentgame,'data': this.groupString,'level':this.$route.query['level']};
+ 			// websocket.send(JSON.stringify(this.wskt.goaudioplan('yinsu','official',this.currentgame)));
+	    	// this.$router.push({ path: '/home/tone/audiometry',query:param}  )
  		}
  	}
 }

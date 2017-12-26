@@ -57,18 +57,23 @@
 		</div>
 		<div class="button">
 			<ul class="z-c-t">
-				<el-button type="success" :disabled="!start || !isOnline" @click="toStart"><i class="iconfont icon-kaishi"></i>开始</el-button>
+				<el-button type="success" :disabled="!start || !prepare" @click="toStart"><i class="iconfont icon-kaishi"></i>开始</el-button>
 				<el-button type="warning" :disabled="start || pauseFalse" v-show="pause"  @click="isPause('pause')"><i class="iconfont icon-zanting"></i>暂停</el-button>
 				<el-button type="success" :disabled="start || pauseFalse" v-show="!pause"  @click="isPause('continue')"><i class="iconfont icon-jixu"></i>继续</el-button>
-				<el-button type="info" @click="_storage" :disabled="start"><i class="iconfont icon-bendizancun"></i>暂存</el-button>
-				<el-button type="danger" :disabled="start" @click="toSave"><i class="iconfont icon-baocun"></i>存档</el-button>
-				<el-button type="info" :disabled="!isPrinter" @click="_print"><i class="iconfont icon-iconfontdayinji"></i>打印</el-button>
+				<el-button class="next-db" type="info" @click="_toggle_games"  :disabled=" start"><i class="iconfont icon-xiayige"></i>切换游戏</el-button>
+				<el-button type="info" @click="_storage" :disabled="start"><i class="iconfont icon-bendizancun"></i>暂存数据</el-button>
+				<el-button type="danger" :disabled="start" @click="toSave"><i class="iconfont icon-baocun"></i>保存结果</el-button>
+				<el-button type="info" :disabled="!isPrinter" @click="_print"><i class="iconfont icon-iconfontdayinji"></i>打印结果</el-button>
 			</ul>
 		</div>
 		<div>
 			<StartTips :loadOver="dialogVisibleTips"></StartTips>
 		</div>
   	</div>
+	  <!-- 切换游戏 -->
+	<div class="toggle-games">
+		<ToggleGame ref="togglegame" @parenttogglegame="parent_toggle_game" @toSave="gameToSave"></ToggleGame>
+	</div>
   	<Print ref="print" :starValue="starValue" :info="printInfo" :jieguo="statisticsAccuracy" :rederData="resultData"></Print>
   </div>
 </template>
@@ -85,6 +90,7 @@ import {mapState} from 'vuex'
 import toneStar from '../commonvue/star/tonestar.vue'
 import Top from '../commonvue/test-top.vue'
 import VoiceNum from '../commonvue/voiceNum.vue'
+import ToggleGame from '../commonvue/games-toggle.vue'
 export default {
 	components:{
 		Goback,
@@ -92,7 +98,8 @@ export default {
 		Print,
 		toneStar,
 		Top,
-		VoiceNum
+		VoiceNum,
+		ToggleGame
 	},
  	data(){
  		return {
@@ -136,7 +143,7 @@ export default {
  			// 统计错误和正确的次数
  			success:0,
  			error:0,
- 			isOnline:true,
+ 			prepare:false,
  			vpath:'',
  			currentear:'',
  			statisticsAccuracy:{},//统计正确率
@@ -149,10 +156,9 @@ export default {
  		this.dialogVisibleTips = true;
 		let currentTable = 0;
 		let group = [];
+		let groupString = this.$route.query['data'];
 		 if(this.$route.query['flag']){
-			let data =JSON.parse(this.$route.query['data']);
-			this.currentear = this.$route.query.isEar;
-			 this.currentgame = this.$route.query.crtgame;
+			let data =JSON.parse(groupString);
 			 group = data.group;
 			 currentTable = data.table;
 			this.error = data.error;
@@ -163,7 +169,6 @@ export default {
 			this.groupurl = data.groupurl;
 			this.statisticsAccuracy = data.statisticsAccuracy ? data.statisticsAccuracy : {};//比较分析
 		 }else{
-			let groupString = this.$route.query['data'];
 			if (Object.prototype.toString.call(groupString) !== "[object Array]"){
 				groupString.split('');
 				groupString = [groupString]
@@ -171,9 +176,11 @@ export default {
 			groupString.forEach((item) =>{
 				group.push(JSON.parse(item))
 			});
-			this.currentear = this.$route.query['isEar'];
- 			this.currentgame = this.$route.query['crtgame'];
 		}
+		this.level = this.$route.query.level;
+		this.gamesPath = this.$route.query.gamesPath;
+		this.currentear = this.$route.query.isEar;
+		this.currentgame = this.$route.query.crtgame;
  		this.group = group;
  		// console.log(this.group)
 		let that = this;
@@ -246,8 +253,30 @@ export default {
  		next();
  	},
  	methods:{
-		//  暂存
-		_storage(){
+		 // 切换游戏
+		_toggle_games(){
+			// 发送暂停指令
+			this.isPause('pause')//先暂停游戏
+			this.togglegame = true;
+			this.$refs.togglegame.isToggleGame = true;
+			// 显示切换游戏面板
+		},
+		// 接收切换游戏的参数
+		parent_toggle_game(e){
+			this.currentgame = e.crtgame;
+			this.level = e.level;
+			this.gamesPath = e.gamesPath;
+			// 修改url参数
+			this.$route.query.level = e.level;
+			this.$route.query.crtgame = e.crtgame;
+		},
+		// 切换游戏中的暂存
+		gameToSave(){
+			let data = this.set_storage_data();
+			Common.storage_content(this,data);
+		},
+		// 需要暂存的数据
+		set_storage_data(){
 			let obj = {
 				'error':this.error,
 				'success':this.success,
@@ -260,11 +289,18 @@ export default {
 				'statisticsAccuracy':this.statisticsAccuracy
 			};
 			const data = {
-				'level': this.$route.query['level'],
+				'level': this.level,
 				'crtgame':this.currentgame,
 				'isEar':this.currentear,
 				'data':JSON.stringify(obj),
+				'gamesPath':this.gamesPath
 			};
+			return data;
+		},
+		//  暂存
+		_storage(){
+			this.isPause('pause')//先暂停游戏
+			let data = this.set_storage_data();
 			Common.storageTips(this,data);
 		},
  		// 打印
@@ -472,7 +508,7 @@ export default {
 			    	'volume':currentVolume,//测听音量
 			    	'group':this.sendGroup,//当前词组
 			    	'groupurl':this.groupurl,
-			    	'level': this.$route.query['level']
+			    	'level': this.level,
 			    };
 			console.log(params);
 			this.clearClass(false);//调用样式函数
@@ -488,9 +524,11 @@ export default {
  		isPause(str,flag){
 			 Common.isPause(this,str,flag)
 			 .then((res)=>{
-				// if(res === 'continue'){
-				// 	this.firstGetAdvise = false;
-				// }
+				if(this.togglegame && res === "continue"){
+					//切换游戏,点击继续按钮，从新发送参数
+					this.togglegame = false;
+					this.toSendParams();
+				}
 			 });
  		},
  		textareaChange(e){
@@ -575,8 +613,8 @@ export default {
 @hover:#5c946c;
 	#tone-audiometry{
 		width: 1330px;
-		height: 600px;
-		margin:80px auto;
+		height: 670px;
+		margin:40px auto;
 		.audiometry-right{
 			width: 420px;
 			background-color: @bgc;
@@ -626,7 +664,7 @@ export default {
 		.audiometry-left{
 			width: 770px;
 			border:6px solid @bor;
-			height: 600px;
+			height: 100%;
 			background-color: #fff;
 			.tone-top{
 				font-size: 20px;
@@ -649,7 +687,6 @@ export default {
 				.gray{
 					background-color: #eee;
 				}
-
 				/*背景色高亮*/
 				.highlight{
 					background-color: orange;

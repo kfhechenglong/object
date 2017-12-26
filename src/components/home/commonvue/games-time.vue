@@ -18,7 +18,10 @@ export default{
 		}
 	},
 	props:{
-		value:null,
+		value:{
+ 			type:Number,
+ 			default:0
+ 		},
  		feedbackTime:null,
  		games:String,
  		show:{
@@ -50,13 +53,6 @@ export default{
  			let averageTime = this.alltime/this.times;
 			let time = isNaN(averageTime) ? 0 : averageTime.toFixed(2);
 			this.$store.commit('gamesTimes',{time:time,times:this.times,step:true});
- 			// this.$ajax.post('/game/log',data).then((res)=>{
- 			// 	if(res.code !== 200){
- 			// 		msgTipsErr(this,"保存失败！")
- 			// 	}else{
- 			// 		this.isShowConfirm = false;
- 			// 	}
- 			// });
  			Utils.setFeedTime(this,'/game/log',data).then((res)=>{
  				this.isShowConfirm = false;
  			})

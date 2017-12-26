@@ -43,7 +43,7 @@
 	    left: 315px;
 	}
 	#audiometry .audiometry-left .audiometry-left-top div:nth-child(4),#audiometry .audiometry-left .audiometry-left-top div:nth-child(2){bottom:43px;}
-	// #audiometry .audiometry-right{margin-top:170px;}
+	/* // #audiometry .audiometry-right{margin-top:170px;} */
 	/*******参数按钮*******/ 
 	.el-radio-button__inner,.el-checkbox-button--large .el-checkbox-button__inner,
 	.el-radio-button--large .el-radio-button__inner,.hz dd .active,.el-button{
@@ -208,17 +208,17 @@
 	.g-btn div button{width:220px;height:60px;font-size: 28px;line-height: 50px;}
 	#liu-audiometry,#tone-audiometry,#especial-audiometry{
 		margin:0;
-		margin-top: 35px;
+		margin-top: 20px;
 		margin-right: auto;
 		margin-left: auto;
 		width:1280px;
-		height:550px;
+		height:600px;
 	}
 	#audiometry{
 		width:1280px;
-		// height:550px;
+		/* // height:550px; */
 	}
-	#tone-audiometry .audiometry-left,#liu-audiometry .audiometry-left,#especial-audiometry .audiometry-left{height:550px;}
+	#tone-audiometry .audiometry-left,#liu-audiometry .audiometry-left,#especial-audiometry .audiometry-left{height:600px;}
 	#audiometry .audiometry-left .audiometry-left-top{height:150px;}
 	#audiometry .audiometry-left .audiometry-left-top div:nth-child(3){
 		width: 130px;
@@ -226,6 +226,7 @@
 	    background-size: 130px 150px;
 	    left: 314px;
 	}
+	#audiometry .audiometry-right .audiometry-main .temp-btn p{font-size: 18px; line-height: 50px;}
 	#audiometry .audiometry-left .audiometry-table #table #warp{height:380px;}
 	#audiometry .audiometry-left .audiometry-table .table-HZ{height:90px;}
 	#audiometry .audiometry-left .audiometry-table .table-HZ ul > li strong{font-size: 40px;}
@@ -236,7 +237,8 @@
 		/* // margin-top: 150px; */
     	height: 640px;
     	border: 4px solid #5e9b71;
-    }
+	}
+	.toggle-warp1{width: 800px !important;height: 260px !important;}
     #tone-audiometry .audiometry-right .button,#especial-audiometry .audiometry-right .button{margin: 35px 0 0 88px;}
     #audiometry .audiometry-left .audiometry-left-top div:nth-child(2){bottom: 45px;left: 135px;}
     #audiometry .audiometry-left .audiometry-left-top div:nth-child(4){bottom: 45px;right: 115px;}
@@ -265,8 +267,10 @@
 	.base .address select{
 		width: 85px;
 	}
+	#audiometry .audiometry-right .button button,
+	#tone-audiometry .audiometry-right .button button,
 	#liu-audiometry .audiometry-right .button button{
-		height: 50px;
+		width: 250px;height: 50px;
 	}
 	/*****
 	.more-high section form .zhuang,
@@ -314,6 +318,9 @@
 	}
 	.tone-params .params-main dl{margin:15px;}
 	.g-btn{margin-top:50px;}
+	.toggle-warp1{
+		height: 350px !important;
+	}
 	.more-high section .table .table-content .el-table{
 		height:450px !important;
 	}

@@ -1,8 +1,8 @@
 <template>
   <div class="gameType">
     <dl class="games clearfix">
-        <dt>
-          选择游戏:
+        <dt class="fl fz18">
+          选择游戏：
         </dt>
         <dd v-for="(item,index) in currentgame">
           <div v-bind:class="[item['typegame'] == Active?'activeImg':'','img']" @click="addActive(item,index)">
@@ -12,24 +12,13 @@
             </p>
           </div>
           <span style="display:block;">{{item['name']}}</span>
-          <!-- <div class="select-w" v-if="currentgame[index]['level'] && item['typegame'] == Active">
-            <el-select v-model="currentgame[index]['min']" @change="change($event,index)">
-              <el-option
-                v-for="(key,val) in item['level']"
-                :key="val"
-                :label="val"
-                :value="val"
-                >
-              </el-option>
-            </el-select>
-          </div> -->
         </dd>
     </dl>
     <dl class="clearfix" v-if="data_arr.length > 0">
-        <dt>
+        <dt class="fl fz18">
           游戏等级：
         </dt>
-        <dd>
+        <dd class=" level">
           <el-radio-group v-model="level" @change="change">
             <el-radio-button v-for="(item,index) in data_arr" :disabled=" level == item[1]" size="large" :label="item[1] " :key="item[1]">{{item[0]}}</el-radio-button>
           </el-radio-group>
@@ -51,7 +40,8 @@ export default{
       value: {},
       errorImg:'this.src="' + Options.nodata + '"' ,
       level:"",
-      data_arr:[]
+      data_arr:[],
+      path:""
     }
 	},
 	created (){
@@ -94,7 +84,7 @@ export default{
   },
   methods : {
     change(){
-      this.$emit('active',{'active':this.Active,'level':this.level});
+      this.$emit('active',{'active':this.Active,'level':this.level,'gamesPath':this.path});
     },
     addActive (item,index,flag){
       let level = item.level,
@@ -119,15 +109,18 @@ export default{
       }else{
         this.level = "";
       }
+      console.log(item)
       this.currentChecked = index;
       this.Active = item['typegame'];
+      this.path = item.path;
       // 发送给父组件
-      this.$emit('active',{'active':this.Active,'level':this.level});
+      this.$emit('active',{'active':this.Active,'level':this.level,'gamesPath':this.path});
     },
   }
 }
 </script>
 <style lang ="less">
+.toggle-warp .level{margin-left:135px;}
 .gameType{
   dl{
     .el-radio-button__orig-radio:checked+.el-radio-button__inner{
